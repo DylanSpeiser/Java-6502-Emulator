@@ -23,3 +23,5 @@ Feel free to fork it, improve it, whatever, just link back to here. Enjoy!
 - R - Reset
    
 You can load ```.bin``` files into RAM or ROM using the File Pickers in the top right. It should be fully compatible with any binary compiled for the 6502 kit, except if it uses any unimplemented features. I might get to these sometime in the future. If I do, the repo will be updated.
+
+## Screenshots
