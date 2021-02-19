@@ -5,3 +5,5 @@ This is a project I started because I wanted a place to write and test code for 
 Some might ask, why write an emulator in Java? And I would respond: "Because no one else would." Sure, Java is terribly slow (more than 1000x slower than the original!), and the fact that Java's ```byte```s and ```short```s are a pain to work with because they're signed, but it's the language I'm best in so I don't care ;)
 
 Feel free to fork it, improve it, whatever, just link back to here. Enjoy!
+
+**The font isn't mine!**
