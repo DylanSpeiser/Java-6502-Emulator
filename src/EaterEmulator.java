@@ -1,3 +1,6 @@
+//Original Code by Dylan Speiser
+//https://github.com/DylanSpeiser
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -66,6 +69,7 @@ public class EaterEmulator extends JFrame implements ActionListener {
 	            rom.setROMArray(ROMLoader.readROM(fc.getSelectedFile()));
 	        }
 	        GraphicsPanel.requestFocus();
+	        cpu.reset();
 		} else if (e.getSource().equals(RAMopenButton)) {
 			fc.setSelectedFile(new File(""));
 			int returnVal = fc.showOpenDialog(this);
@@ -74,6 +78,7 @@ public class EaterEmulator extends JFrame implements ActionListener {
 	            ram.setRAMArray(ROMLoader.readROM(fc.getSelectedFile()));
 	        }
 	        GraphicsPanel.requestFocus();
+	        cpu.reset();
 		} else if (e.getSource().equals(clock)) {
 			if (!haltFlag)
 				cpu.clock();

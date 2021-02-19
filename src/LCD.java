@@ -19,6 +19,8 @@ public class LCD extends JFrame implements ActionListener {
 	
 	boolean graphicalCursorBlinkFlag = false;
 	
+	boolean debug = false;
+	
 	//Internal flags
 	int cursorPos = 0;
 	boolean increment = true;
@@ -106,7 +108,8 @@ public class LCD extends JFrame implements ActionListener {
 				} else {
 					fourBitMode = true;
 				}
-				System.out.println("Function: Four Bit Mode: "+fourBitMode);
+				if (debug)
+					System.out.println("Function: Four Bit Mode: "+fourBitMode);
 			} else if ((data & 0b00010000) == 0b00010000) {
 				//SHIFT
 				boolean rightleft = false;
@@ -121,13 +124,15 @@ public class LCD extends JFrame implements ActionListener {
 					//SCREEN
 					char[] newCharArray = new char[40];
 					Arrays.fill(newCharArray, ' ');
-					System.out.println("Shifted screen to the "+(rightleft ? "right." : "left."));
+					if (debug)
+						System.out.println("Shifted screen to the "+(rightleft ? "right." : "left."));
 				} else {
 					//CURSOR
 					cursorPos += (rightleft ? 1 : -1);
 					if (cursorPos < 0)
 						cursorPos = 0;
-					System.out.println("Shifted cursor to the "+(rightleft ? "right." : "left."));
+					if (debug)
+						System.out.println("Shifted cursor to the "+(rightleft ? "right." : "left."));
 				}
 			} else if ((data & 0b00001000) == 0b00001000) {
 				//DISPLAY CONTROL
@@ -135,7 +140,8 @@ public class LCD extends JFrame implements ActionListener {
 					displayPower = true;
 				} else {
 					displayPower = false;
-					System.out.println("Turned the Display off! | "+Integer.toBinaryString(Byte.toUnsignedInt(data)));
+					if (debug)
+						System.out.println("Turned the Display off! | "+Integer.toBinaryString(Byte.toUnsignedInt(data)));
 				}
 				if ((data & 0b00000010) == 0b00000010) {
 					cursor = true;
@@ -147,7 +153,8 @@ public class LCD extends JFrame implements ActionListener {
 				} else {
 					cursorBlink = false;
 				}
-				System.out.println("Display Control: Power: "+displayPower+" Cursor: "+cursor+" Blink: "+cursorBlink);
+				if (debug)
+					System.out.println("Display Control: Power: "+displayPower+" Cursor: "+cursor+" Blink: "+cursorBlink);
 			} else if ((data & 0b00000100) == 0b00000100) {
 				//ENTRY MODE SET
 				if ((data & 0b00000010) == 0b00000010) {
@@ -155,11 +162,13 @@ public class LCD extends JFrame implements ActionListener {
 				} else {
 					increment = false;
 				}
-				System.out.println("Set Entry Mode: Increment: "+increment);
+				if (debug)
+					System.out.println("Set Entry Mode: Increment: "+increment);
 			} else if ((data & 0b00000010) == 0b00000010) {
 				//RETURN HOME
 				cursorPos = 0;
-				System.out.println("Return Home");
+				if (debug)
+					System.out.println("Return Home");
 			} else if (data == 0b00000001) {
 				//CLEAR
 				cursorPos = 0;
@@ -167,14 +176,16 @@ public class LCD extends JFrame implements ActionListener {
 				for (int i = 0; i < 0x50; i++) {
 					text[i] = ' ';
 				}
-				System.out.println("Cleared!");
+				if (debug)
+					System.out.println("Cleared!");
 			}
 		} else {
 			//DATA
 			text[cursorPos] = (char)data;
 			int prevCursorPos = cursorPos;
 			cursorPos += increment ? 1 : -1;
-			System.out.println("Data: Wrote "+(char)data+" at "+prevCursorPos);
+			if (debug)
+				System.out.println("Data: Wrote "+(char)data+" at "+prevCursorPos);
 		}
 	}
 	
