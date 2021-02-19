@@ -15,9 +15,8 @@ Feel free to fork it, improve it, whatever, just link back to here. Enjoy!
 
 **The font isn't mine!**
 
-##Tutorial
+##Controls
 
-Controls:
 C - Toggle Clock
 Space - Pulse Clock
 H/J - Decrement/Increment RAM Page
