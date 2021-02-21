@@ -18,6 +18,7 @@ public class EaterEmulator extends JFrame implements ActionListener {
 	public DisplayPanel GraphicsPanel = new DisplayPanel();
 	
 	public Timer clock;
+	public static int clocks = 0;
 	public static boolean haltFlag = true;
 	
 	//Emulator Things

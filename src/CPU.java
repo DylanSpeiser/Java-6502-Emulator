@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class CPU {
 	public String[] opcodes;
 	
@@ -22,6 +24,8 @@ public class CPU {
 	
 	public CPU() {
 		reset();
+		
+		Arrays.fill(lookup, new Instruction("XXX","IMP",2));
 		
 		//ADC
 		lookup[0x69] = new Instruction("ADC","IMM",2);
@@ -54,7 +58,7 @@ public class CPU {
 		
 		lookup[0xF0] = new Instruction("BEQ","REL",2);
 		
-		lookup[0x24] = new Instruction("BIT","ZP0",3);
+		lookup[0x24] = new Instruction("BIT","ZPP",3);
 		lookup[0x2C] = new Instruction("BIT","ABS",4);
 		
 		lookup[0x30] = new Instruction("BMI","REL",2);
@@ -308,7 +312,7 @@ public class CPU {
 				this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].opcode).invoke(this);
 			} catch (Exception e) {e.printStackTrace();}
 		}
-		
+		EaterEmulator.clocks++;
 		cycles--;
 	}
 	
@@ -326,6 +330,8 @@ public class CPU {
 		byte hi = Bus.read((short)(addressAbsolute+1));
 		programCounter = (short)(Byte.toUnsignedInt(lo)+256*Byte.toUnsignedInt(hi));
 		
+		EaterEmulator.clocks = 0;
+		
 		addressRelative = 0;
 		addressAbsolute = 0;
 		fetched = 0;
@@ -335,16 +341,16 @@ public class CPU {
 	
 	void irq() {
 		if (!getFlag('I')) {
-			Bus.write((short)(0x0100+stackPointer), (byte)((programCounter>>8)&0x00FF));
+			Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)((programCounter>>8)&0x00FF));
 			stackPointer--;
-			Bus.write((short)(0x0100+stackPointer), (byte)(programCounter&0x00FF));
+			Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)(programCounter&0x00FF));
 			stackPointer--;
 			
 			setFlag('B',false);
 			setFlag('U',false);
 			setFlag('I',true);
 			
-			Bus.write((short)(0x0100+stackPointer), flags);
+			Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), flags);
 			stackPointer--;
 			
 			addressAbsolute = (short)0xFFFE;
@@ -357,16 +363,16 @@ public class CPU {
 	}
 	
 	void nmi() {
-		Bus.write((short)(0x0100+stackPointer), (byte)((programCounter>>8)&0x00FF));
+		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)((programCounter>>8)&0x00FF));
 		stackPointer--;
-		Bus.write((short)(0x0100+stackPointer), (byte)(programCounter&0x00FF));
+		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)(programCounter&0x00FF));
 		stackPointer--;
 		
 		setFlag('B',false);
 		setFlag('U',false);
 		setFlag('I',true);
 		
-		Bus.write((short)(0x0100+stackPointer), flags);
+		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), flags);
 		stackPointer--;
 		
 		addressAbsolute = (short)0xFFFA;
@@ -394,7 +400,7 @@ public class CPU {
 		addressAbsolute = programCounter++;
 	}
 	
-	public void ZP0() {
+	public void ZPP() {
 		addressAbsolute = Bus.read(programCounter);
 		programCounter++;
 		addressAbsolute &= 0x00FF;
@@ -604,13 +610,13 @@ public class CPU {
 	public void BRK() {
 		programCounter++;
 		setFlag('I',true);
-		Bus.write((short)(0x0100+stackPointer), (byte)((programCounter>>8)&0x00FF));
+		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)((programCounter>>8)&0x00FF));
 		stackPointer--;
-		Bus.write((short)(0x0100+stackPointer), (byte)(programCounter&0x00FF));
+		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)(programCounter&0x00FF));
 		stackPointer--;
 		
 		setFlag('B',true);
-		Bus.write((short)(0x0100+stackPointer), flags);
+		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), flags);
 		stackPointer--;
 		setFlag('B',false);
 		
@@ -621,7 +627,7 @@ public class CPU {
 	}
 		
 	public void BVC() {
-		if (getFlag('V')) {
+		if (!getFlag('V')) {
 			cycles++;
 			addressAbsolute = (short)(programCounter+addressRelative);
 			
@@ -633,7 +639,7 @@ public class CPU {
 	}
 		
 	public void BVS() {
-		if (!getFlag('V')) {
+		if (getFlag('V')) {
 			cycles++;
 			addressAbsolute = (short)(programCounter+addressRelative);
 			
@@ -742,9 +748,9 @@ public class CPU {
 	public void JSR() {
 		programCounter--;
 		
-		Bus.write((short)(0x0100+stackPointer), (byte)((programCounter>>8)&0x00FF));
+		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)((programCounter>>8)&0x00FF));
 		stackPointer--;
-		Bus.write((short)(0x0100+stackPointer), (byte)(programCounter&0x00FF));
+		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)(programCounter&0x00FF));
 		stackPointer--;
 		
 		programCounter = addressAbsolute;
@@ -801,12 +807,12 @@ public class CPU {
 	}
 		
 	public void PHA() {
-		Bus.write((short)(0x0100+stackPointer), a);
+		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), a);
 		stackPointer--;
 	}
 		
 	public void PHP() {
-		Bus.write((short)(0x0100+stackPointer), (byte)(flags|0b00001100));
+		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)(flags|0b00001100));
 		setFlag('B',false);
 		setFlag('U',false);
 		stackPointer--;
@@ -814,14 +820,14 @@ public class CPU {
 		
 	public void PLA() {
 		stackPointer++;
-		a = Bus.read((short)(0x0100+stackPointer));
+		a = Bus.read((short)(0x0100+Byte.toUnsignedInt(stackPointer)));
 		setFlag('Z', a == 0);
 		setFlag('N', (a & 0x80) == 0x80);
 	}
 		
 	public void PLP() {
 		stackPointer++;
-		flags = Bus.read((short)(0x0100+stackPointer));
+		flags = Bus.read((short)(0x0100+Byte.toUnsignedInt(stackPointer)));
 		setFlag('U', true);
 	}
 		
@@ -853,21 +859,21 @@ public class CPU {
 		
 	public void RTI() {
 		stackPointer++;
-		flags = Bus.read((short)(0x0100+stackPointer));
+		Bus.read((short)(0x0100+Byte.toUnsignedInt(stackPointer)));
 		flags = (byte)(flags & ~(getFlag('B') ? 0b00000100 : 0));
 		flags = (byte)(flags & ~(getFlag('U') ? 0b00000100 : 0));
 		
 		stackPointer++;
-		programCounter = Bus.read((short)(0x0100+stackPointer));
+		programCounter = Bus.read((short)(0x0100+Byte.toUnsignedInt(stackPointer)));
 		stackPointer++;
-		programCounter |= Bus.read((short)(0x0100+stackPointer)) << 8;
+		programCounter |= Bus.read((short)(0x0100+Byte.toUnsignedInt(stackPointer))) << 8;
 	}
 		
 	public void RTS() {
 		stackPointer++;
-		programCounter = Bus.read((short)(0x0100+stackPointer));
+		programCounter = Bus.read((short)(0x0100+Byte.toUnsignedInt(stackPointer)));
 		stackPointer++;
-		programCounter |= Bus.read((short)(0x0100+stackPointer)) << 8;
+		programCounter |= Bus.read((short)(0x0100+Byte.toUnsignedInt(stackPointer))) << 8;
 		
 		programCounter++;
 	}
@@ -943,6 +949,6 @@ public class CPU {
 	}
 	
 	public void XXX() {
-		System.out.println("Illegal Opcode!");
+		System.out.println("Illegal Opcode! (" + ROMLoader.byteToHexString(opcode) +") - "+lookup[Byte.toUnsignedInt(opcode)].opcode);
 	}
 }

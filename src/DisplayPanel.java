@@ -32,6 +32,10 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener,
         g.setFont(new Font("Calibri Bold", 50, 50));
         g.drawString("Ben Eater 6502 Emulator", 40, 50);
         
+        //Clocks
+        g.setFont(new Font("Courier New Bold",20,20));
+        g.drawString("Clocks: "+EaterEmulator.clocks, 40, 80);
+        
         //Mouse Position
 //        g.setFont(new Font("Arial",10,10));
 //        g.drawString(mousePos.toString(), 10, 10);
