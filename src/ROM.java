@@ -1,15 +1,18 @@
 public class ROM {
 	private byte[] array;
+	public String ROMString = "";
 	
 	public ROM() {
 		array = new byte[0x8000];
 		for (int i = 0; i<0x8000; i++) {
 			array[i] = (byte)0x00;
 		}
+		ROMString = this.toStringWithOffset(8,0x8000,true);
 	}
 	
 	public ROM(byte[] theArray) {
 		array = theArray;
+		ROMString = this.toStringWithOffset(8,0x8000,true);
 	}
 
 	public byte[] getROMArray() {
@@ -18,6 +21,7 @@ public class ROM {
 
 	public void setROMArray(byte[] array) {
 		this.array = array;
+		ROMString = this.toStringWithOffset(8,0x8000,true);
 	}
 	
 	public byte read(short address) {

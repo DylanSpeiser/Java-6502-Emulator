@@ -8,6 +8,9 @@ import java.io.File;
 import javax.swing.*;
 
 public class EaterEmulator extends JFrame implements ActionListener {
+	public static EaterEmulator emu;
+	public static String versionString = "1.1";
+	
 	//Swing Things
 	JPanel p = new JPanel();
 	JPanel header = new JPanel();
@@ -15,11 +18,12 @@ public class EaterEmulator extends JFrame implements ActionListener {
 	JButton ROMopenButton = new JButton("Open ROM File");
 	JButton RAMopenButton = new JButton("Open RAM File");
 	
-	public DisplayPanel GraphicsPanel = new DisplayPanel();
-	
-	public Timer clock;
+	//Clock Stuff
+	public static Thread clockThread;
+	public static boolean clockState = false;
 	public static int clocks = 0;
 	public static boolean haltFlag = true;
+	public static boolean slowerClock = false;
 	
 	//Emulator Things
 	public static RAM ram = new RAM();
@@ -29,11 +33,12 @@ public class EaterEmulator extends JFrame implements ActionListener {
 	public static Bus bus = new Bus();
 	public static CPU cpu = new CPU();
 	
+	public DisplayPanel GraphicsPanel = new DisplayPanel();
+	
 	public EaterEmulator() {
 		//Swing Stuff:
+		System.setProperty("sun.java2d.opengl", "true");
 		this.setSize(1920,1080);
-		clock = new Timer(1,this);
-		clock.start();
 		
 		//Open .bin file button
 		ROMopenButton.setVisible(true);
@@ -52,6 +57,21 @@ public class EaterEmulator extends JFrame implements ActionListener {
 		fc.setVisible(true);
 		fc.setCurrentDirectory(new File(System.getProperty("user.home") + System.getProperty("file.separator")+ "Downloads"));
 
+		//Clock thread setup
+		clockThread = new Thread(() -> {
+	        while (true) {
+	        	if (EaterEmulator.clockState)
+	        		cpu.clock();
+	        	System.out.print("");
+	        	if (slowerClock) {
+		        	try {
+						Thread.sleep(1);
+					} catch (InterruptedException e) {e.printStackTrace();}
+	        	}
+	        }
+	    });
+		clockThread.start();
+		
 		//Final Setup
 		GraphicsPanel.setVisible(true);
 		this.setTitle("6502 Emulator");
@@ -70,6 +90,7 @@ public class EaterEmulator extends JFrame implements ActionListener {
 	            rom.setROMArray(ROMLoader.readROM(fc.getSelectedFile()));
 	        }
 	        GraphicsPanel.requestFocus();
+	        GraphicsPanel.romPageString = EaterEmulator.rom.ROMString.substring(GraphicsPanel.romPage*960,(GraphicsPanel.romPage+1)*960);
 	        cpu.reset();
 		} else if (e.getSource().equals(RAMopenButton)) {
 			fc.setSelectedFile(new File(""));
@@ -79,15 +100,12 @@ public class EaterEmulator extends JFrame implements ActionListener {
 	            ram.setRAMArray(ROMLoader.readROM(fc.getSelectedFile()));
 	        }
 	        GraphicsPanel.requestFocus();
-	        cpu.reset();
-		} else if (e.getSource().equals(clock)) {
-			if (!haltFlag)
-				cpu.clock();
+	        GraphicsPanel.ramPageString = EaterEmulator.ram.RAMString.substring(GraphicsPanel.ramPage*960,(GraphicsPanel.ramPage+1)*960);
+			cpu.reset();
 		}
 	}
 	
 	public static void main(String[] args) {
-		@SuppressWarnings("unused")
-		EaterEmulator emu = new EaterEmulator();
+		emu = new EaterEmulator();
 	}
 }

@@ -1,15 +1,18 @@
 public class RAM {
 	private byte[] array;
+	public String RAMString = "";
 	
 	public RAM() {
 		array = new byte[0x8000];
 		for (int i = 0; i<0x8000; i++) {
 			array[i] = (byte)0x00;
 		}
+		RAMString = this.toString(8, true);
 	}
 	
 	public RAM(byte[] theArray) {
 		array = theArray;
+		RAMString = this.toString(8, true);
 	}
 
 	public byte[] getRAMArray() {
@@ -18,6 +21,7 @@ public class RAM {
 
 	public void setRAMArray(byte[] array) {
 		this.array = array;
+		RAMString = this.toString(8, true);
 	}
 	
 	public byte read(short address) {
@@ -26,6 +30,7 @@ public class RAM {
 	
 	public void write(short address, byte data) {
 		array[Short.toUnsignedInt(address)] = data;
+		RAMString = this.toString(8, true);
 	}
 	
 	public String toString(int bytesPerLine, boolean addresses) {

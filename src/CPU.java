@@ -1,8 +1,6 @@
 import java.util.Arrays;
 
 public class CPU {
-	public String[] opcodes;
-	
 	public byte flags = 0x00;
 	//C,Z,I,D,B,U,V,N
 	//Carry, Zero, Interrupt Disable, Decimal, Break, Unused, Overflow, Negative
@@ -18,7 +16,10 @@ public class CPU {
 	public byte opcode = 0x00;
 	public int cycles = 0;
 	
-	int additionalCycles = 0;
+	public double ClocksPerSecond = 0;
+	public long startTime = 0;
+	
+	public int additionalCycles = 0;
 	
 	public Instruction[] lookup = new Instruction[0xFF];
 	
@@ -312,6 +313,10 @@ public class CPU {
 				this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].opcode).invoke(this);
 			} catch (Exception e) {e.printStackTrace();}
 		}
+		
+		if (((System.currentTimeMillis()-startTime)/1000) > 0)
+			ClocksPerSecond = EaterEmulator.clocks/((System.currentTimeMillis()-startTime)/1000);
+		
 		EaterEmulator.clocks++;
 		cycles--;
 	}
@@ -331,12 +336,15 @@ public class CPU {
 		programCounter = (short)(Byte.toUnsignedInt(lo)+256*Byte.toUnsignedInt(hi));
 		
 		EaterEmulator.clocks = 0;
+		ClocksPerSecond = 0;
 		
 		addressRelative = 0;
 		addressAbsolute = 0;
 		fetched = 0;
 		
 		cycles = 8;
+		
+		startTime = System.currentTimeMillis();
 	}
 	
 	void irq() {
