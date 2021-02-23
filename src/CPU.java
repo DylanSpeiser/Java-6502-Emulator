@@ -21,7 +21,7 @@ public class CPU {
 	
 	public int additionalCycles = 0;
 	
-	public Instruction[] lookup = new Instruction[0xFF];
+	public Instruction[] lookup = new Instruction[0x100];
 	
 	public CPU() {
 		reset();
@@ -95,14 +95,14 @@ public class CPU {
 		lookup[0xE4] = new Instruction("CPX","ZPP",3);
 		lookup[0xEC] = new Instruction("CPX","ABS",4);
 		
-		lookup[0xC0] = new Instruction("CPX","IMM",2);
-		lookup[0xC4] = new Instruction("CPX","ZPP",3);
-		lookup[0xCC] = new Instruction("CPX","ABS",4);
+		lookup[0xC0] = new Instruction("CPY","IMM",2);
+		lookup[0xC4] = new Instruction("CPY","ZPP",3);
+		lookup[0xCC] = new Instruction("CPY","ABS",4);
 		
-		lookup[0xC6] = new Instruction("CPX","ZPP",5);
-		lookup[0xD6] = new Instruction("CPX","ZPX",6);
-		lookup[0xCE] = new Instruction("CPX","ABS",6);
-		lookup[0xDE] = new Instruction("CPX","ABX",7);
+		lookup[0xC6] = new Instruction("DEC","ZPP",5);
+		lookup[0xD6] = new Instruction("DEC","ZPX",6);
+		lookup[0xCE] = new Instruction("DEC","ABS",6);
+		lookup[0xDE] = new Instruction("DEC","ABX",7);
 		
 		lookup[0xCA] = new Instruction("DEX","IMP",2);
 		
@@ -345,6 +345,8 @@ public class CPU {
 		cycles = 8;
 		
 		startTime = System.currentTimeMillis();
+		
+		opcode = Bus.read(programCounter);
 	}
 	
 	void irq() {
@@ -702,7 +704,7 @@ public class CPU {
 		
 	public void DEC() {
 		fetch();
-		short temp = (short)(fetched-1);
+		int temp = (Byte.toUnsignedInt(fetched)-1);
 		Bus.write(addressAbsolute, (byte)(temp&0x00FF));
 		setFlag('Z',(temp&0x00FF)==0x0000);
 		setFlag('N',(temp&0x0080)==0x0080);
