@@ -217,7 +217,7 @@ public class CPU {
 		lookup[0x91] = new Instruction("STA","IZY",6);
 		
 		lookup[0x86] = new Instruction("STX","ZPP",3);
-		lookup[0x96] = new Instruction("STX","ZPX",4);
+		lookup[0x96] = new Instruction("STX","ZPY",4);
 		lookup[0x8E] = new Instruction("STX","ABS",4);
 		
 		lookup[0x84] = new Instruction("STY","ZPP",3);
@@ -241,28 +241,28 @@ public class CPU {
 		flag = Character.toUpperCase(flag);
 		switch (flag) {
 		case 'C':
-			flags = setBit(flags,7,condition);
+			flags = setBit(flags,0,condition);
 			break;
 		case 'Z':
-			flags = setBit(flags,6,condition);
-			break;
-		case 'I':
-			flags = setBit(flags,5,condition);
-			break;
-		case 'D':
-			flags = setBit(flags,4,condition);
-			break;
-		case 'B':
-			flags = setBit(flags,3,condition);
-			break;
-		case 'U':
-			flags = setBit(flags,2,condition);
-			break;
-		case 'V':
 			flags = setBit(flags,1,condition);
 			break;
+		case 'I':
+			flags = setBit(flags,2,condition);
+			break;
+		case 'D':
+			flags = setBit(flags,3,condition);
+			break;
+		case 'B':
+			flags = setBit(flags,4,condition);
+			break;
+		case 'U':
+			flags = setBit(flags,5,condition);
+			break;
+		case 'V':
+			flags = setBit(flags,6,condition);
+			break;
 		case 'N':
-			flags = setBit(flags,0,condition);
+			flags = setBit(flags,7,condition);
 			break;
 		}
 	}
@@ -270,21 +270,21 @@ public class CPU {
 	boolean getFlag(char flag) {
 		flag = Character.toUpperCase(flag);
 		switch (flag) {
-		case 'C':
-			return ((flags&0b10000000) == 0b10000000);
-		case 'Z':
-			return ((flags&0b01000000) == 0b01000000);
-		case 'I':
-			return ((flags&0b00100000) == 0b00100000);
-		case 'D':
-			return ((flags&0b00010000) == 0b00010000);
-		case 'B':
-			return ((flags&0b00001000) == 0b00001000);
-		case 'U':
-			return ((flags&0b00000100) == 0b00000100);
-		case 'V':
-			return ((flags&0b00000010) == 0b00000010);
 		case 'N':
+			return ((flags&0b10000000) == 0b10000000);
+		case 'V':
+			return ((flags&0b01000000) == 0b01000000);
+		case 'U':
+			return ((flags&0b00100000) == 0b00100000);
+		case 'B':
+			return ((flags&0b00010000) == 0b00010000);
+		case 'D':
+			return ((flags&0b00001000) == 0b00001000);
+		case 'I':
+			return ((flags&0b00000100) == 0b00000100);
+		case 'Z':
+			return ((flags&0b00000010) == 0b00000010);
+		case 'C':
 			return ((flags&0b00000001) == 0b00000001);
 		}
 		System.out.println("Something has gone wrong in getFlag!");
@@ -417,13 +417,13 @@ public class CPU {
 	}
 	
 	public void ZPX() {
-		addressAbsolute = (short)(Bus.read(programCounter)+x);
+		addressAbsolute = (short)(Byte.toUnsignedInt(Bus.read(programCounter))+Byte.toUnsignedInt(x));
 		programCounter++;
 		addressAbsolute &= 0x00FF;
 	}
 	
 	public void ZPY() {
-		addressAbsolute = (short)(Bus.read(programCounter)+y);
+		addressAbsolute = (short)(Byte.toUnsignedInt(Bus.read(programCounter))+Byte.toUnsignedInt(y));
 		programCounter++;
 		addressAbsolute &= 0x00FF;
 	}
@@ -450,7 +450,7 @@ public class CPU {
 		byte hi = Bus.read(programCounter);
 		programCounter++;
 		
-		addressAbsolute = (short)(Byte.toUnsignedInt(lo)+256*Byte.toUnsignedInt(hi)+x);
+		addressAbsolute = (short)(Byte.toUnsignedInt(lo)+256*Byte.toUnsignedInt(hi)+Byte.toUnsignedInt(x));
 		
 		if ((addressAbsolute & 0xFF00) != (hi<<8))
 			additionalCycles++;
@@ -462,7 +462,7 @@ public class CPU {
 		byte hi = Bus.read(programCounter);
 		programCounter++;
 		
-		addressAbsolute = (short)(Byte.toUnsignedInt(lo)+256*Byte.toUnsignedInt(hi)+y);
+		addressAbsolute = (short)(Byte.toUnsignedInt(lo)+256*Byte.toUnsignedInt(hi)+Byte.toUnsignedInt(y));
 		
 		if ((addressAbsolute & 0xFF00) != (hi<<8))
 			additionalCycles++;
@@ -496,7 +496,7 @@ public class CPU {
 		byte lo = Bus.read((short)(t&0x00FF));
 		byte hi = Bus.read((short)((t+1)&0x00FF));
 		
-		addressAbsolute = (short)(Byte.toUnsignedInt(lo)+256*Byte.toUnsignedInt(hi)+y);
+		addressAbsolute = (short)(Byte.toUnsignedInt(lo)+256*Byte.toUnsignedInt(hi)+Byte.toUnsignedInt(y));
 		
 		if ((addressAbsolute & 0xFF00) != (hi<<8))
 			additionalCycles++;
@@ -619,16 +619,18 @@ public class CPU {
 		
 	public void BRK() {
 		programCounter++;
-		setFlag('I',true);
-		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)((programCounter>>8)&0x00FF));
+		
+		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)(programCounter>>8));
 		stackPointer--;
-		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)(programCounter&0x00FF));
+		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)(programCounter));
 		stackPointer--;
 		
 		setFlag('B',true);
+		setFlag('U',true);
 		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), flags);
 		stackPointer--;
-		setFlag('B',false);
+		//setFlag('B',false);
+		setFlag('I',true);
 		
 		addressAbsolute = (short)0xFFFE;
 		byte lo = Bus.read(addressAbsolute);
@@ -822,7 +824,7 @@ public class CPU {
 	}
 		
 	public void PHP() {
-		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)(flags|0b00001100));
+		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)(flags|0b00110000));
 		setFlag('B',false);
 		setFlag('U',false);
 		stackPointer--;
@@ -869,21 +871,23 @@ public class CPU {
 		
 	public void RTI() {
 		stackPointer++;
-		Bus.read((short)(0x0100+Byte.toUnsignedInt(stackPointer)));
-		flags = (byte)(flags & ~(getFlag('B') ? 0b00000100 : 0));
-		flags = (byte)(flags & ~(getFlag('U') ? 0b00000100 : 0));
+		flags = Bus.read((short)(0x0100+Byte.toUnsignedInt(stackPointer)));
+		flags = (byte)(flags & (getFlag('B') ? 0b11101111 : 0));
+		flags = (byte)(flags & (getFlag('U') ? 0b11011111 : 0));
 		
 		stackPointer++;
-		programCounter = Bus.read((short)(0x0100+Byte.toUnsignedInt(stackPointer)));
+		byte lo = Bus.read((short)(0x100+Byte.toUnsignedInt(stackPointer)));
 		stackPointer++;
-		programCounter |= Bus.read((short)(0x0100+Byte.toUnsignedInt(stackPointer))) << 8;
+		byte hi = Bus.read((short)(0x100+Byte.toUnsignedInt(stackPointer)));
+		programCounter = (short)(Byte.toUnsignedInt(lo)+256*Byte.toUnsignedInt(hi));
 	}
 		
 	public void RTS() {
 		stackPointer++;
-		programCounter = Bus.read((short)(0x0100+Byte.toUnsignedInt(stackPointer)));
+		byte lo = Bus.read((short)(0x100+Byte.toUnsignedInt(stackPointer)));
 		stackPointer++;
-		programCounter |= Bus.read((short)(0x0100+Byte.toUnsignedInt(stackPointer))) << 8;
+		byte hi = Bus.read((short)(0x100+Byte.toUnsignedInt(stackPointer)));
+		programCounter = (short)(Byte.toUnsignedInt(lo)+256*Byte.toUnsignedInt(hi));
 		
 		programCounter++;
 	}

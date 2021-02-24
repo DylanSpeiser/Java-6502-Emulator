@@ -57,9 +57,17 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
         g.drawString("ROM", 1690, 130);
         drawString(g,romPageString, 1525, 150);
         
+        //Stack Pointer Underline
+        if (ramPage == 1) {
+        	g.setColor(new Color(0.7f,0f,0f));
+        	g.fillRect(1196+36*(Byte.toUnsignedInt(EaterEmulator.cpu.stackPointer)%8), 156+23*((int)Byte.toUnsignedInt(EaterEmulator.cpu.stackPointer)/8), 25, 22);
+        	g.setColor(Color.white);
+        }
+        
         //RAM
         g.drawString("RAM", 1280, 130);
         drawString(g,ramPageString, 1125, 150);
+        
 	
         //CPU
         g.drawString("CPU Registers:",50,140);
@@ -67,8 +75,8 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
         g.drawString("X: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.cpu.x)), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.cpu.x)+")", 35, 200);
         g.drawString("Y: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.cpu.y)), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.cpu.y)+")", 35, 230);
         g.drawString("Stack Pointer: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.cpu.stackPointer)), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.cpu.stackPointer)+")", 35, 260);
-        g.drawString("Program Counter: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt(EaterEmulator.cpu.programCounter)), 16)+" ("+ROMLoader.padStringWithZeroes(Integer.toHexString(Short.toUnsignedInt(EaterEmulator.cpu.programCounter)),4)+")", 35, 290);
-        g.drawString("Flags: ", 35, 320);
+        g.drawString("Program Counter: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt(EaterEmulator.cpu.programCounter)), 16)+" ("+ROMLoader.padStringWithZeroes(Integer.toHexString(Short.toUnsignedInt(EaterEmulator.cpu.programCounter)).toUpperCase(),4)+")", 35, 290);
+        g.drawString("Flags:             ("+ROMLoader.byteToHexString(EaterEmulator.cpu.flags)+")", 35, 320);
         
         g.drawString("Absolute Address: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt(EaterEmulator.cpu.addressAbsolute)), 16)+" ("+ROMLoader.byteToHexString((byte)(EaterEmulator.cpu.addressAbsolute/0xFF))+ROMLoader.byteToHexString((byte)EaterEmulator.cpu.addressAbsolute)+")", 35, 350);
         g.drawString("Relative Address: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt(EaterEmulator.cpu.addressRelative)), 16)+" ("+ROMLoader.byteToHexString((byte)(EaterEmulator.cpu.addressRelative/0xFF))+ROMLoader.byteToHexString((byte)EaterEmulator.cpu.addressRelative)+")", 35, 380);
@@ -76,10 +84,10 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
         g.drawString("Cycles: "+EaterEmulator.cpu.cycles, 35, 440);
         
         int counter = 0;
-        String flagsString = "CZIDBUVN";
+        String flagsString = "NVUBDIZC";
         for (char c : ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.cpu.flags)),8).toCharArray()) {
         	g.setColor((c == '1') ? Color.green : Color.red);
-        	g.drawString(String.valueOf(flagsString.charAt(counter)), 120+15*counter, 320);
+        	g.drawString(String.valueOf(flagsString.charAt(counter)), 120+16*counter, 320);
         	counter++;
         }
         
