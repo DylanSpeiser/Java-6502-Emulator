@@ -8,6 +8,8 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 	int ramPage = 0;
 	int romPage = 0;
 	
+	int rightAlignHelper = Math.max(getWidth(), 1334);
+	
 	String ramPageString = "";
 	String romPageString = "";
 	
@@ -36,7 +38,9 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 //		g.fillRect(0, 0, EaterEmulator.getWindows()[1].getWidth(), EaterEmulator.getWindows()[1].getHeight());
 //      g.setColor(Color.white);
 //      g.drawString("Render Mode: fillRect",5,15);
-        
+		
+		rightAlignHelper = Math.max(getWidth(), 1334);
+		
         //Title
         g.setFont(new Font("Calibri Bold", 50, 50));
         g.drawString("Ben Eater 6502 Emulator", 40, 50);
@@ -50,23 +54,23 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
         g.drawString("Speed: "+EaterEmulator.cpu.ClocksPerSecond+" Hz"+(EaterEmulator.slowerClock ? " (Slow)" : ""), 40, 110);
         
         //PAGE INDICATORS
-        g.drawString("(K) <-- "+ROMLoader.byteToHexString((byte)(romPage+0x80))+" --> (L)", 1600, 950);
-        g.drawString("(H) <-- "+ROMLoader.byteToHexString((byte)ramPage)+" --> (J)", 1200, 950);
+        g.drawString("(K) <-- "+ROMLoader.byteToHexString((byte)(romPage+0x80))+" --> (L)", rightAlignHelper-304, Math.max(getHeight()-91, 920));
+        g.drawString("(H) <-- "+ROMLoader.byteToHexString((byte)ramPage)+" --> (J)", rightAlignHelper-704, Math.max(getHeight()-91, 920));
         
         //ROM
-        g.drawString("ROM", 1690, 130);
-        drawString(g,romPageString, 1525, 150);
+        g.drawString("ROM", rightAlignHelper-214, 130);
+        drawString(g,romPageString, rightAlignHelper-379, 150);
         
         //Stack Pointer Underline
         if (ramPage == 1) {
         	g.setColor(new Color(0.7f,0f,0f));
-        	g.fillRect(1196+36*(Byte.toUnsignedInt(EaterEmulator.cpu.stackPointer)%8), 156+23*((int)Byte.toUnsignedInt(EaterEmulator.cpu.stackPointer)/8), 25, 22);
+        	g.fillRect(rightAlignHelper-708+36*(Byte.toUnsignedInt(EaterEmulator.cpu.stackPointer)%8), 156+23*((int)Byte.toUnsignedInt(EaterEmulator.cpu.stackPointer)/8), 25, 22);
         	g.setColor(Color.white);
         }
         
         //RAM
-        g.drawString("RAM", 1280, 130);
-        drawString(g,ramPageString, 1125, 150);
+        g.drawString("RAM", rightAlignHelper-624, 130);
+        drawString(g,ramPageString, rightAlignHelper-779, 150);
         
 	
         //CPU
@@ -116,6 +120,8 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource().equals(t)) {
 			ramPageString = EaterEmulator.ram.RAMString.substring(ramPage*960,(ramPage+1)*960);
+			EaterEmulator.ROMopenButton.setBounds(rightAlignHelper-150, 15, 125, 25);
+			EaterEmulator.RAMopenButton.setBounds(rightAlignHelper-150, 45, 125, 25);
 			this.repaint();
 		}
 	}
@@ -163,6 +169,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 				EaterEmulator.via = new VIA();
 				EaterEmulator.ram = new RAM();
 				ramPageString = EaterEmulator.ram.RAMString.substring(ramPage*960,(ramPage+1)*960);
+				System.out.println("Size: "+this.getWidth()+" x "+this.getHeight());
 				break;
 			case ' ':
 				EaterEmulator.cpu.clock();

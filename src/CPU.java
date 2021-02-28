@@ -11,6 +11,8 @@ public class CPU {
 	public byte stackPointer = 0x00;
 	public short programCounter = 0x0000;
 	
+	public boolean debug = false;
+	
 	public short addressAbsolute = 0x0000;
 	public short addressRelative = 0x0000;
 	public byte opcode = 0x00;
@@ -117,10 +119,10 @@ public class CPU {
 		lookup[0x41] = new Instruction("EOR","IZX",6);
 		lookup[0x51] = new Instruction("EOR","IZY",5);
 		
-		lookup[0xE6] = new Instruction("INC","IMM",5);
-		lookup[0xF6] = new Instruction("INC","ZPP",6);
-		lookup[0xEE] = new Instruction("INC","ZPX",6);
-		lookup[0xFE] = new Instruction("INC","ABS",7);
+		lookup[0xE6] = new Instruction("INC","ZPP",5);
+		lookup[0xF6] = new Instruction("INC","ZPX",6);
+		lookup[0xEE] = new Instruction("INC","ABS",6);
+		lookup[0xFE] = new Instruction("INC","ABX",7);
 		
 		lookup[0xE8] = new Instruction("INX","IMP",2);
 		
@@ -148,11 +150,11 @@ public class CPU {
 		
 		lookup[0xA0] = new Instruction("LDY","IMM",2);
 		lookup[0xA4] = new Instruction("LDY","ZPP",3);
-		lookup[0xB4] = new Instruction("LDY","ZPY",4);
+		lookup[0xB4] = new Instruction("LDY","ZPX",4);
 		lookup[0xAC] = new Instruction("LDY","ABS",4);
-		lookup[0xBC] = new Instruction("LDY","ABY",4);
+		lookup[0xBC] = new Instruction("LDY","ABX",4);
 		
-		lookup[0x4A] = new Instruction("LSR","IMM",2);
+		lookup[0x4A] = new Instruction("LSR","IMP",2);
 		lookup[0x46] = new Instruction("LSR","ZPP",5);
 		lookup[0x56] = new Instruction("LSR","ZPX",6);
 		lookup[0x4E] = new Instruction("LSR","ABS",6);
@@ -177,17 +179,17 @@ public class CPU {
 		
 		lookup[0x28] = new Instruction("PLP","IMP",4);
 		
-		lookup[0x2A] = new Instruction("ROR","IMM",2);
-		lookup[0x26] = new Instruction("ROR","ZPP",5);
-		lookup[0x36] = new Instruction("ROR","ZPX",6);
-		lookup[0x2E] = new Instruction("ROR","ABS",6);
-		lookup[0x3E] = new Instruction("ROR","ABX",7);
+		lookup[0x2A] = new Instruction("ROL","IMP",2);
+		lookup[0x26] = new Instruction("ROL","ZPP",5);
+		lookup[0x36] = new Instruction("ROL","ZPX",6);
+		lookup[0x2E] = new Instruction("ROL","ABS",6);
+		lookup[0x3E] = new Instruction("ROL","ABX",7);
 		
-		lookup[0x6A] = new Instruction("ROL","IMM",2);
-		lookup[0x66] = new Instruction("ROL","ZPP",5);
-		lookup[0x76] = new Instruction("ROL","ZPX",6);
-		lookup[0x6E] = new Instruction("ROL","ABS",6);
-		lookup[0x7E] = new Instruction("ROL","ABX",7);
+		lookup[0x6A] = new Instruction("ROR","IMP",2);
+		lookup[0x66] = new Instruction("ROR","ZPP",5);
+		lookup[0x76] = new Instruction("ROR","ZPX",6);
+		lookup[0x6E] = new Instruction("ROR","ABS",6);
+		lookup[0x7E] = new Instruction("ROR","ABX",7);
 		
 		lookup[0x40] = new Instruction("RTI","IMP",6);
 		
@@ -312,6 +314,28 @@ public class CPU {
 				this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].addressMode).invoke(this);
 				this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].opcode).invoke(this);
 			} catch (Exception e) {e.printStackTrace();}
+			
+			if (debug) {
+				System.out.print(Integer.toHexString(Short.toUnsignedInt(programCounter))+"   "+lookup[Byte.toUnsignedInt(opcode)].opcode+" "+ROMLoader.byteToHexString(opcode)+" ");
+				if (!(lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("IMP") || lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("REL"))) {
+					if (lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("IMM")) {
+						System.out.print("#$"+Integer.toHexString(Byte.toUnsignedInt(fetched)));
+					} else if (lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("REL")) {
+						System.out.print("$"+Integer.toHexString(Byte.toUnsignedInt((byte)addressAbsolute)));
+					} else {
+						System.out.print("$"+Integer.toHexString(Short.toUnsignedInt(addressAbsolute)));
+					}
+				} else if (!lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("IMP")) {
+					System.out.print("$"+Integer.toHexString(Short.toUnsignedInt(addressRelative)));
+				}
+				if (lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("ABX") || lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("INX") || lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("ZPX")) {
+					System.out.print(",X");
+				} else if (lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("ABY") || lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("INY") || lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("ZPY")) {
+					System.out.print(",Y");
+				}
+				System.out.print("  A:"+Integer.toHexString(Byte.toUnsignedInt(a))+" X:"+Integer.toHexString(Byte.toUnsignedInt(x))+" Y:"+Integer.toHexString(Byte.toUnsignedInt(y))+" Flags:"+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(flags)), 8));
+				System.out.println();
+			}
 		}
 		
 		if (((System.currentTimeMillis()-startTime)/1000) > 0)
@@ -795,11 +819,11 @@ public class CPU {
 	public void LSR() {
 		fetch();
 		setFlag('C',(fetched&0x0001)==0x0001);
-		short temp = (short)(fetched >> 1);
+		short temp = (short)((0x00FF&fetched) >> 1);
 		setFlag('Z',(temp&0x00FF)==0x0000);
 		setFlag('N',(temp&0x0080)==0x0080);
 		if (lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("IMP")) {
-			a = (byte)(temp&0x00FF);
+			a = (byte)((byte)(temp)&0x00FF);
 		} else {
 			Bus.write(addressAbsolute, (byte)(temp&0x00FF));
 		}
@@ -858,7 +882,7 @@ public class CPU {
 		
 	public void ROR() {
 		fetch();
-		short temp = (short)((fetched>>1) | (getFlag('C') ? 0x80 : 0));
+		short temp = (short)(((0x00FF&fetched)>>1) | (short)(getFlag('C') ? 0x0080 : 0));
 		setFlag('C',(fetched&0x01) == 0x01);
 		setFlag('Z',(temp&0x00FF) == 0x0000);
 		setFlag('N',(temp&0x0080) == 0x0080);

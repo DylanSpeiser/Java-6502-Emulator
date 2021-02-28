@@ -9,14 +9,14 @@ import javax.swing.*;
 
 public class EaterEmulator extends JFrame implements ActionListener {
 	public static EaterEmulator emu;
-	public static String versionString = "1.1";
+	public static String versionString = "1.2";
 	
 	//Swing Things
 	JPanel p = new JPanel();
 	JPanel header = new JPanel();
 	JFileChooser fc = new JFileChooser();
-	JButton ROMopenButton = new JButton("Open ROM File");
-	JButton RAMopenButton = new JButton("Open RAM File");
+	public static JButton ROMopenButton = new JButton("Open ROM File");
+	public static JButton RAMopenButton = new JButton("Open RAM File");
 	
 	//Clock Stuff
 	public static Thread clockThread;
