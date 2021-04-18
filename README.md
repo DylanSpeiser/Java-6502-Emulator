@@ -7,7 +7,6 @@ UNIMPLEMENTED FEATURES:
  - LCD Memory (sorry, it's a character-level simulation)
  - LCD Reads (always returns not busy)
  - Every feature on the 65C22 that isn't writing to the LCD (will always read 0).
- - Interrupts (the opcodes and functions are all there, but irq() and nmi() are never called)
 
 Some might ask, why write an emulator in Java? And I would respond: "Because no one else would." Sure, Java is terribly slow (more than 1000x slower than the original!), and the fact that Java's ```byte```s and ```short```s are a pain to work with because they're signed, but it's the language I'm best in so I don't care ;)
 
@@ -22,6 +21,7 @@ Feel free to fork it, improve it, whatever, just link back to here. Enjoy!
 - K/L - Decrement/Increment ROM Page
 - R - Reset
 - S - Toggle Slow Clock
+- I - Trigger Interrupt (the CA1 pin on the VIA)
    
 You can load ```.bin``` files into RAM or ROM using the File Pickers in the top right. It should be fully compatible with any binary compiled for the 6502 kit, except if it uses any unimplemented features. I might get to these sometime in the future. If I do, the repo will be updated.
 

@@ -23,6 +23,9 @@ public class CPU {
 	
 	public int additionalCycles = 0;
 	
+	public boolean interruptRequested = false;
+	public boolean NMinterruptRequested = false;
+	
 	public Instruction[] lookup = new Instruction[0x100];
 	
 	public CPU() {
@@ -304,16 +307,23 @@ public class CPU {
 	
 	void clock() {
 		if (cycles == 0) {
-			additionalCycles = 0;
-			opcode = Bus.read(programCounter);
-			programCounter++;
-			
-			cycles = lookup[Byte.toUnsignedInt(opcode)].cycles;
+			if (!interruptRequested) {
+				additionalCycles = 0;
+				opcode = Bus.read(programCounter);
+				programCounter++;
+				
+				cycles = lookup[Byte.toUnsignedInt(opcode)].cycles;
 
-			try {
-				this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].addressMode).invoke(this);
-				this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].opcode).invoke(this);
-			} catch (Exception e) {e.printStackTrace();}
+				try {
+					this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].addressMode).invoke(this);
+					this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].opcode).invoke(this);
+				} catch (Exception e) {e.printStackTrace();}
+			} else {
+				if (interruptRequested)
+					irq();
+				if (NMinterruptRequested)
+					nmi();
+			}
 			
 			if (debug) {
 				System.out.print(Integer.toHexString(Short.toUnsignedInt(programCounter))+"   "+lookup[Byte.toUnsignedInt(opcode)].opcode+" "+ROMLoader.byteToHexString(opcode)+" ");
@@ -375,46 +385,46 @@ public class CPU {
 	
 	void irq() {
 		if (!getFlag('I')) {
-			Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)((programCounter>>8)&0x00FF));
+			Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)(programCounter>>8));
 			stackPointer--;
-			Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)(programCounter&0x00FF));
+			Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)(programCounter));
 			stackPointer--;
 			
 			setFlag('B',false);
 			setFlag('U',false);
-			setFlag('I',true);
-			
 			Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), flags);
 			stackPointer--;
+			setFlag('I',true);
 			
-			addressAbsolute = (short)0xFFFE;
+			addressAbsolute = (short)(0xFFFE);
 			byte lo = Bus.read(addressAbsolute);
 			byte hi = Bus.read((short)(addressAbsolute+1));
 			programCounter = (short)(Byte.toUnsignedInt(lo)+256*Byte.toUnsignedInt(hi));
 			
 			cycles = 7;
+			interruptRequested = false;
 		}
 	}
 	
 	void nmi() {
-		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)((programCounter>>8)&0x00FF));
+		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)(programCounter>>8));
 		stackPointer--;
-		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)(programCounter&0x00FF));
+		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)(programCounter));
 		stackPointer--;
 		
 		setFlag('B',false);
 		setFlag('U',false);
-		setFlag('I',true);
-		
 		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), flags);
 		stackPointer--;
+		setFlag('I',true);
 		
-		addressAbsolute = (short)0xFFFA;
+		addressAbsolute = (short)(0xFFFA);
 		byte lo = Bus.read(addressAbsolute);
 		byte hi = Bus.read((short)(addressAbsolute+1));
 		programCounter = (short)(Byte.toUnsignedInt(lo)+256*Byte.toUnsignedInt(hi));
 		
 		cycles = 7;
+		NMinterruptRequested = false;
 	}
 	
 	//Data Getter
@@ -653,7 +663,6 @@ public class CPU {
 		setFlag('U',true);
 		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), flags);
 		stackPointer--;
-		//setFlag('B',false);
 		setFlag('I',true);
 		
 		addressAbsolute = (short)0xFFFE;
@@ -895,7 +904,7 @@ public class CPU {
 		
 	public void RTI() {
 		stackPointer++;
-		flags = Bus.read((short)(0x0100+Byte.toUnsignedInt(stackPointer)));
+		flags = Bus.read((short)(0x100+Byte.toUnsignedInt(stackPointer)));
 		flags = (byte)(flags & (getFlag('B') ? 0b11101111 : 0));
 		flags = (byte)(flags & (getFlag('U') ? 0b11011111 : 0));
 		
@@ -987,6 +996,6 @@ public class CPU {
 	}
 	
 	public void XXX() {
-		System.out.println("Illegal Opcode! (" + ROMLoader.byteToHexString(opcode) +") - "+lookup[Byte.toUnsignedInt(opcode)].opcode);
+		System.out.println("Illegal Opcode at $"+Integer.toHexString(Short.toUnsignedInt(programCounter)).toUpperCase()+" (" + ROMLoader.byteToHexString(opcode) +") - "+lookup[Byte.toUnsignedInt(opcode)].opcode);
 	}
 }

@@ -102,6 +102,9 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
         g.drawString("PORT B: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.via.PORTB)), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.via.PORTB)+")", 35, 550);
         g.drawString("DDR  A: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.via.DDRA)), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.via.DDRA)+")", 35, 580);
         g.drawString("DDR  B: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.via.DDRB)), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.via.DDRB)+")", 35, 610);
+        g.drawString("   PCR: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.via.PCR)), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.via.PCR)+")", 35, 640);
+        g.drawString("   IFR: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.via.IFR)), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.via.IFR)+")", 35, 670);
+        g.drawString("   IER: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.via.IER)), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.via.IER)+")", 35, 700);
         
         //Controls
         g.drawString("Controls:", 50, 750);
@@ -109,6 +112,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
         g.drawString("Space - Pulse Clock", 35, 810);
         g.drawString("R - Reset", 35, 840);
         g.drawString("S - Toggle Slower Clock", 35, 870);
+        g.drawString("I - Trigger VIA CA1", 35, 900);
 	}
 	
 	public static void drawString(Graphics g, String text, int x, int y) {
@@ -179,6 +183,9 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 				break;
 			case 's':
 				EaterEmulator.slowerClock = !EaterEmulator.slowerClock;
+				break;
+			case 'i':
+				EaterEmulator.via.CA1();
 				break;
 		}
 	}
