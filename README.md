@@ -6,7 +6,7 @@ UNIMPLEMENTED FEATURES:
  - DECIMAL MODE
  - LCD Memory (sorry, it's a character-level simulation)
  - LCD Reads (always returns not busy)
- - Every feature on the 65C22 that isn't writing to the LCD (will always read 0).
+ - Most features on the 65C22 (will always read 0).
 
 Some might ask, why write an emulator in Java? And I would respond: "Because no one else would." Sure, Java is terribly slow (more than 1000x slower than the original!), and the fact that Java's ```byte```s and ```short```s are a pain to work with because they're signed, but it's the language I'm best in so I don't care ;)
 
