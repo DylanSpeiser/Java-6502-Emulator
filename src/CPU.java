@@ -539,7 +539,7 @@ public class CPU {
 	//INSTRUCTIONS
 	public void ADC() {
 		fetch();
-		short temp = (short)((short)a + (short)fetched + (short)(getFlag('C') ? 1 : 0));
+		short temp = (short)((short)Byte.toUnsignedInt(a) + (short)Byte.toUnsignedInt(fetched) + (short)(getFlag('C') ? 1 : 0));
 		setFlag('C', temp > 255);
 		setFlag('Z', (temp & 0x00FF) == 0);
 		setFlag('N', (temp & 0x80) == 0x80);

@@ -9,7 +9,7 @@ import javax.swing.*;
 
 public class EaterEmulator extends JFrame implements ActionListener {
 	public static EaterEmulator emu;
-	public static String versionString = "1.3";
+	public static String versionString = "1.4";
 	
 	//Swing Things
 	JPanel p = new JPanel();
