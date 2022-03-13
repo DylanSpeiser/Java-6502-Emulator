@@ -3,6 +3,7 @@
 This is a project I started because I wanted a place to write and test code for my Ben Eater 6502 kit. After seeing some other emulators written in C++ ~~(by sane people)~~, I tried downloading them but had trouble building them. So, I figured I would just write my own. It was a fun process, and was greatly helped by [OneLoneCoder's NES Emulator Tutorial](https://github.com/OneLoneCoder/olcNES). The LCD simulator was 100% me, and I'm proud of it.
 
 UNIMPLEMENTED FEATURES:
+ - All 65c02-specific features (it is functionally a regular 6502 target when compiling code).
  - DECIMAL MODE
  - LCD Memory (sorry, it's a character-level simulation)
  - LCD Reads (always returns not busy)
