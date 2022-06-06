@@ -19,7 +19,7 @@ public class LCD extends JFrame implements ActionListener {
 	
 	boolean graphicalCursorBlinkFlag = false;
 	
-	boolean debug = false;
+	boolean debug = true;
 	
 	//Internal flags
 	int cursorPos = 0;
@@ -131,8 +131,10 @@ public class LCD extends JFrame implements ActionListener {
 					cursorPos += (rightleft ? 1 : -1);
 					if (cursorPos < 0)
 						cursorPos = 0;
-					if (debug)
+					if (debug) {
 						System.out.println("Shifted cursor to the "+(rightleft ? "right." : "left."));
+						System.out.println("CursorPos: "+cursorPos);
+					}
 				}
 			} else if ((data & 0b00001000) == 0b00001000) {
 				//DISPLAY CONTROL
