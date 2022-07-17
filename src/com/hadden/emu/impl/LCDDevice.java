@@ -16,6 +16,7 @@ import javax.swing.*;
 import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
 import com.hadden.emu.BusDevice.IOSize;
+import com.hadden.fonts.FontManager;
 
 public class LCDDevice extends JFrame implements BusDevice, ActionListener
 {
@@ -247,9 +248,7 @@ public class LCDDevice extends JFrame implements BusDevice, ActionListener
 		{
 			try
 			{
-				URL url = LCDPanel.class.getResource("5x8_lcd_hd44780u_a02.ttf");
-				
-				lcdFont = Font.createFont(Font.TRUETYPE_FONT, url.openStream()).deriveFont(47f);
+				lcdFont = FontManager.loadFont(FontManager.FONT_5x8_LCD);
 				GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 				ge.registerFont(lcdFont);
 			}
