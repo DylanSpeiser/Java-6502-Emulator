@@ -15,7 +15,6 @@ public class AddressMap implements Bus
 {
 	private static AddressMap instance = null;
 	
-	//private Map<Integer,BusDevice> mappedAddressSpace = new HashMap<Integer,BusDevice>();
 	private NavigableMap<Integer, BusDevice> mappedAddressSpace = new TreeMap<Integer, BusDevice>();
 
 	private BusDevice defaultSpace = null;

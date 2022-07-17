@@ -1,4 +1,8 @@
-
+;
+;ca65 main.s -D BASE=0x0000
+;cl65 main.o --target none --start-addr 0x0000 -o main.bin
+;
+;
 	.setcpu		"6502"
 	.debuginfo	off
 
@@ -29,6 +33,15 @@
 	iny
 	tya
 	sta     $A002,X
+; print to LCD
+	lda     #$00
+	sta     $B000
+	lda     #$0F
+	sta     $B001
+	lda     #$01
+	sta     $B000
+	lda     #'A'
+	sta     $B001
 ; return back to start
 	rts
 

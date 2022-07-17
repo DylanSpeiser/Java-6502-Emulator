@@ -1,4 +1,4 @@
-package com.hadden.emu;
+package com.hadden;
 //Original Code by Dylan Speiser
 
 //https://github.com/DylanSpeiser
@@ -9,10 +9,13 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import javax.swing.*;
 
-
-import com.hadden.LCD;
-import com.hadden.ROM;
-import com.hadden.ROMLoader;
+import com.hadden.emu.AddressMap;
+import com.hadden.emu.Bus;
+import com.hadden.emu.BusDevice;
+import com.hadden.emu.BusIRQ;
+import com.hadden.emu.CPU;
+import com.hadden.emu.RAM;
+import com.hadden.emu.VIA;
 import com.hadden.emu.impl.DisplayDevice;
 import com.hadden.emu.impl.LCDDevice;
 import com.hadden.emu.impl.RAMDevice;

@@ -1,12 +1,16 @@
 package com.hadden.emu;
+
+import com.hadden.SystemEmulator;
+
+
 public class VIA {
-	byte PORTA = 0x00;
-	byte PORTB = 0x00;
-	byte DDRA = 0x00;
-	byte DDRB = 0x00;
-	byte PCR = 0x00;
-	byte IFR = 0x00;
-	byte IER = 0x00;
+	public byte PORTA = 0x00;
+	public byte PORTB = 0x00;
+	public byte DDRA = 0x00;
+	public byte DDRB = 0x00;
+	public byte PCR = 0x00;
+	public byte IFR = 0x00;
+	public byte IER = 0x00;
 	
 	public byte read(short address) {
 		switch (Short.toUnsignedInt(address)) {

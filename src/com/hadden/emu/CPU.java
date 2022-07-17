@@ -3,6 +3,7 @@ import java.util.Arrays;
 
 import com.hadden.Instruction;
 import com.hadden.ROMLoader;
+import com.hadden.SystemEmulator;
 
 public class CPU
 {
@@ -328,7 +329,7 @@ public class CPU
 		return b;
 	}
 
-	void clock()
+	public void clock()
 	{
 		if (cycles == 0)
 		{
@@ -409,7 +410,7 @@ public class CPU
 	}
 
 	// Input Signal Handlers
-	void reset()
+	public void reset()
 	{
 		a = 0;
 		x = 0;
