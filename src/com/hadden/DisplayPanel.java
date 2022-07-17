@@ -1,3 +1,4 @@
+package com.hadden;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.JPanel;
@@ -5,13 +6,13 @@ import javax.swing.Timer;
 
 public class DisplayPanel extends JPanel implements ActionListener, KeyListener {
 	Timer t;
-	int ramPage = 0;
-	int romPage = 0;
+	public int ramPage = 0;
+	public int romPage = 0;
 	
 	int rightAlignHelper = Math.max(getWidth(), 1334);
 	
-	String ramPageString = "";
-	String romPageString = "";
+	public String ramPageString = "";
+	public String romPageString = "";
 	
 	public DisplayPanel() {
 		super(null);

@@ -1,3 +1,4 @@
+package com.hadden;
 public class ROM {
 	private byte[] array;
 	public String ROMString = "";
