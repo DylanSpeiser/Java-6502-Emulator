@@ -67,14 +67,14 @@ public class SystemEmulator extends JFrame implements ActionListener
 				});
 
 		map.addBusDevice(new DisplayDevice(0x0000A000,40,10))
-		   .addBusDevice(new LCDDevice(0x0000B000));
-		  // .addBusDevice(new TimerDevice(0x0000B003,60000));
+		   .addBusDevice(new LCDDevice(0x0000B000))
+		   .addBusDevice(new TimerDevice(0x0000B003,60000));
 		
 		bus = map;
 		cpu = new CPU(bus);
 		// Swing Stuff:
 		System.setProperty("sun.java2d.opengl", "true");
-		this.setSize(1920, 1080);
+		this.setSize(1500, 1000);
 
 		GraphicsPanel = new DisplayPanel(cpu.getName() + " Emulator");
 		
@@ -93,7 +93,10 @@ public class SystemEmulator extends JFrame implements ActionListener
 
 		// file chooser
 		fc.setVisible(true);
-		fc.setCurrentDirectory(new File("c:\\devprojects\\SystemEmu"));
+		String binDir = System.getProperty("user.home") + System.getProperty("file.separator") + "Downloads";
+		if(System.getenv("SEMU_BIN_DIR")!=null && System.getenv("SEMU_BIN_DIR").length() > 0)
+			binDir = System.getenv("SEMU_BIN_DIR");
+		fc.setCurrentDirectory(new File(binDir));
 
 		// Clock thread setup
 		clockThread = new Thread(() -> {
@@ -118,7 +121,7 @@ public class SystemEmulator extends JFrame implements ActionListener
 
 		// Final Setup
 		GraphicsPanel.setVisible(true);
-		this.setTitle(cpu.getName() + " Emulator");
+		this.setTitle("System Emulator");
 		this.setContentPane(GraphicsPanel);
 		this.setVisible(true);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);

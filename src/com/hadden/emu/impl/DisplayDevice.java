@@ -46,7 +46,7 @@ public class DisplayDevice extends JFrame implements BusDevice, ActionListener
 
 	public DisplayDevice(int baseAddress, int displayColumns, int displayRows)
 	{
-		this.setSize(565, 185);
+		this.setSize(1000, 900);
 		
 		this.baseAddress = baseAddress;
 		this.displayColumns = displayColumns;

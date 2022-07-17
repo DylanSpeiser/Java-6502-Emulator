@@ -27,7 +27,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener
 		t = new javax.swing.Timer(16, this);
 		t.start();
 		setBackground(Color.blue);
-		setPreferredSize(new Dimension(1936, 966));
+		setPreferredSize(new Dimension(1200, 900));
 
 		romPageString = SystemEmulator.rom.ROMString.substring(romPage * 960, (romPage + 1) * 960);
 		ramPageString = SystemEmulator.ram.getRAMString().substring(ramPage * 960, (ramPage + 1) * 960);
