@@ -10,6 +10,7 @@ import java.io.File;
 import javax.swing.*;
 
 import com.hadden.emu.AddressMap;
+import com.hadden.emu.AddressMapImpl;
 import com.hadden.emu.Bus;
 import com.hadden.emu.BusDevice;
 import com.hadden.emu.BusIRQ;
@@ -59,7 +60,7 @@ public class SystemEmulator extends JFrame implements ActionListener
 	{
 		ram = new RAMDevice(0x00000000,64*1024);
 		rom = new ROMDevice(0x00008000);
-		AddressMap map =  new AddressMap((BusDevice)ram,
+		AddressMap map =  new AddressMapImpl((BusDevice)ram,
 	            new BusIRQ() 
 				{
 					@Override
@@ -76,7 +77,7 @@ public class SystemEmulator extends JFrame implements ActionListener
 		
 		map.printAddressMap();
 		
-		bus = map;
+		bus = (Bus)map;
 		cpu = new CPU(bus);
 		// Swing Stuff:
 		System.setProperty("sun.java2d.opengl", "true");
