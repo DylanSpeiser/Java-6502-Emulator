@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import java.util.Scanner;
+import java.util.Stack;
+
 import javax.swing.*;
 
 import com.hadden.emu.BusAddressRange;
@@ -18,8 +20,10 @@ public class Gfx256Device extends JFrame implements BusDevice, HasPorts, ActionL
 	private static final int CONST_WIDTH_SIZE	= 640;
 	private static final int CONST_HEIGHT_SIZE 	= 480;
 	private static final int CONST_PAGE_SIZE 	= 0x2800;
+
+	private Stack repaints = new Stack();
 	
-	GfxPanel p = new GfxPanel();
+	GfxPanel gfxp = new GfxPanel();
 
 	Scanner s;
 
@@ -58,10 +62,10 @@ public class Gfx256Device extends JFrame implements BusDevice, HasPorts, ActionL
 		this.portValue  = 0;
 
 		
-		this.setTitle("GFX256");
+		this.setTitle("GFX256 - " + CONST_WIDTH_SIZE + "x" + CONST_HEIGHT_SIZE);
 		this.setResizable(true);
-		this.add(p);
-		p.setVisible(true);
+		this.add(gfxp);
+		gfxp.setVisible(true);
 		this.setAlwaysOnTop(true);
 		this.setVisible(true);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -101,22 +105,23 @@ public class Gfx256Device extends JFrame implements BusDevice, HasPorts, ActionL
 		{
 			super.paint(g);
 			System.out.println("paintComponent");
-			g.setColor(Color.BLACK);
-			g.fillRect(0, 0, p.getWidth(), p.getHeight());
-			// g.setColor(Color.RED); 
+			//g.setColor(Color.BLACK);
+			//g.fillRect(0, 0, gfxp.getWidth(), gfxp.getHeight());
+			//for(int p=0;p<30;p++)
 			
-			for(int p=0;p<30;p++)
+			if(!repaints.empty())
 			{
+				int p = ((Integer)repaints.pop()).intValue();
+				System.out.println("Page:" + p);
 				for(int i=0;i<banks[p].length;i++)
 				{			
-					
 					if(banks[p][i] != 0)
 					{
 						Color color = palette[banks[p][i]];
 						int x1 =  ((int)(i % (float)CONST_WIDTH_SIZE));
 						int y1 =  ((int)(i / (float)CONST_WIDTH_SIZE)) + (16*p);
 	
-						System.out.println("[" + Integer.toHexString(i) + "]x1:" + x1 + "," + y1);
+						//System.out.println("[" + Integer.toHexString(i) + "]x1:" + x1 + "," + y1);
 						g.setColor(color);
 						g.drawLine(x1,y1,x1,y1);
 					}
@@ -199,7 +204,9 @@ public class Gfx256Device extends JFrame implements BusDevice, HasPorts, ActionL
 			return;
 		}
 		banks[portValue][this.bar.getRelativeAddress(address)] = (byte)value;
-		p.repaint();
+		repaints.push(portValue);
+		System.out.println("Push Page:" + portValue);
+		gfxp.repaint();
 	}
 
 	@Override
@@ -241,7 +248,6 @@ public class Gfx256Device extends JFrame implements BusDevice, HasPorts, ActionL
 		*/
 	}
 
-	@SuppressWarnings("unused")
 	public static void main(String[] args)
 	{
 		Gfx256Device display = new Gfx256Device(0x0000E000);
