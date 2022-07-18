@@ -18,13 +18,26 @@ public class AddressMap implements Bus
 
 	private BusDevice defaultSpace = null;
 	private BusIRQ birq = null;
+
+	public AddressMap()
+	{
+	}	
+	
+	public void setDefaultDevice(BusDevice bd)
+	{
+		this.defaultSpace  = bd;		
+	}
+
+	public void setIRQHandler(BusIRQ busIRQ)
+	{
+		this.birq  = busIRQ;		
+	}
 	
 	public AddressMap(BusDevice bd, BusIRQ birq)
 	{
 		this.defaultSpace  = bd;		
 		this.birq = birq;
 	}
-	
 
 	public AddressMap addBusDevice(BusDevice bd)
 	{
@@ -164,7 +177,22 @@ public class AddressMap implements Bus
 	{
 		for(Integer adr : this.mappedAddressSpace.keySet())
 		{
-			System.out.println(Integer.toHexString(adr).toUpperCase() + ":" + mappedAddressSpace.get(adr).getName());
+			String hex = Integer.toHexString(adr).toUpperCase();
+			
+			int hlen = hex.length();
+			int nlen = (8 - hlen);
+			
+			if(nlen > 0)
+			{
+				for(int i=0;i<nlen;i++)
+				{
+					hex = "0" + hex;
+				}
+			}	
+			
+			hex = hex.substring(0,4) + ":" + hex.substring(4); 
+			
+			System.out.println("[" + hex + "] " + mappedAddressSpace.get(adr).getName());
 			
 		}
 	}
