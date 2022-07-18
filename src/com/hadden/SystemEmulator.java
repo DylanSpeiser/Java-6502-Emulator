@@ -102,11 +102,11 @@ public class SystemEmulator extends JFrame implements ActionListener
 			binDir = System.getenv("SEMU_BIN_DIR");
 
 		String ramDir = binDir;
-		if(System.getenv("SEMU_RAM_DIR")!=null && System.getenv("SEMU_BIN_DIR").length() > 0)
+		if(System.getenv("SEMU_RAM_DIR")!=null && System.getenv("SEMU_RAM_DIR").length() > 0)
 			ramDir = System.getenv("SEMU_RAM_DIR");
 
 		String romDir = binDir;
-		if(System.getenv("SEMU_ROM_DIR")!=null && System.getenv("SEMU_BIN_DIR").length() > 0)
+		if(System.getenv("SEMU_ROM_DIR")!=null && System.getenv("SEMU_ROM_DIR").length() > 0)
 			romDir = System.getenv("SEMU_ROM_DIR");
 
 		
