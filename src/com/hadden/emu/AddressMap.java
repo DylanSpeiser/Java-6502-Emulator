@@ -9,6 +9,7 @@ import com.hadden.emu.impl.DisplayDevice;
 import com.hadden.emu.impl.Gfx256Device;
 import com.hadden.emu.impl.LCDDevice;
 import com.hadden.emu.impl.RAMDevice;
+import com.hadden.emu.impl.ROMDevice;
 import com.hadden.emu.impl.TimerDevice;
 
 public class AddressMap implements Bus
@@ -76,11 +77,15 @@ public class AddressMap implements Bus
 											}
 										});
 
-		map.addBusDevice(new DisplayDevice(0x0000A000,40,10))
+		map.addBusDevice(new ROMDevice(0x00008000))
+		   .addBusDevice(new DisplayDevice(0x0000A000,40,10))
 		   .addBusDevice(new LCDDevice(0x0000B000))
 		   .addBusDevice(new TimerDevice(0x0000B003,60000))
 		   .addBusDevice(new Gfx256Device(0x0000E000))
 		   ;
+		
+		
+		map.printAddressMap();
 		
 		BusDevice bd = map.getMemoryMappedDevice(0x00001000);
 		if(bd!=null)
@@ -152,6 +157,16 @@ public class AddressMap implements Bus
 		}		
 		
 		getMemoryMappedDevice(laddr).writeAddress(laddr, data,IOSize.IO8Bit);		
+	}
+
+
+	public void printAddressMap()
+	{
+		for(Integer adr : this.mappedAddressSpace.keySet())
+		{
+			System.out.println(Integer.toHexString(adr).toUpperCase() + ":" + mappedAddressSpace.get(adr).getName());
+			
+		}
 	}
 
 

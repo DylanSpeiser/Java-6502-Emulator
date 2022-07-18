@@ -74,6 +74,8 @@ public class SystemEmulator extends JFrame implements ActionListener
 		   .addBusDevice(new LCDDevice(0x0000B000))
 		   .addBusDevice(new TimerDevice(0x0000B003,60000));
 		
+		map.printAddressMap();
+		
 		bus = map;
 		cpu = new CPU(bus);
 		// Swing Stuff:
