@@ -96,6 +96,7 @@ public class SystemEmulator extends JFrame implements ActionListener
 		String binDir = System.getProperty("user.home") + System.getProperty("file.separator") + "Downloads";
 		if(System.getenv("SEMU_BIN_DIR")!=null && System.getenv("SEMU_BIN_DIR").length() > 0)
 			binDir = System.getenv("SEMU_BIN_DIR");
+		
 		fc.setCurrentDirectory(new File(binDir));
 
 		// Clock thread setup

@@ -248,7 +248,7 @@ public class LCDDevice extends JFrame implements BusDevice, ActionListener
 		{
 			try
 			{
-				lcdFont = FontManager.loadFont(FontManager.FONT_5x8_LCD);
+				lcdFont = FontManager.loadFont(FontManager.FONT_LCD_BLOCK);
 				GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 				ge.registerFont(lcdFont);
 			}
@@ -371,6 +371,13 @@ public class LCDDevice extends JFrame implements BusDevice, ActionListener
 		Scanner scan = new Scanner(System.in);
 		System.out.println("[Address] [data]");
 
+		lcd.writeAddress(0x0000b000, 0, IOSize.IO8Bit);
+		lcd.writeAddress(0x0000b001, 15, IOSize.IO8Bit);
+		for(int i=0;i<32;i++)
+		{
+			lcd.writeAddress(0x0000b000, 1, IOSize.IO8Bit);
+			lcd.writeAddress(0x0000b001, 65+i, IOSize.IO8Bit);		
+		}
 		while (true)
 		{
 			String input = scan.nextLine();

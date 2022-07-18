@@ -1,20 +1,18 @@
 package com.hadden.emu;
 
-import java.util.HashMap;
-import java.util.Map;
+
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import com.hadden.emu.BusDevice.IOSize;
 import com.hadden.emu.impl.DisplayDevice;
+import com.hadden.emu.impl.Gfx256Device;
 import com.hadden.emu.impl.LCDDevice;
 import com.hadden.emu.impl.RAMDevice;
 import com.hadden.emu.impl.TimerDevice;
 
 public class AddressMap implements Bus
 {
-	private static AddressMap instance = null;
-	
 	private NavigableMap<Integer, BusDevice> mappedAddressSpace = new TreeMap<Integer, BusDevice>();
 
 	private BusDevice defaultSpace = null;
@@ -30,10 +28,23 @@ public class AddressMap implements Bus
 	public AddressMap addBusDevice(BusDevice bd)
 	{
 		mappedAddressSpace.put(bd.getBusAddressRange().getLowAddress(), bd);
-		mappedAddressSpace.put(bd.getBusAddressRange().getHighAddress()+1, defaultSpace);
+		mappedAddressSpace.put(bd.getBusAddressRange().getHighAddress() + 1, defaultSpace);
 		
 		if(bd instanceof RaisesIRQ)
 			((RaisesIRQ)(bd)).attach(this.birq);
+		
+		if(bd instanceof HasPorts)
+		{
+			BusDevice[] ports = ((HasPorts)bd).ports(bd.getBusAddressRange().getLowAddress());
+			if(ports!=null)
+			{
+				for(BusDevice port : ports)
+				{
+					mappedAddressSpace.put(port.getBusAddressRange().getLowAddress(), port);
+					mappedAddressSpace.put(port.getBusAddressRange().getHighAddress() + 1, defaultSpace);				
+				}
+			}
+		}
 		
 		return this;
 	}
@@ -67,7 +78,9 @@ public class AddressMap implements Bus
 
 		map.addBusDevice(new DisplayDevice(0x0000A000,40,10))
 		   .addBusDevice(new LCDDevice(0x0000B000))
-		   .addBusDevice(new TimerDevice(0x0000B003,60000));
+		   .addBusDevice(new TimerDevice(0x0000B003,60000))
+		   .addBusDevice(new Gfx256Device(0x0000E000))
+		   ;
 		
 		BusDevice bd = map.getMemoryMappedDevice(0x00001000);
 		if(bd!=null)

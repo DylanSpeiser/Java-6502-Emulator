@@ -7,21 +7,37 @@ import java.net.URL;
 public class FontManager
 {
 	public static final int FONT_5x8_LCD = 0;
+	public static final int FONT_ARCADE_CLS = 1;
+	public static final int FONT_LCD_BLOCK = 2;
 	
-	private static final String[][] fontNames = {{"5x8_lcd_hd44780u_a02.ttf"}};
+	private static final String[][] fontNames = {{"5x8_lcd_hd44780u_a02.ttf"},
+			                                     {"ARCADECLASSIC.TTF"},
+			                                     {"lcd-block.ttf"}};
 	
 	public FontManager()
 	{
 		
 	}
-	
+
 	public static Font loadFont(int fontId)
 	{
 		Font font = null;
 		
 		if(fontId < fontNames.length)
 		{
-			font = loadFont(fontNames[fontId][0]);
+			font = loadFont(fontNames[fontId][0],47f);
+		}
+		
+		return font;
+	}
+	
+	public static Font loadFont(int fontId, float scale)
+	{
+		Font font = null;
+		
+		if(fontId < fontNames.length)
+		{
+			font = loadFont(fontNames[fontId][0],scale);
 		}
 		
 		return font;
