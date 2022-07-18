@@ -29,7 +29,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener
 		setBackground(Color.blue);
 		setPreferredSize(new Dimension(1200, 900));
 
-		romPageString = SystemEmulator.rom.ROMString.substring(romPage * 960, (romPage + 1) * 960);
+		romPageString = SystemEmulator.rom.getROMString().substring(romPage * 960, (romPage + 1) * 960);
 		ramPageString = SystemEmulator.ram.getRAMString().substring(ramPage * 960, (ramPage + 1) * 960);
 
 		this.setFocusable(true);
@@ -213,14 +213,14 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener
 			if (romPage < 0x80)
 			{
 				romPage += 1;
-				romPageString = SystemEmulator.rom.ROMString.substring(romPage * 960, (romPage + 1) * 960);
+				romPageString = SystemEmulator.rom.getROMString().substring(romPage * 960, (romPage + 1) * 960);
 			}
 			break;
 		case 'k':
 			if (romPage > 0)
 			{
 				romPage -= 1;
-				romPageString = SystemEmulator.rom.ROMString.substring(romPage * 960, (romPage + 1) * 960);
+				romPageString = SystemEmulator.rom.getROMString().substring(romPage * 960, (romPage + 1) * 960);
 			}
 			break;
 		case 'j':

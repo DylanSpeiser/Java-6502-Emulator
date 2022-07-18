@@ -15,10 +15,12 @@ import com.hadden.emu.BusDevice;
 import com.hadden.emu.BusIRQ;
 import com.hadden.emu.CPU;
 import com.hadden.emu.RAM;
+import com.hadden.emu.ROM;
 import com.hadden.emu.VIA;
 import com.hadden.emu.impl.DisplayDevice;
 import com.hadden.emu.impl.LCDDevice;
 import com.hadden.emu.impl.RAMDevice;
+import com.hadden.emu.impl.ROMDevice;
 import com.hadden.emu.impl.TimerDevice;
 
 
@@ -43,7 +45,7 @@ public class SystemEmulator extends JFrame implements ActionListener
 
 	// Emulator Things
 	public static RAM ram = null;//new RAMImpl();//new RAM();
-	public static ROM rom = new ROM();
+	public static ROM rom = null; //new ROM();
 	//public static LCD lcd = new LCD();
 	public static VIA via = new VIA();
 	//public static Bus bus = new BusImpl();
@@ -56,6 +58,7 @@ public class SystemEmulator extends JFrame implements ActionListener
 	public SystemEmulator()
 	{
 		ram = new RAMDevice(0x00000000,64*1024);
+		rom = new ROMDevice(0x00008000);
 		AddressMap map =  new AddressMap((BusDevice)ram,
 	            new BusIRQ() 
 				{
@@ -66,7 +69,8 @@ public class SystemEmulator extends JFrame implements ActionListener
 					}
 				});
 
-		map.addBusDevice(new DisplayDevice(0x0000A000,40,10))
+		map.addBusDevice((BusDevice)rom)
+		   .addBusDevice(new DisplayDevice(0x0000A000,40,10))
 		   .addBusDevice(new LCDDevice(0x0000B000))
 		   .addBusDevice(new TimerDevice(0x0000B003,60000));
 		
@@ -96,6 +100,15 @@ public class SystemEmulator extends JFrame implements ActionListener
 		String binDir = System.getProperty("user.home") + System.getProperty("file.separator") + "Downloads";
 		if(System.getenv("SEMU_BIN_DIR")!=null && System.getenv("SEMU_BIN_DIR").length() > 0)
 			binDir = System.getenv("SEMU_BIN_DIR");
+
+		String ramDir = binDir;
+		if(System.getenv("SEMU_RAM_DIR")!=null && System.getenv("SEMU_BIN_DIR").length() > 0)
+			ramDir = System.getenv("SEMU_RAM_DIR");
+
+		String romDir = binDir;
+		if(System.getenv("SEMU_ROM_DIR")!=null && System.getenv("SEMU_BIN_DIR").length() > 0)
+			romDir = System.getenv("SEMU_ROM_DIR");
+
 		
 		fc.setCurrentDirectory(new File(binDir));
 
@@ -141,8 +154,11 @@ public class SystemEmulator extends JFrame implements ActionListener
 				rom.setROMArray(ROMLoader.readROM(fc.getSelectedFile()));
 			}
 			GraphicsPanel.requestFocus();
-			GraphicsPanel.romPageString = SystemEmulator.rom.ROMString.substring(GraphicsPanel.romPage * 960,
-					(GraphicsPanel.romPage + 1) * 960);
+			GraphicsPanel.romPageString = SystemEmulator.rom.getROMString().substring(GraphicsPanel.romPage * 960,
+					SystemEmulator.rom.getROMString().length());
+			
+			ram.setRAMArray(new byte[] {0x4C, 0x00, (byte) 0x80});
+			
 			cpu.reset();
 		}
 		else if (e.getSource().equals(RAMopenButton))
