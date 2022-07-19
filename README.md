@@ -4,7 +4,7 @@
 This is a project I started because I wanted a place to write and test code for my Ben Eater 6502 kit. After seeing some other emulators written in C++ ~~(by sane people)~~, I tried downloading them but had trouble building them. So, I figured I would just write my own. It was a fun process, and was greatly helped by [OneLoneCoder's NES Emulator Tutorial](https://github.com/OneLoneCoder/olcNES). The LCD simulator was 100% me, and I'm proud of it.
 
 ** Mike's Extensions **
-This was a great project to find and I really appreciate what Dylan has done.  My need was to have flexible device configuration and easily mapped IO ports to model real reto hardware. The existing project construction provided an easy way to get what I wanted and allowed me to get there, quickly,  in workable stages.
+This was a great project to find and I really appreciate what Dylan has done.  My need was to have flexible device configuration and easily mapped IO ports to model real reto hardware. The existing project construction provided an easy way to get what I wanted and allowed me to get there, quickly,  in workable stages. THis is still a work in progress and is buggy and has some features only stubbed out.
 
 ADDED FEATURES:
  - Flexible Bus Architecture for ease of modeling systems
@@ -62,3 +62,4 @@ You can load ```.bin``` files into RAM or ROM using the File Pickers in the top 
 ![Screenshot 2](screenshots/screenshot2.png?raw=true)
 ![Text Display](screenshots/display.png?raw=true)
 ![Graphics Display](screenshots/gfx.png?raw=true)
+![Configuration](screenshots/cfg.png?raw=true)
