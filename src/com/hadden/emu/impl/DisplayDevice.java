@@ -209,10 +209,26 @@ public class DisplayDevice extends JFrame implements BusDevice, ActionListener
 		DisplayDevice display = new DisplayDevice(0x0000A000,40,10);
 		System.out.println(display.getBusAddressRange().getLowAddressHex()+ ":" +  display.getBusAddressRange().getHighAddressHex());	
 		
+		int ascii = 32;
+		for(int row=0;row<10;row++)
+		{
+			for(int col=0;col<40;col++)
+			{
+				display.writeAddress(0x0000A000 + (40*row) + col, ascii++, IOSize.IO8Bit);
+				if(ascii > 126)
+				{
+					ascii = 32;
+				}
+			}
+		}
+		
 		@SuppressWarnings("resource")
 		Scanner scan = new Scanner(System.in);
 		System.out.println("[ADDRESS] [CHAR]");
 
+		
+		
+		
 		while (true)
 		{
 			String input = scan.nextLine();
