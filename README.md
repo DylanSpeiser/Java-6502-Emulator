@@ -15,7 +15,13 @@ ADDED FEATURES:
      - 640x480 256 Color Paged Graphics Mode
      - Banked RAM module, up to 256 banks with 64k each
      - Timer Device with IRQ
- 	 
+ - Included ROM and RAM demo binaries
+ - New Font Resource Manager
+ - New ROM Resource Manager
+ - New System Configuration Loader
+ - Extensible CPU model, could model, say a Z-80
+ - Address Mapper
+ 
 
 UNIMPLEMENTED FEATURES:
  - All 65c02-specific features (it is functionally a regular 6502 target when compiling code).
