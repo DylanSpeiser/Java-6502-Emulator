@@ -178,6 +178,7 @@ public class Gfx256Device extends JFrame implements BusDevice, HasPorts, ActionL
 			//
 			//if(!repaints.empty())
 			{
+				int pageOffset = (16*p);
 				//int p = portValueLast; //((Integer)repaints.pop()).intValue();
 				//System.out.println("Page:" + p);
 				for(int i=0;i<banks[p].length;i++)
@@ -186,7 +187,7 @@ public class Gfx256Device extends JFrame implements BusDevice, HasPorts, ActionL
 					{
 						Color color = palette[banks[p][i]];
 						int x1 =  ((int)(i % (float)CONST_WIDTH_SIZE));
-						int y1 =  ((int)(i / (float)CONST_WIDTH_SIZE)) + (16*p);
+						int y1 =  ((int)(i / (float)CONST_WIDTH_SIZE)) + pageOffset;
 	
 						//System.out.println("[" + Integer.toHexString(i) + "]x1:" + x1 + "," + y1);
 						g.setColor(color);
