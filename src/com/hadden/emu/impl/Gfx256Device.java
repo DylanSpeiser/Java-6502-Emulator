@@ -213,12 +213,12 @@ public class Gfx256Device extends JFrame implements BusDevice, HasPorts, ActionL
 	public BusDevice[] ports(int baseAddress)
 	{
 		BusDevice[] ports = {
-		new GfxPort("GFX-256-RENDERPORT",basePort + CONST_RENDER_REG,barPort[CONST_RENDER_REG]), //this.barPort[CONST_RENDER_REG]  = new BusAddressRange(basePort + CONST_RENDER_REG,1,1);
-		new GfxPort("GFX-256-XHIPORT",basePort    + CONST_X_HIGH,barPort[CONST_X_HIGH]), //this.barPort[CONST_X_HIGH]      = new BusAddressRange(basePort + CONST_X_HIGH,1,1);
-		new GfxPort("GFX-256-XLOPORT",basePort    + CONST_X_LOW,barPort[CONST_X_LOW]), //this.barPort[CONST_X_LOW]       = new BusAddressRange(basePort + CONST_X_LOW,1,1);
-		new GfxPort("GFX-256-YHIPORT",basePort    + CONST_Y_HIGH,barPort[CONST_Y_HIGH]), //this.barPort[CONST_Y_HIGH]      = new BusAddressRange(basePort + CONST_Y_HIGH,1,1);
-		new GfxPort("GFX-256-YLOPORT",basePort    + CONST_Y_LOW,barPort[CONST_Y_LOW]), //this.barPort[CONST_Y_LOW]       = new BusAddressRange(basePort + CONST_Y_LOW,1,1);
-		new GfxPort("GFX-256-BANKPORT",basePort   + CONST_BANK_REG,barPort[CONST_BANK_REG]), //this.barPort[CONST_BANK_REG]    = new BusAddressRange(basePort + CONST_BANK_REG,1,1);		
+		new GfxPort("GFX-256-RENDERPORT",basePort + CONST_RENDER_REG,barPort[CONST_RENDER_REG]), 
+		new GfxPort("GFX-256-XHIPORT",basePort    + CONST_X_HIGH,barPort[CONST_X_HIGH]), 
+		new GfxPort("GFX-256-XLOPORT",basePort    + CONST_X_LOW,barPort[CONST_X_LOW]), 
+		new GfxPort("GFX-256-YHIPORT",basePort    + CONST_Y_HIGH,barPort[CONST_Y_HIGH]), 
+		new GfxPort("GFX-256-YLOPORT",basePort    + CONST_Y_LOW,barPort[CONST_Y_LOW]), 
+		new GfxPort("GFX-256-BANKPORT",basePort   + CONST_BANK_REG,barPort[CONST_BANK_REG]), 		
 		};
 		return ports;
 	}	
