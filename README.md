@@ -7,10 +7,15 @@ This is a project I started because I wanted a place to write and test code for 
 This was a great project to find and I really appreciate what Dylan has done.  My need was to have flexible device configuration and easily mapped IO ports to model real reto hardware. The existing project construction provided an easy way to get what I wanted and allowed me to get there, quickly,  in workable stages.
 
 ADDED FEATURES:
- - Flexible Bus Architecture for east of modeling systems
+ - Flexible Bus Architecture for ease of modeling systems
  - Mapped IO
  - System can be defined in configuration
  - Many bus devices out of the box with changeable addresses
+     - 40x25 Text Display with variable fonts
+     - 640x480 256 Color Paged Graphics Mode
+     - Banked RAM module, up to 256 banks with 64k each
+     - Timer Device with IRQ
+ 	 
 
 UNIMPLEMENTED FEATURES:
  - All 65c02-specific features (it is functionally a regular 6502 target when compiling code).
