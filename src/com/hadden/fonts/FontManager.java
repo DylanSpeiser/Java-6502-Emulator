@@ -9,10 +9,16 @@ public class FontManager
 	public static final int FONT_5x8_LCD = 0;
 	public static final int FONT_ARCADE_CLS = 1;
 	public static final int FONT_LCD_BLOCK = 2;
+	public static final int FONT_KONG_TEXT = 3;
+	public static final int FONT_NPIXELTEXT = 4;
+	public static final int FONT_JOYSTICK_TEXT = 5;
 	
 	private static final String[][] fontNames = {{"5x8_lcd_hd44780u_a02.ttf"},
 			                                     {"ARCADECLASSIC.TTF"},
-			                                     {"lcd-block.ttf"}};
+			                                     {"lcd-block.ttf"},
+			                                     {"kongtext.ttf"},
+			                                     {"NeuePixelSans.ttf"},
+			                                     {"joystixmono.ttf"}};
 	
 	public FontManager()
 	{

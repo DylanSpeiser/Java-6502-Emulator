@@ -221,7 +221,7 @@ public class SystemConfigLoader
 	
 	public static void main(String[] args)
 	{
-		String configPathName = "C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\system.cfg";
+		String configPathName = System.getenv("SEMU_CFG_DIR") + File.separator + "system.cfg";
 		loadSystem(configPathName);
 		
 		

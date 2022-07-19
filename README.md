@@ -61,5 +61,6 @@ You can load ```.bin``` files into RAM or ROM using the File Pickers in the top 
 ![Screenshot 1](screenshots/screenshot1.png?raw=true)
 ![Screenshot 2](screenshots/screenshot2.png?raw=true)
 ![Text Display](screenshots/display.png?raw=true)
+![Text New Font Display](screenshots/font.png?raw=true)
 ![Graphics Display](screenshots/gfx.png?raw=true)
 ![Configuration](screenshots/cfg.png?raw=true)
