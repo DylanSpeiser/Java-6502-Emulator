@@ -169,7 +169,9 @@ public class AudioDevice implements BusDevice, RAM
 			
 			try
 			{
-				FileInputStream faudio = new FileInputStream("c:\\Users\\mike.bush\\downloads\\audio.snd");
+				//FileInputStream faudio = new FileInputStream("c:\\Users\\mike.bush\\downloads\\audio.snd");
+				//FileOutputStream faudio = new FileOutputStream("c:\\downloads\\audio.snd");
+				FileInputStream faudio = new FileInputStream("c:\\downloads\\audio.snd");
 				
 				//for (int i = 0; i < durationMs * (float) frequency / 1000; i++)
 				for (int j = 0; j < 1; j++)
@@ -188,20 +190,21 @@ public class AudioDevice implements BusDevice, RAM
 																		// 32767)
 						buf[0] = (byte) (a & 0xFF); // LO
 						buf[1] = (byte) (a >> 8);   // HI
-						System.out.println("{0x" +  Integer.toHexString(Byte.toUnsignedInt(buf[0])) + ",0x" + Integer.toHexString(Byte.toUnsignedInt(buf[1])) + "},//" + i );
+						System.out.println("{0x" +  Integer.toHexString(Byte.toUnsignedInt(buf[0])) + 
+								           ",0x" + Integer.toHexString(Byte.toUnsignedInt(buf[1])) + "},//" + i );
 						faudio.write((int)buf[0]);
 						faudio.write((int)buf[1]);
-
 						*/
+						
 												
 						//int[] s = sound[i];
 						
 						//System.out.println("[0x" +  Integer.toHexString((s[0])) + ",0x" + Integer.toHexString((s[1])) + "]," );
 						
-						//faudio.read(buf);
+						faudio.read(buf);
 						
-						buf[0] = 0xe;
-						buf[1] = 0x7f;
+						//buf[0] = 0xe;
+						//buf[1] = 0x7f;
 						
 						sdl.write(buf, 0, 2);
 					}			
