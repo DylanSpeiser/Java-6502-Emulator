@@ -6,9 +6,6 @@ import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.net.URL;
-import java.util.Arrays;
 import java.util.Scanner;
 
 import javax.swing.*;
@@ -16,12 +13,15 @@ import javax.swing.*;
 import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
 import com.hadden.emu.BusDevice.IOSize;
-import com.hadden.emu.impl.Gfx256Device.GfxPort;
+
 import com.hadden.emu.HasPorts;
 import com.hadden.fonts.FontManager;
 
 public class DisplayDevice extends JFrame implements BusDevice, HasPorts, ActionListener
 {
+	private static final int CONST_COLORPAGE   = 0;
+	private static final int CONST_PALETTEPORT = 1;
+	
 	DisplayPanel p = new DisplayPanel();
 	Timer t;
 	Timer cursorTimer;
@@ -47,6 +47,8 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 	BusAddressRange bar = null;
 	char[] bank = null;
 	int bankSize = 0;
+	TextPort[] ports = null;
+	int regsPalette[] = {0,0,0};
 
 	Color palette[] = {
 			Color.getHSBColor(0.62f, 0.87f, 0.78f),
@@ -87,6 +89,8 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 			this.port = port;
 			this.bar  = bar;
 			this.parent = parent;
+			
+			System.out.println("TextPort:" + name + "[" + port + "]");
 		}		
 		
 		@Override
@@ -153,6 +157,14 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 									   bankSize,
 				                       1);
 		this.basePort = this.baseAddress  + bank.length;
+		
+		
+		ports = new TextPort[2];
+		ports[CONST_COLORPAGE]   = new TextPort("TEXT-COLORPAGE",bar.getHighAddress()+1,
+				                                new BusAddressRange(bar.getHighAddress()+1,bankSize,1), this);
+		ports[CONST_PALETTEPORT] = new TextPort("TEXT-PALETTEPORT",bar.getHighAddress()+bankSize+1,
+				                                new BusAddressRange(bar.getHighAddress()+bankSize+1,3 + 1,1), this); 			
+		
 		
 		t = new Timer(100, this);
 		t.start();
@@ -278,6 +290,27 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 	@Override
 	public void writeAddress(int address, int value, IOSize size)
 	{
+		if(ports[CONST_PALETTEPORT].bar.getLowAddress() == address)
+		{
+			palette[value] =  new Color(regsPalette[0], regsPalette[1], regsPalette[2]);
+			return;
+		} 
+		if(ports[CONST_PALETTEPORT].bar.getLowAddress() + 1 == address) 
+		{
+			regsPalette[0] = value;
+			return;
+		}
+		if(ports[CONST_PALETTEPORT].bar.getLowAddress() + 2 == address) 
+		{
+			regsPalette[1] = value;
+			return;
+		}
+		if(ports[CONST_PALETTEPORT].bar.getLowAddress() + 3 == address)
+		{
+			regsPalette[2] = value;
+			return;
+		}
+		
 		bank[this.bar.getRelativeAddress(address)] = (char) value;
 	}
 
@@ -316,19 +349,44 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 		}
 	}
 
+	@Override
+	public BusDevice[] ports(int baseAddress)
+	{
+		BusDevice[] ports = 
+		{
+			new TextPort("TEXT-COLORPAGE",bar.getHighAddress()+1,new BusAddressRange(bar.getHighAddress()+1,bankSize,1), this),
+			new TextPort("TEXT-PALETTEPORT",bar.getHighAddress()+bankSize+1,new BusAddressRange(bar.getHighAddress()+bankSize+1,3 + 1,1), this), 			
+		};
+		return ports;
+	}	
+	
 	@SuppressWarnings("unused")
 	public static void main(String[] args)
 	{
 		DisplayDevice display = new DisplayDevice(0x0000A000,40,10);
 		System.out.println(display.getBusAddressRange().getLowAddressHex()+ ":" +  display.getBusAddressRange().getHighAddressHex());	
 		
+		int colorPort = 0x0000A320;
+		int curColor = 0x6F;
+		
 		int ascii = 32;
 		for(int row=0;row<10;row++)
 		{
+			if(row == 2)
+			{
+				display.writeAddress(colorPort + 1,127, IOSize.IO8Bit);
+				display.writeAddress(colorPort + 2,127, IOSize.IO8Bit);
+				display.writeAddress(colorPort + 3,127, IOSize.IO8Bit);
+				display.writeAddress(colorPort,5, IOSize.IO8Bit);
+				//display.writeAddress(0x0000A000 + (40*row) + col + display.bankSize, 0x6F, IOSize.IO8Bit);
+				//display.writeAddress(0x0000A000 + (40*row) + col + display.bankSize, 0x6F, IOSize.IO8Bit);
+				curColor = 0x65;
+			}
+			
 			for(int col=0;col<40;col++)
 			{
 				if(ascii == 65)
-					display.writeAddress(0x0000A000 + (40*row) + col + display.bankSize, 0x6F, IOSize.IO8Bit);
+					display.writeAddress(0x0000A000 + (40*row) + col + display.bankSize, curColor, IOSize.IO8Bit);
 				
 				display.writeAddress(0x0000A000 + (40*row) + col, ascii++, IOSize.IO8Bit);
 				if(ascii > 126)
@@ -361,16 +419,5 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 		}
 	}
 
-
-	@Override
-	public BusDevice[] ports(int baseAddress)
-	{
-		BusDevice[] ports = 
-		{
-			new TextPort("TEXT-COLORPAGE",bar.getHighAddress()+1,new BusAddressRange(bar.getHighAddress()+1,bankSize,1), this),
-			new TextPort("TEXT-PALETTEPORT",bar.getHighAddress()+bankSize+1,new BusAddressRange(bar.getHighAddress()+bankSize+1,3 + 1,1), this), 			
-		};
-		return ports;
-	}
 	
 }
