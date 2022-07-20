@@ -73,14 +73,21 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 		private String name;
 		private int port;
 		private BusAddressRange bar;
+		private BusDevice parent = null;
 		private int portValue = 0;
 		
 		public TextPort(String name, int port, BusAddressRange bar)
 		{
+			this(name, port, bar,null);
+		}
+
+		public TextPort(String name, int port, BusAddressRange bar, BusDevice parent)
+		{
 			this.name = name;
 			this.port = port;
 			this.bar  = bar;
-		}
+			this.parent = parent;
+		}		
 		
 		@Override
 		public String getName()
@@ -97,6 +104,12 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 		@Override
 		public void writeAddress(int address, int value, IOSize size)
 		{
+			if(this.parent!=null)
+			{
+				this.parent.writeAddress(address, value,size);
+				return;
+			}
+				
 			if(address == port)
 				portValue = value;				
 		}
@@ -104,6 +117,9 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 		@Override
 		public int readAddressSigned(int address, IOSize size)
 		{
+			if(this.parent!=null)
+				return this.parent.readAddressSigned(address, size);
+			
 			if(address == port)
 				return portValue;
 			
@@ -113,6 +129,9 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 		@Override
 		public int readAddressUnsigned(int address, IOSize size)
 		{
+			if(this.parent!=null)
+				return this.parent.readAddressUnsigned(address, size);
+			
 			if(address == port)
 				return portValue;
 			
@@ -131,9 +150,9 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 		this.displayRows = displayRows;
 		this.bank = new char[bankSize*2];
 		this.bar = new BusAddressRange(baseAddress,
-									  this.bankSize*2,
+									   bankSize,
 				                       1);
-		this.basePort = this.baseAddress + bank.length;
+		this.basePort = this.baseAddress  + bank.length;
 		
 		t = new Timer(100, this);
 		t.start();
@@ -247,7 +266,7 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 	@Override
 	public String getName()
 	{
-		return "DISPLAY";
+		return "TEXT-DISPLAY";
 	}
 
 	@Override
@@ -348,7 +367,8 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 	{
 		BusDevice[] ports = 
 		{
-			new TextPort("TEXT-PALETTEPORT",basePort,new BusAddressRange(basePort,3 + 1,1)), 
+			new TextPort("TEXT-COLORPAGE",bar.getHighAddress()+1,new BusAddressRange(bar.getHighAddress()+1,bankSize,1), this),
+			new TextPort("TEXT-PALETTEPORT",bar.getHighAddress()+bankSize+1,new BusAddressRange(bar.getHighAddress()+bankSize+1,3 + 1,1), this), 			
 		};
 		return ports;
 	}
