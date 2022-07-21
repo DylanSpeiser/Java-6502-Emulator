@@ -46,6 +46,10 @@ loop:
 	iny
 	tya
 	sta     $A002,X
+	
+
+	
+	
 ; print to LCD
 	lda     #$00
 	sta     $B000
@@ -53,14 +57,10 @@ loop:
 	sta     $B001
 	lda     #$01
 	sta     $B000
-	lda     #'a'
+	lda     #'A'
 	sta     $B001
-	lda     #$01
-	sta     $B000
-	lda     #'b'
-	sta     $B001; return back to start
+; return back to start
 	rts
-
 
 	
 

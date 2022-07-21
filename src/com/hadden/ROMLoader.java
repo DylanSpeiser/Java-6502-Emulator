@@ -7,19 +7,31 @@ public class ROMLoader
 {
 	static ArrayList<Byte> ROM = new ArrayList<Byte>();
 
-	// static File ROMfile = new File("C:/Users/Dylan/Documents/vasm
-	// workspace/out.bin");
-
 	public static byte[] readROM(File file)
 	{
 		ROM = new ArrayList<Byte>();
-
-		InputStream inputStream;
+		
+		//InputStream inputStream;
+		DataInputStream inputStream;
 		try
 		{
-			inputStream = new FileInputStream(file);
+			byte[] bytes = new byte[4];
+			int value = 0;
+			
+			inputStream = new DataInputStream(new FileInputStream(file));
+			
+			//inputStream = new FileInputStream(file);
 			int byteRead;
 
+			if(file.getPath().endsWith(".exm"))
+			{
+				
+				value = inputStream.readInt();
+				//for (byte b : bytes) {
+				//    value = (value << 8) + (b & 0xFF);
+				//}
+			}
+			
 			while ((byteRead = inputStream.read()) != -1)
 			{
 				ROM.add((byte) byteRead);

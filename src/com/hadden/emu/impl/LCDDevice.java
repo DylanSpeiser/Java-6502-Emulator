@@ -248,7 +248,7 @@ public class LCDDevice extends JFrame implements BusDevice, ActionListener
 		{
 			try
 			{
-				lcdFont = FontManager.loadFont(FontManager.FONT_LCD_BLOCK);
+				lcdFont = FontManager.loadFont(FontManager.FONT_5x8_LCD);
 				GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 				ge.registerFont(lcdFont);
 			}
