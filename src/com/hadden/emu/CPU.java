@@ -1,5 +1,8 @@
 package com.hadden.emu;
+import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.hadden.Instruction;
 import com.hadden.ROMLoader;
@@ -17,14 +20,15 @@ public class CPU
 	public byte stackPointer = 0x00;
 	public short programCounter = 0x0000;
 
-	public boolean debug = true;
+	public boolean debug = false;
 
 	public short addressAbsolute = 0x0000;
 	public short addressRelative = 0x0000;
 	public byte opcode = 0x00;
 	public int cycles = 0;
 
-	public double ClocksPerSecond = 0;
+	public double ClocksPerSecond = 0.0;
+	public double kClocksPerSecond = 0.0;
 	public long startTime = 0;
 
 	public int additionalCycles = 0;
@@ -34,6 +38,9 @@ public class CPU
 
 	public Instruction[] lookup = new Instruction[0x100];
 
+	public Map<Integer,Method> addressModeCache = new HashMap<Integer,Method>();
+	public Map<Integer,Method> instructionCache = new HashMap<Integer,Method>();
+	
 	private Bus cpuBus = null;//new BusImpl();
 
 	public String getName()
@@ -343,8 +350,27 @@ public class CPU
 
 				try
 				{
-					this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].addressMode).invoke(this);
-					this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].opcode).invoke(this);
+					
+					//this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].addressMode).invoke(this);
+					//this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].opcode).invoke(this);
+					
+					//
+					// added mode and op caching for simple increase in speed
+					//
+					
+					if(!addressModeCache.containsKey((int)opcode))
+					{
+						addressModeCache.put((int)opcode,this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].addressMode));
+					}
+					
+					if(!instructionCache.containsKey((int)opcode))
+					{
+						instructionCache.put((int)opcode,this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].opcode));
+					}
+					
+					addressModeCache.get((int)opcode).invoke(this);
+					instructionCache.get((int)opcode).invoke(this);
+					
 				} catch (Exception e)
 				{
 					e.printStackTrace();
@@ -403,8 +429,10 @@ public class CPU
 		}
 
 		if (((System.currentTimeMillis() - startTime) / 1000) > 0)
+		{
 			ClocksPerSecond = SystemEmulator.clocks / ((System.currentTimeMillis() - startTime) / 1000);
-
+			kClocksPerSecond = (int)(ClocksPerSecond/1000/1000); 
+		}
 		SystemEmulator.clocks++;
 		cycles--;
 	}
@@ -426,6 +454,7 @@ public class CPU
 
 		SystemEmulator.clocks = 0;
 		ClocksPerSecond = 0;
+		kClocksPerSecond = 0;
 
 		addressRelative = 0;
 		addressAbsolute = 0;

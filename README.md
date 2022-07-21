@@ -7,6 +7,7 @@ This is a project I started because I wanted a place to write and test code for 
 This was a great project to find and I really appreciate what Dylan has done.  My need was to have flexible device configuration and easily mapped IO ports to model real reto hardware. The existing project construction provided an easy way to get what I wanted and allowed me to get there, quickly,  in workable stages. This is still a work in progress and is buggy and has some features only stubbed out.
 
 ADDED FEATURES:
+ - CPU through-put increase (~3x)
  - Flexible Bus Architecture for ease of modeling systems
  - Mapped IO
  - System can be defined in configuration
@@ -57,6 +58,7 @@ You can load ```.bin``` files into RAM or ROM using the File Pickers in the top 
 #
 
 ## Screenshots
+![Speed Increase](screenshots/compare-cpu.png?raw=true)
 ![Screenshot 0](screenshots/screenshot0.png?raw=true)
 ![Screenshot 1](screenshots/screenshot1.png?raw=true)
 ![Screenshot 2](screenshots/screenshot2.png?raw=true)

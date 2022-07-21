@@ -61,10 +61,17 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener
 		g.drawString("v" + SystemEmulator.versionString, 7, 1033);
 
 		// Clocks
-		g.drawString("Clocks: " + SystemEmulator.clocks, 40, 80);
-		g.drawString(
-				"Speed: " + SystemEmulator.cpu.ClocksPerSecond + " Hz" + (SystemEmulator.slowerClock ? " (Slow)" : ""),
-				40, 110);
+		g.drawString("Clocks: " + SystemEmulator.clocks, 40, 80);	
+		if(SystemEmulator.cpu.kClocksPerSecond > 0.0)
+		{
+			g.drawString(
+					"Speed: " + SystemEmulator.cpu.kClocksPerSecond + " MHz" + (SystemEmulator.slowerClock ? " (Slow)" : ""),
+					40, 110);
+		}
+		else
+			g.drawString(
+					"Speed: " + SystemEmulator.cpu.ClocksPerSecond + " Hz" + (SystemEmulator.slowerClock ? " (Slow)" : ""),
+					40, 110);
 
 		// PAGE INDICATORS
 		g.drawString("(K) <-- " + ROMLoader.byteToHexString((byte) (romPage + 0x80)) + " --> (L)",
