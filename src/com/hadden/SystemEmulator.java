@@ -66,7 +66,9 @@ public class SystemEmulator extends JFrame implements ActionListener
 					@Override
 					public void raise(int source)
 					{
-						System.out.println("CPU IRQ");				
+						System.out.println("CPU IRQ");	
+						if(cpu!=null)
+							cpu.interruptRequested = true;
 					}
 				});
 
