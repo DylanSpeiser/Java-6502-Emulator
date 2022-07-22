@@ -90,7 +90,7 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 			this.bar  = bar;
 			this.parent = parent;
 			
-			System.out.println("TextPort:" + name + "[" + port + "]");
+			//System.out.println("TextPort:" + name + "[" + port + "]");
 		}		
 		
 		@Override

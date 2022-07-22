@@ -10,6 +10,7 @@ import com.hadden.SystemEmulator;
 import com.hadden.emu.Bus;
 import com.hadden.emu.CPU;
 import com.hadden.emu.CPU.ClockRateUnit;
+import com.hadden.emu.CPU.Telemetry;
 
 public class MOS65C02 implements CPU
 {
@@ -44,8 +45,10 @@ public class MOS65C02 implements CPU
 
 	public Map<Integer,Method> addressModeCache = new HashMap<Integer,Method>();
 	public Map<Integer,Method> instructionCache = new HashMap<Integer,Method>();
+	private Telemetry telemetry = new Telemetry();
 	
 	private Bus cpuBus = null;//new BusImpl();
+	private int clocks;
 
 	public String getName()
 	{
@@ -273,35 +276,6 @@ public class MOS65C02 implements CPU
 		lookup[0x98] = new Instruction("TYA", "IMP", 2);
 	}
 
-	public int cycles()
-	{
-		return cycles;
-	}
-	
-	public int opcode()
-	{
-		return opcode;
-	}
-	
-	public String opcodeMnemonic(int opcode)
-	{
-		return lookup[opcode].opcode;
-	}
-	
-	public int relativeAddress()
-	{
-		return addressRelative;
-	}
-	
-	public int absoluteAddress()
-	{
-		return addressAbsolute;
-	}
-	
-	public int flags()
-	{
-		return flags;
-	}
 	
 	public int register(String name)
 	{
@@ -493,12 +467,27 @@ public class MOS65C02 implements CPU
 
 		if (((System.currentTimeMillis() - startTime) / 1000) > 0)
 		{
-			ClocksPerSecond = SystemEmulator.clocks / ((System.currentTimeMillis() - startTime) / 1000);
-			kClocksPerSecond = (int)(ClocksPerSecond/1000);
-			mClocksPerSecond = (int)(kClocksPerSecond/1000); 
+			ClocksPerSecond = clocks / ((System.currentTimeMillis() - startTime) / 1000);
+			kClocksPerSecond = ClocksPerSecond/1000;
+			mClocksPerSecond = kClocksPerSecond/1000; 
 		}
-		SystemEmulator.clocks++;
+		clocks++;
 		cycles--;
+		
+		telemetry.a = a;
+		telemetry.x = x;
+		telemetry.y = y;
+		telemetry.addressAbsolute = addressAbsolute;
+		telemetry.addressRelative = addressRelative;
+		telemetry.stackPointer = stackPointer;
+		telemetry.programCounter = programCounter;
+		telemetry.opcode = opcode;
+		telemetry.opcodeName = lookup[Byte.toUnsignedInt(opcode)].opcode;
+		telemetry.clocksPerSecond = ClocksPerSecond;
+		telemetry.cycles = cycles;
+		telemetry.clocks = clocks;
+		telemetry.flags  = flags;		
+		
 	}
 
 	public int rate(ClockRateUnit cru)
@@ -513,7 +502,7 @@ public class MOS65C02 implements CPU
 			return (int)mClocksPerSecond;
 		}
 		
-		return (int)ClocksPerSecond;
+		return (int)0;
 	}
 	
 	// Input Signal Handlers
@@ -531,7 +520,7 @@ public class MOS65C02 implements CPU
 		byte hi = cpuBus.read((short) (addressAbsolute + 1));
 		programCounter = (short) (Byte.toUnsignedInt(lo) + 256 * Byte.toUnsignedInt(hi));
 
-		SystemEmulator.clocks = 0;
+		clocks = 0;
 		ClocksPerSecond = 0;
 		kClocksPerSecond = 0;
 
@@ -1287,5 +1276,11 @@ public class MOS65C02 implements CPU
 		System.out.println(
 				"Illegal Opcode at $" + Integer.toHexString(Short.toUnsignedInt(programCounter)).toUpperCase() + " ("
 						+ ROMLoader.byteToHexString(opcode) + ") - " + lookup[Byte.toUnsignedInt(opcode)].opcode);
+	}
+
+	@Override
+	public Telemetry getTelemetry()
+	{
+		return telemetry;
 	}
 }

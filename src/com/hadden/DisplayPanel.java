@@ -5,7 +5,9 @@ import java.awt.event.*;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import com.hadden.emu.CPU;
 import com.hadden.emu.CPU.ClockRateUnit;
+import com.hadden.emu.CPU.Telemetry;
 import com.hadden.emu.VIA;
 
 public class DisplayPanel extends JPanel implements ActionListener, KeyListener
@@ -61,17 +63,19 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener
 		g.setFont(new Font("Courier New Bold", 20, 20));
 		g.drawString("v" + SystemEmulator.versionString, 7, 1033);
 
+		Telemetry t = SystemEmulator.cpu.getTelemetry();
+		
 		// Clocks
-		g.drawString("Clocks: " + SystemEmulator.clocks, 40, 80);	
-		if(SystemEmulator.cpu.rate(ClockRateUnit.MHZ) > 0.0)
+		g.drawString("Clocks: " + t.clocks, 40, 80);	
+		if(t.clocksPerSecond > 1000000.0)
 		{
 			g.drawString(
-					"Speed: " + SystemEmulator.cpu.rate(ClockRateUnit.MHZ)  + " MHz" + (SystemEmulator.slowerClock ? " (Slow)" : ""),
+					"Speed: " + (int)t.clocksPerSecond/1000000  + " MHz" + (SystemEmulator.slowerClock ? " (Slow)" : ""),
 					40, 110);
 		}
 		else
 			g.drawString(
-					"Speed: " + SystemEmulator.cpu.rate(ClockRateUnit.HZ)  + " Hz" + (SystemEmulator.slowerClock ? " (Slow)" : ""),
+					"Speed: " + (int)t.clocksPerSecond  + " Hz" + (SystemEmulator.slowerClock ? " (Slow)" : ""),
 					40, 110);
 
 		// PAGE INDICATORS
@@ -88,8 +92,8 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener
 		if (ramPage == 1)
 		{
 			g.setColor(new Color(0.7f, 0f, 0f));
-			g.fillRect(rightAlignHelper - 708 + 36 * (Byte.toUnsignedInt((byte)SystemEmulator.cpu.register("s")) % 8),
-					156 + 23 * ((int) Byte.toUnsignedInt((byte)SystemEmulator.cpu.register("s")) / 8), 25, 22);
+			g.fillRect(rightAlignHelper - 708 + 36 * (Byte.toUnsignedInt(t.stackPointer) % 8),
+					156 + 23 * ((int) Byte.toUnsignedInt(t.stackPointer) / 8), 25, 22);
 			g.setColor(Color.white);
 		}
 
@@ -100,47 +104,47 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener
 		// CPU
 		g.drawString("CPU Registers:", 50, 140);
 		g.drawString("A: "
-				+ ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt((byte)SystemEmulator.cpu.register("a"))), 8)
-				+ " (" + ROMLoader.byteToHexString((byte)SystemEmulator.cpu.register("a")) + ")", 35, 170);
+				+ ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.a)), 8)
+				+ " (" + ROMLoader.byteToHexString(t.a) + ")", 35, 170);
 		g.drawString("X: "
-				+ ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt((byte)SystemEmulator.cpu.register("x"))), 8)
-				+ " (" + ROMLoader.byteToHexString((byte)SystemEmulator.cpu.register("x")) + ")", 35, 200);
+				+ ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.x)), 8)
+				+ " (" + ROMLoader.byteToHexString(t.x) + ")", 35, 200);
 		g.drawString("Y: "
-				+ ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt((byte)SystemEmulator.cpu.register("y"))), 8)
-				+ " (" + ROMLoader.byteToHexString((byte)SystemEmulator.cpu.register("y")) + ")", 35, 230);
+				+ ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.y)), 8)
+				+ " (" + ROMLoader.byteToHexString(t.y) + ")", 35, 230);
 		g.drawString("Stack Pointer: "
 				+ ROMLoader.padStringWithZeroes(
-						Integer.toBinaryString(Byte.toUnsignedInt((byte)SystemEmulator.cpu.register("s"))), 8)
-				+ " (" + ROMLoader.byteToHexString((byte)SystemEmulator.cpu.register("s")) + ")", 35, 260);
+						Integer.toBinaryString(Byte.toUnsignedInt(t.stackPointer)), 8)
+				+ " (" + ROMLoader.byteToHexString(t.stackPointer) + ")", 35, 260);
 		g.drawString(
 				"Program Counter: "
 						+ ROMLoader.padStringWithZeroes(
-								Integer.toBinaryString(Short.toUnsignedInt((byte)SystemEmulator.cpu.register("p"))), 16)
+								Integer.toBinaryString(Short.toUnsignedInt(t.programCounter)), 16)
 						+ " ("
 						+ ROMLoader.padStringWithZeroes(Integer
-								.toHexString(Short.toUnsignedInt((byte)SystemEmulator.cpu.register("p"))).toUpperCase(), 4)
+								.toHexString(Short.toUnsignedInt(t.programCounter)).toUpperCase(), 4)
 						+ ")",
 				35, 290);
-		g.drawString("Flags:             (" + ROMLoader.byteToHexString((byte)SystemEmulator.cpu.flags()) + ")", 35, 320);
+		g.drawString("Flags:             (" + ROMLoader.byteToHexString(t.flags) + ")", 35, 320);
 
 		g.drawString("Absolute Address: "
 				+ ROMLoader.padStringWithZeroes(
-						Integer.toBinaryString(Short.toUnsignedInt((short)SystemEmulator.cpu.absoluteAddress())), 16)
-				+ " (" + ROMLoader.byteToHexString((byte) ((short)SystemEmulator.cpu.absoluteAddress() / 0xFF))
-				+ ROMLoader.byteToHexString((byte) SystemEmulator.cpu.absoluteAddress()) + ")", 35, 350);
+						Integer.toBinaryString(Short.toUnsignedInt(t.addressAbsolute)), 16)
+				+ " (" + ROMLoader.byteToHexString((byte) ((short)t.addressAbsolute / 0xFF))
+				+ ROMLoader.byteToHexString((byte) t.addressAbsolute) + ")", 35, 350);
 		g.drawString("Relative Address: "
 				+ ROMLoader.padStringWithZeroes(
-						Integer.toBinaryString(Short.toUnsignedInt((short)SystemEmulator.cpu.relativeAddress())), 16)
-				+ " (" + ROMLoader.byteToHexString((byte) ((short)SystemEmulator.cpu.relativeAddress() / 0xFF))
-				+ ROMLoader.byteToHexString((byte)SystemEmulator.cpu.relativeAddress()) + ")", 35, 380);
-		g.drawString("Opcode: " + SystemEmulator.cpu.opcodeMnemonic(Byte.toUnsignedInt((byte)SystemEmulator.cpu.opcode())) + " ("
-				+ ROMLoader.byteToHexString((byte)SystemEmulator.cpu.opcode()) + ")", 35, 410);
-		g.drawString("Cycles: " + SystemEmulator.cpu.cycles(), 35, 440);
+						Integer.toBinaryString(Short.toUnsignedInt((short)t.addressRelative)), 16)
+				+ " (" + ROMLoader.byteToHexString((byte) ((short)t.addressRelative / 0xFF))
+				+ ROMLoader.byteToHexString((byte)t.addressRelative) + ")", 35, 380);
+		g.drawString("Opcode: " + t.opcodeName + " ("
+				+ ROMLoader.byteToHexString(t.opcode) + ")", 35, 410);
+		g.drawString("Cycles: " + t.cycles, 35, 440);
 
 		int counter = 0;
 		String flagsString = "NVUBDIZC";
 		for (char c : ROMLoader
-				.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt((byte)SystemEmulator.cpu.flags())), 8)
+				.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.flags)), 8)
 				.toCharArray())
 		{
 			g.setColor((c == '1') ? Color.green : Color.red);

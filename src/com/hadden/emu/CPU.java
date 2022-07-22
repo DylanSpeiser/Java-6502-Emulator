@@ -9,16 +9,26 @@ public interface CPU
 		MHZ
 	}
 	
+	public class Telemetry
+	{
+		public byte 	a;
+		public byte 	x;
+		public byte 	y;
+		public byte 	stackPointer;
+		public short 	programCounter;
+		public short 	addressAbsolute;
+		public short 	addressRelative;
+		public byte 	opcode;
+		public String   opcodeName;
+		public int 		cycles;
+		public double 	clocksPerSecond;
+		public int      clocks;
+		public byte     flags;
+	};
+	
 	public String getName();
 	public void interrupt();
 	public void reset();
 	public void clock();
-	public int rate(ClockRateUnit unit);
-	public int register(String name);
-	public int flags();
-	public int cycles();
-	public int opcode();
-	public String opcodeMnemonic(int opcode);
-	public int relativeAddress();
-	public int absoluteAddress();
+	public Telemetry getTelemetry();
 }

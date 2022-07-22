@@ -152,7 +152,7 @@ public class AddressMapImpl implements Bus, AddressMap
 		if(address < 0)
 		{
 			laddr = 0xFFFF + address + 1;
-			System.out.println(Integer.toHexString(laddr));
+			//System.out.println(Integer.toHexString(laddr));
 		}
 		return (byte) getMemoryMappedDevice(laddr).readAddressUnsigned(laddr, IOSize.IO8Bit);
 	}
@@ -166,7 +166,7 @@ public class AddressMapImpl implements Bus, AddressMap
 		if(address < 0)
 		{
 			laddr = 0xFFFF + address + 1;
-			System.out.println(Integer.toHexString(laddr));
+			//System.out.println(Integer.toHexString(laddr));
 		}		
 		
 		getMemoryMappedDevice(laddr).writeAddress(laddr, data,IOSize.IO8Bit);		

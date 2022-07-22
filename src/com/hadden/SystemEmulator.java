@@ -41,7 +41,7 @@ public class SystemEmulator extends JFrame implements ActionListener
 	// Clock Stuff
 	public static Thread clockThread;
 	public static boolean clockState = false;
-	public static int clocks = 0;
+	//public static int clocks = 0;
 	public static boolean haltFlag = true;
 	public static boolean slowerClock = false;
 

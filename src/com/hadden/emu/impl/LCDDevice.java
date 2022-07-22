@@ -28,7 +28,7 @@ public class LCDDevice extends JFrame implements BusDevice, ActionListener
 
 	boolean graphicalCursorBlinkFlag = false;
 
-	boolean debug = true;
+	boolean debug = false;
 	
 	
 	// Internal flags

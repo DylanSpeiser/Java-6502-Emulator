@@ -40,7 +40,7 @@ public class RAMDevice implements BusDevice, RAM
 		if(address < 0)
 		{
 			address = 0xFFFF + address + 1;
-			System.out.print(BusAddressRange.makeHexAddress(address));
+			//System.out.print(BusAddressRange.makeHexAddress(address));
 		}
 		int effectiveAddress = address - this.bar.getLowAddress();
 		this.bank[effectiveAddress] = (byte) (value & 0x0FF);
