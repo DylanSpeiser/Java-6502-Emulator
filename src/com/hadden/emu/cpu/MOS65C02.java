@@ -43,12 +43,14 @@ public class MOS65C02 implements CPU
 
 	public Instruction[] lookup = new Instruction[0x100];
 
+	public Map<Integer,Integer> cyclesCache = new HashMap<Integer,Integer>();
 	public Map<Integer,Method> addressModeCache = new HashMap<Integer,Method>();
 	public Map<Integer,Method> instructionCache = new HashMap<Integer,Method>();
 	private Telemetry telemetry = new Telemetry();
 	
 	private Bus cpuBus = null;//new BusImpl();
 	private int clocks;
+	private int pushCycles;
 
 	public String getName()
 	{
@@ -383,7 +385,12 @@ public class MOS65C02 implements CPU
 				opcode = cpuBus.read(programCounter);
 				programCounter++;
 
-				cycles = lookup[Byte.toUnsignedInt(opcode)].cycles;
+				
+				//cycles = lookup[Byte.toUnsignedInt(opcode)].cycles;
+				if(!cyclesCache.containsKey((int)opcode))
+				{
+					cyclesCache.put((int)opcode,lookup[Byte.toUnsignedInt(opcode)].cycles);
+				}				
 
 				try
 				{
@@ -405,6 +412,7 @@ public class MOS65C02 implements CPU
 						instructionCache.put((int)opcode,this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].opcode));
 					}
 					
+					cycles = cyclesCache.get((int)opcode);
 					addressModeCache.get((int)opcode).invoke(this);
 					instructionCache.get((int)opcode).invoke(this);
 					
@@ -417,6 +425,7 @@ public class MOS65C02 implements CPU
 			{
 				if (interruptRequested)
 					irq();
+					
 				if (NMinterruptRequested)
 					nmi();
 			}
@@ -474,6 +483,9 @@ public class MOS65C02 implements CPU
 		clocks++;
 		cycles--;
 		
+		if(cycles < 0)
+			System.out.println("Cycle ERROR");
+		 
 		telemetry.a = a;
 		telemetry.x = x;
 		telemetry.y = y;
@@ -539,6 +551,11 @@ public class MOS65C02 implements CPU
 	{
 		if (!getFlag('I'))
 		{
+			if(debug)
+				System.out.println("irq()");
+			
+			pushCycles = cycles;
+			
 			cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) (programCounter >> 8));
 			stackPointer--;
 			cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) (programCounter));
@@ -1175,6 +1192,8 @@ public class MOS65C02 implements CPU
 		stackPointer++;
 		byte hi = cpuBus.read((short) (0x100 + Byte.toUnsignedInt(stackPointer)));
 		programCounter = (short) (Byte.toUnsignedInt(lo) + 256 * Byte.toUnsignedInt(hi));
+		
+		cycles = pushCycles;
 	}
 
 	public void RTS()
