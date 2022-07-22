@@ -3,13 +3,28 @@
 ;cl65 main.o --target none --start-addr 0x0000 -o main.bin
 ;
 ;
-	.setcpu		"6502"
+	.setcpu		"65C02"
 	.debuginfo	off
+    	
+.segment  "VECTORS"
+
+;.addr      _nmi_int    ; NMI vector
+;.addr      _init       ; Reset vector
+.addr      _irq_int    ; IRQ/BRK vector    	
+    	
+.segment  "CODE"
 
 ; push fake return address
 	lda     #$FF
 	pha 
 	pha
+; set IRQ
+	SEI	
+	lda #<_irq_int
+    sta     $FFFE
+    lda #>_irq_int	
+	sta     $FFFE
+	CLI
 ; test some instructions
 	ldx     #$A0
 	lda     #65
@@ -47,8 +62,6 @@ loop:
 	tya
 	sta     $A002,X
 	
-
-	
 	
 ; print to LCD
 	lda     #$00
@@ -62,7 +75,20 @@ loop:
 ; return back to start
 	rts
 
-	
+_irq_int:
+		PHX
+		TSX
+		PHA
+		INX
+		INX
+		lda     #'A'
+		sta     $00f8
+		lda     #'B'
+		sta     $00f9
+; ---------------------------------------------------------------------------
+; IRQ detected, return
 
-
-
+irq:
+		    PLA                    ; Restore accumulator contents
+		    PLX                    ; Restore X register contents
+		    RTI                    ; Return from all IRQ interrupts

@@ -60,13 +60,14 @@ public class SystemEmulator extends JFrame implements ActionListener
 	{
 		ram = new RAMDevice(0x00000000,64*1024);
 		rom = new ROMDevice(0x00008000);
+		
 		AddressMap map =  new AddressMapImpl((BusDevice)ram,
 	            new BusIRQ() 
 				{
 					@Override
 					public void raise(int source)
 					{
-						System.out.println("CPU IRQ");	
+						//System.out.println("CPU IRQ");	
 						if(cpu!=null)
 							cpu.interruptRequested = true;
 					}

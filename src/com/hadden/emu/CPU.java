@@ -20,7 +20,7 @@ public class CPU
 	public byte stackPointer = 0x00;
 	public short programCounter = 0x0000;
 
-	public boolean debug = false;
+	public boolean debug = true;
 
 	public short addressAbsolute = 0x0000;
 	public short addressRelative = 0x0000;
@@ -198,10 +198,14 @@ public class CPU
 		lookup[0x11] = new Instruction("ORA", "IZY", 5);
 
 		lookup[0x48] = new Instruction("PHA", "IMP", 3);
+		lookup[0xDA] = new Instruction("PHX", "IMP", 3);
+		lookup[0x5A] = new Instruction("PHY", "IMP", 3);
 
 		lookup[0x08] = new Instruction("PHP", "IMP", 3);
 
 		lookup[0x68] = new Instruction("PLA", "IMP", 4);
+		lookup[0xFA] = new Instruction("PLX", "IMP", 4);
+		lookup[0x7A] = new Instruction("PLY", "IMP", 4);
 
 		lookup[0x28] = new Instruction("PLP", "IMP", 4);
 
@@ -1009,6 +1013,19 @@ public class CPU
 		stackPointer--;
 	}
 
+	public void PHX()
+	{
+		cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), x);
+		stackPointer--;
+	}
+
+	public void PHY()
+	{
+		cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), y);
+		stackPointer--;
+	}
+
+	
 	public void PHP()
 	{
 		cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) (flags | 0b00110000));
@@ -1025,6 +1042,22 @@ public class CPU
 		setFlag('N', (a & 0x80) == 0x80);
 	}
 
+	public void PLX()
+	{
+		stackPointer++;
+		x = cpuBus.read((short) (0x0100 + Byte.toUnsignedInt(stackPointer)));
+		setFlag('Z', a == 0);
+		setFlag('N', (a & 0x80) == 0x80);
+	}	
+	
+	public void PLY()
+	{
+		stackPointer++;
+		y = cpuBus.read((short) (0x0100 + Byte.toUnsignedInt(stackPointer)));
+		setFlag('Z', a == 0);
+		setFlag('N', (a & 0x80) == 0x80);
+	}
+	
 	public void PLP()
 	{
 		stackPointer++;
