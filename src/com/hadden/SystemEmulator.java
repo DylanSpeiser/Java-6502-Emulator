@@ -18,6 +18,7 @@ import com.hadden.emu.CPU;
 import com.hadden.emu.RAM;
 import com.hadden.emu.ROM;
 import com.hadden.emu.VIA;
+import com.hadden.emu.cpu.MOS65C02;
 import com.hadden.emu.impl.DisplayDevice;
 import com.hadden.emu.impl.LCDDevice;
 import com.hadden.emu.impl.RAMDevice;
@@ -69,7 +70,7 @@ public class SystemEmulator extends JFrame implements ActionListener
 					{
 						//System.out.println("CPU IRQ");	
 						if(cpu!=null)
-							cpu.interruptRequested = true;
+							cpu.interrupt();
 					}
 				});
 
@@ -81,7 +82,7 @@ public class SystemEmulator extends JFrame implements ActionListener
 		map.printAddressMap();
 		
 		bus = (Bus)map;
-		cpu = new CPU(bus);
+		cpu = new MOS65C02(bus);
 		// Swing Stuff:
 		System.setProperty("sun.java2d.opengl", "true");
 		this.setSize(1500, 1000);

@@ -66,28 +66,28 @@ public class VIA {
 	public void CA1() {
 		if ((IER &= (byte)(0b00000010)) == 0b00000010) {
 			IFR |= (byte)(0b10000010);
-			SystemEmulator.cpu.interruptRequested = true;
+			SystemEmulator.cpu.interrupt();
 		}
 	}
 	
 	public void CA2() {
 		if ((IER &= (byte)(0b00000010)) == 0b00000001) {
 			IFR |= (byte)(0b10000001);
-			SystemEmulator.cpu.interruptRequested = true;
+			SystemEmulator.cpu.interrupt();
 		}
 	}
 	
 	public void CB1() {
 		if ((IER &= (byte)(0b00000010)) == 0b00010000) {
 			IFR |= (byte)(0b10010000);
-			SystemEmulator.cpu.interruptRequested = true;
+			SystemEmulator.cpu.interrupt();
 		}
 	}
 	
 	public void CB2() {
 		if ((IER &= (byte)(0b00000010)) == 0b00001000) {
 			IFR |= (byte)(0b10001000);
-			SystemEmulator.cpu.interruptRequested = true;
+			SystemEmulator.cpu.interrupt();
 		}
 	}
 }
