@@ -1,7 +1,6 @@
 ;
 ;ca65 main.s -D BASE=0x0000
-;cl65 main.o --target none --start-addr 0x0000 -o main.bin
-;
+;cl65 --config main.cfg  main.o --target none --start-addr 0x0000 -o main.bin;
 ;
 	.setcpu		"65C02"
 	.debuginfo	off
@@ -23,7 +22,7 @@
 	lda #<_irq_int
     sta     $FFFE
     lda #>_irq_int	
-	sta     $FFFE
+	sta     $FFFF
 	CLI
 ; test some instructions
 	ldx     #$A0
@@ -82,9 +81,9 @@ _irq_int:
 		INX
 		INX
 		lda     #'A'
-		sta     $00f8
+		sta     $00e8
 		lda     #'B'
-		sta     $00f9
+		sta     $00e9
 ; ---------------------------------------------------------------------------
 ; IRQ detected, return
 
