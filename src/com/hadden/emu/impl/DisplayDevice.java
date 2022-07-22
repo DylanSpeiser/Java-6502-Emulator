@@ -22,7 +22,7 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 	private static final int CONST_COLORPAGE   = 0;
 	private static final int CONST_PALETTEPORT = 1;
 	
-	DisplayPanel p = new DisplayPanel();
+	DisplayPanel p = null; //new DisplayPanel();
 	Timer t;
 	Timer cursorTimer;
 	Font lcdFont;
@@ -68,7 +68,17 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 		    Color.DARK_GRAY,
 		    Color.WHITE
 		  };
-	private int basePort;	
+	private int basePort;
+	private int x_offset;
+	private int x_width;
+	private int y_offset;
+	private int y_width;
+	private int x_margin;
+	private int y_margin;
+	private int y_border;
+	private float fontScale;
+	private int x_border;
+	private int screenFactor;	
 
 	final class TextPort implements BusDevice
 	{
@@ -146,7 +156,36 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 	
 	public DisplayDevice(int baseAddress, int displayColumns, int displayRows)
 	{
-		this.setSize(1000, 900);
+		this.x_offset = 12;
+		this.x_width  = 30;
+		this.x_margin = 3;
+		this.x_border = 15;
+		this.y_offset = 25;
+		this.y_width  = 47;
+		this.y_margin = 3;
+		this.y_border = 70;
+		this.fontScale = 47.0f; 
+
+		this.screenFactor = 1;
+		
+		if(displayColumns == 80)
+		{
+			this.x_offset /= 2;
+			this.x_width  /= 2;
+			this.x_margin /= 2;
+			this.y_offset /= 2;
+			this.y_width  /= 2;
+			this.y_margin /= 2;
+			this.y_border /= 2;
+			this.fontScale /= 2;
+			this.screenFactor*=2;
+		}
+		
+		this.setSize((x_width + x_margin) * (displayColumns + screenFactor), 
+				     (y_width + y_margin) * displayRows + (y_border * screenFactor));
+		
+		
+		this.p = new DisplayPanel(fontScale);
 		
 		this.bankSize = displayColumns*displayRows;
 		this.baseAddress = baseAddress;
@@ -187,11 +226,11 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 
 	public class DisplayPanel extends JPanel
 	{
-		public DisplayPanel()
+		public DisplayPanel(float fontScale)
 		{
 			try
 			{
-				lcdFont = FontManager.loadFont(FontManager.FONT_5x8_LCD);
+				lcdFont = FontManager.loadFont(FontManager.FONT_5x8_LCD,fontScale);
 				//FONT_ARCADE_CLS
 				//lcdFont = FontManager.loadFont(FontManager.FONT_JOYSTICK_TEXT);
 				GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -207,40 +246,43 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 		{
 			//g.setColor(Color.getHSBColor(0.62f, 0.83f, 1f));
 			g.setColor(Color.getHSBColor(0.62f, 0.87f, 0.78f));
+			
 			g.fillRect(0, 0, p.getWidth(), p.getHeight());
 			g.setColor(Color.getHSBColor(0.62f, 0.87f, 0.78f));
 			for (int i = 0; i < displayColumns ; i++)
 			{
 				for (int j = 0; j < displayRows; j++)
 				{
-					g.fillRect(12 + 33 * i, 25 + 50 * j, 30, 47);
+					g.fillRect(x_offset + (x_width + x_margin) * i, y_offset + (y_width + y_margin) * j, x_width, y_width);
 				}
 			}
 			if (displayPower)
 			{
-				
 				g.setFont(lcdFont);
 				for (int i = 0; i < displayColumns; i++)
 				{
 					for (int j = 0; j < displayRows; j++)
 					{
-						int color = (int)bank[(i + j * 40)+(bankSize)];
+						int color = (int)bank[(i + j * displayColumns)+(bankSize)];
 						int fcolor = color & 0x000F;
 						int bcolor = (color & 0x00F0) >> 4;
 						
 					    g.setColor(palette[bcolor]);
-					    g.fillRect(12 + 33 * i, 25 + 50 * j, 30, 47);
+					    g.fillRect(x_offset + (x_width + x_margin) * i, y_offset + (y_width + y_margin) * j, x_width, y_width);
 					    g.setColor(palette[fcolor]);
 						
-						char dv = bank[i + j * 40];
+						char dv = bank[i + j * displayColumns];
 						if(dv == 0)
 							dv = ' ';
-						g.drawString(String.valueOf(dv), 12 + 33 * i, 70 + 50 * j);
+												
+						g.drawString(String.valueOf(dv), x_offset + (x_width + x_margin) * i, y_border + (y_width + y_margin) * j);
+						/*
 						if (i + j * 40 == cursorPos)
 						{
 							if (graphicalCursorBlinkFlag)
-								g.fillRect(12 + 33 * i, 66 + 50 * j, 30, 5);
+								g.fillRect(x_offset + (x_width + x_margin) * i, 66 + 50 * j, 30, 5);
 						}
+						*/
 					}
 				}
 			}
@@ -251,7 +293,7 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 	public void actionPerformed(ActionEvent arg0)
 	{
 		if (arg0.getSource().equals(t))
-		{
+		{			
 			p.repaint();
 		}
 		if (arg0.getSource().equals(cursorTimer))
@@ -363,14 +405,17 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 	@SuppressWarnings("unused")
 	public static void main(String[] args)
 	{
-		DisplayDevice display = new DisplayDevice(0x0000A000,40,10);
+		int cols = 80;
+		int rows = 30;
+		
+		DisplayDevice display = new DisplayDevice(0x0000A000,cols,rows);
 		System.out.println(display.getBusAddressRange().getLowAddressHex()+ ":" +  display.getBusAddressRange().getHighAddressHex());	
 		
-		int colorPort = 0x0000A320;
+		int colorPort = 0x0000A000 + (cols * rows * 2);
 		int curColor = 0x6F;
 		
 		int ascii = 32;
-		for(int row=0;row<10;row++)
+		for(int row=0;row<rows;row++)
 		{
 			if(row == 2)
 			{
@@ -383,12 +428,12 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 				curColor = 0x65;
 			}
 			
-			for(int col=0;col<40;col++)
+			for(int col=0;col<cols;col++)
 			{
 				if(ascii == 65)
-					display.writeAddress(0x0000A000 + (40*row) + col + display.bankSize, curColor, IOSize.IO8Bit);
+					display.writeAddress(0x0000A000 + (cols*row) + col + display.bankSize, curColor, IOSize.IO8Bit);
 				
-				display.writeAddress(0x0000A000 + (40*row) + col, ascii++, IOSize.IO8Bit);
+				display.writeAddress(0x0000A000 + (cols*row) + col, ascii++, IOSize.IO8Bit);
 				if(ascii > 126)
 				{
 					ascii = 32;

@@ -5,6 +5,16 @@
 	.setcpu		"65C02"
 	.debuginfo	off
     	
+    	
+;[0000:A000] TEXT-DISPLAY
+;[0000:A190] TEXT-COLORPAGE
+;[0000:A320] TEXT-PALETTEPORT
+
+;[0000:A000] TEXT-DISPLAY
+;[0000:A7D0] TEXT-COLORPAGE
+;[0000:AFA0] TEXT-PALETTEPORT
+  	
+    	
 .segment  "VECTORS"
 
 ;.addr      _nmi_int    ; NMI vector
@@ -56,10 +66,16 @@ loop:
 	iny
 	tya
 	sta     $A002,X
+	
+	ldx     #80
+	ldy     #32		
+loop2:
 	inx
 	iny
 	tya
 	sta     $A002,X
+	CMP 	#126
+	BNE loop2	
 	
 	
 ; print to LCD

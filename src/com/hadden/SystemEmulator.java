@@ -75,9 +75,12 @@ public class SystemEmulator extends JFrame implements ActionListener
 				});
 
 		map.addBusDevice((BusDevice)rom)
-		   .addBusDevice(new DisplayDevice(0x0000A000,40,10))
-		   .addBusDevice(new LCDDevice(0x0000B000))
-		   .addBusDevice(new TimerDevice(0x0000B003,60000));
+		   //.addBusDevice(new DisplayDevice(0x0000A000,40,10))
+		   .addBusDevice(new DisplayDevice(0x0000A000,80,25))
+		   //.addBusDevice(new LCDDevice(0x0000B000))
+		   .addBusDevice(new TimerDevice(0x0000B003,60000))
+		   .addBusDevice(new TimerDevice(0x0000B005,1000))
+		   ;
 		
 		map.printAddressMap();
 		
