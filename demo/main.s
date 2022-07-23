@@ -41,11 +41,7 @@
 	dex
 	inx
 	inx
-loop:
-	CLD
-	ADC		#02
-	CMP 	#69
-	BNE loop
+
 ; move data
 	lda     #$AB
 	sta     $00F8
@@ -77,6 +73,13 @@ loop2:
 	CMP 	#126
 	BNE loop2	
 	
+	ldx     #80
+	lda     #32		
+loop3:
+	sta     $A002,X
+	inx
+	cpx 	#$0F
+	BNE loop3		
 	
 ; print to LCD
 	lda     #$00
@@ -91,11 +94,7 @@ loop2:
 	rts
 
 _irq_int:
-		PHX
-		TSX
 		PHA
-		INX
-		INX
 		lda     #'A'
 		sta     $00e8
 		lda     #'B'
@@ -104,6 +103,5 @@ _irq_int:
 ; IRQ detected, return
 
 irq:
-		    PLA                    ; Restore accumulator contents
-		    PLX                    ; Restore X register contents
+		    PLA
 		    RTI                    ; Return from all IRQ interrupts

@@ -354,6 +354,7 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 		}
 		
 		bank[this.bar.getRelativeAddress(address)] = (char) value;
+		p.repaint();
 	}
 
 	@Override
