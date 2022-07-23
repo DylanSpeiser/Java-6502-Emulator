@@ -26,38 +26,51 @@
 	ldx     #$00
 	lda     #$00
 	jsr     pushax
-	jmp     L0006
-L0002:	ldx     #$00
+	lda     #$46
+	jsr     pusha
+	ldx     #$00
 	lda     #$41
 	sta     $A000
 	ldx     #$00
-	lda     #$00
-	ldy     #$00
-	jsr     staxysp
-L0005:	ldy     #$01
-	jsr     ldaxysp
-	cmp     #$0A
-	txa
-	sbc     #$00
-	bvc     L0009
-	eor     #$80
-L0009:	asl     a
-	lda     #$00
-	ldx     #$00
-	rol     a
-	jne     L0008
-	jmp     L0006
-L0008:	ldx     #$00
 	lda     #$42
 	sta     $A001
+	ldx     #$00
+	lda     #$43
+	sta     $A002
+	ldy     #$02
+	jsr     ldaxysp
+	jsr     pushax
+	ldx     #$A0
+	lda     #$03
+	jsr     tosaddax
+	jsr     pushax
+	ldx     #$00
+	lda     #$44
 	ldy     #$00
+	jsr     staspidx
+	ldy     #$01
 	ldx     #$00
 	lda     #$01
 	jsr     addeqysp
-	jmp     L0005
-L0006:	jmp     L0002
+	ldy     #$02
+	jsr     ldaxysp
+	jsr     pushax
+	ldx     #$A0
+	lda     #$03
+	jsr     tosaddax
+	jsr     pushax
+	ldx     #$00
+	lda     #$4E
+	ldy     #$00
+	jsr     staspidx
+	ldy     #$01
+	ldx     #$00
+	lda     #$01
+	jsr     addeqysp
+	jmp     L0002
+L0002:	jmp     L0002
 	jmp     L0001
-L0001:	jsr     incsp2
+L0001:	jsr     incsp3
 	rts
 
 .endproc

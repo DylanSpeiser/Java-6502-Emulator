@@ -24,7 +24,7 @@ public class MOS65C02 implements CPU
 	public byte stackPointer = 0x00;
 	public short programCounter = 0x0000;
 
-	public boolean debug = false;
+	public boolean debug = true;
 
 	public short addressAbsolute = 0x0000;
 	public short addressRelative = 0x0000;
@@ -484,7 +484,7 @@ public class MOS65C02 implements CPU
 		cycles--;
 		
 		if(cycles < 0)
-			System.out.println("Cycle ERROR");
+			cycles = 0;
 		 
 		telemetry.a = a;
 		telemetry.x = x;
@@ -570,6 +570,10 @@ public class MOS65C02 implements CPU
 			addressAbsolute = (short) (0xFFFE);
 			byte lo = cpuBus.read(addressAbsolute);
 			byte hi = cpuBus.read((short) (addressAbsolute + 1));
+			
+			if(debug)
+				System.out.println("IR:0x" + Integer.toHexString(hi) + ":" + Integer.toHexString(lo));
+			
 			programCounter = (short) (Byte.toUnsignedInt(lo) + 256 * Byte.toUnsignedInt(hi));
 
 			cycles = 7;
