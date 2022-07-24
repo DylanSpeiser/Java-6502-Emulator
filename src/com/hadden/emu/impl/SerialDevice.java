@@ -19,17 +19,23 @@ import com.hadden.emu.BusIRQ;
 
 public class SerialDevice implements BusDevice, RaisesIRQ
 {
+	private static final int CONST_READ_BUFFER 	= 0;
+	private static final int CONST_WRITE_BUFFER 	= 1;
+	private static final int CONST_READY 		= 2;
+	private static final int CONST_IRQ_STATUS 	= 3;
+	
 	private byte[] bank;
 	private BusAddressRange bar;
 	private Thread threadServer;
 	
 	private Queue<Byte> sndBuffer = new LinkedList<Byte>();
 	private Queue<Byte> rcvBuffer = new LinkedList<Byte>();
+	private BusIRQ irq;
 
 	public SerialDevice(BusAddressRange bar)
 	{
 		int bankSize = bar.getSize();
-		this.bank = new byte[bankSize];
+		this.bank = new byte[4];
 		this.bar = bar;
 
 		this.threadServer = new Thread(new Runnable()
@@ -41,7 +47,7 @@ public class SerialDevice implements BusDevice, RaisesIRQ
 				try
 				{
 					final ServerSocket server = new ServerSocket(8080);
-					System.out.println("Listening for connection on port 8080 ....");
+					//System.out.println("Listening for connection on port 8080 ....");
 					while (true)
 					{
 						final Socket clientSocket = server.accept();
@@ -50,12 +56,13 @@ public class SerialDevice implements BusDevice, RaisesIRQ
 						int b = 0;
 						do
 						{
-							//b = reader.read();
-							
 							if(clientSocket.getInputStream().available() > 0)
 							{
-								b = clientSocket.getInputStream().read();
-								System.out.println("DATA:" + b);
+								b = clientSocket.getInputStream().read();								
+								//System.out.println(Integer.toHexString(b));
+								rcvBuffer.add((byte)b);
+								if(irq!=null)
+									irq.raise(0);
 							}
 							if(sndBuffer.size() > 0)
 							{
@@ -102,21 +109,34 @@ public class SerialDevice implements BusDevice, RaisesIRQ
 			// System.out.print(BusAddressRange.makeHexAddress(address));
 		}
 		int effectiveAddress = address - this.bar.getLowAddress();
+		
 		this.bank[effectiveAddress] = (byte) (value & 0x0FF);
+		this.sndBuffer.offer(this.bank[effectiveAddress]);
 	}
 
 	@Override
 	public int readAddressSigned(int address, IOSize size)
 	{
 		int effectiveAddress = address - this.bar.getLowAddress();
+		
+		switch(effectiveAddress)
+		{
+		case CONST_READ_BUFFER:		
+			if(this.rcvBuffer.size() > 0)
+			{
+				Byte b = this.rcvBuffer.poll();
+				return (b!=null)?(int)b:0;
+			}
+			break;
+		}	
+		
 		return bank[effectiveAddress];
 	}
 
 	@Override
 	public int readAddressUnsigned(int address, IOSize size)
 	{
-		int effectiveAddress = address - this.bar.getLowAddress();
-		return bank[effectiveAddress];
+		return readAddressSigned( address, size);
 	}
 
 	public void dumpContents(int max)
@@ -171,17 +191,29 @@ public class SerialDevice implements BusDevice, RaisesIRQ
 
 	public static void main(String[] args)
 	{
-		SerialDevice rd = new SerialDevice(0x00010000, 64 * 1024);
+		SerialDevice rd = new SerialDevice(0x00000200, 4);
+		
+		rd.attach(new BusIRQ() 
+		{
+			@Override
+			public void raise(int source)
+			{
+				//System.out.println("Serial IRQ");
+				int v = rd.readAddressSigned(0x000200, IOSize.IO8Bit);
+				System.out.println("Serial IRQ:" + (char)v);
+			}
+		});
+		
 		System.out.println(rd.getName());
-		System.out.println(
-				rd.getBusAddressRange().getLowAddressHex() + ":" + rd.getBusAddressRange().getHighAddressHex());
-		rd.writeAddress(0x10000, 0xFF, IOSize.IO8Bit);
-		rd.writeAddress(0x10001, 0xFE, IOSize.IO8Bit);
-		rd.writeAddress(0x10002, 0xFD, IOSize.IO8Bit);
-		rd.dumpContents(32);
+		System.out.println(rd.getBusAddressRange().getLowAddressHex() + ":" + 
+		                   rd.getBusAddressRange().getHighAddressHex());
+		rd.writeAddress(0x000201, 'M', IOSize.IO8Bit);
+		rd.writeAddress(0x000201, '\r', IOSize.IO8Bit);
+		rd.writeAddress(0x000201, '\n', IOSize.IO8Bit);
+		rd.dumpContents(4);
 
-		System.out.println(BusAddressRange.makeHex((byte) rd.readAddressUnsigned(0x10000, IOSize.IO8Bit)));
-		System.out.println(BusAddressRange.makeHex((byte) rd.readAddressUnsigned(0x10002, IOSize.IO8Bit)));
+		//System.out.println(BusAddressRange.makeHex((byte) rd.readAddressUnsigned(0x10000, IOSize.IO8Bit)));
+		//System.out.println(BusAddressRange.makeHex((byte) rd.readAddressUnsigned(0x10002, IOSize.IO8Bit)));
 
 		Scanner scan = new Scanner(System.in);
 
@@ -189,8 +221,11 @@ public class SerialDevice implements BusDevice, RaisesIRQ
 		{
 			String input = scan.nextLine();
 			if(input.length() > 0)
-				rd.sndBuffer.add((byte)((int)input.charAt(0)));
-
+			{
+				for(int i=0;i<input.length();i++)
+					//rd.sndBuffer.add((byte)((int)input.charAt(0)));
+					rd.writeAddress(0x000201, (byte)((int)input.charAt(0)), IOSize.IO8Bit);
+			}
 		}
 
 	}
@@ -198,8 +233,7 @@ public class SerialDevice implements BusDevice, RaisesIRQ
 	@Override
 	public void attach(BusIRQ irq)
 	{
-		// TODO Auto-generated method stub
-		
+		this.irq = irq;		
 	}
 
 }
