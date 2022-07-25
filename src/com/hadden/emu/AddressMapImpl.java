@@ -113,9 +113,14 @@ public class AddressMapImpl implements Bus, AddressMap
 		   .addBusDevice(new KernalDevice(0x0000E000))
 		   ;
 
-		
+		int t = 0;
+		for(int i=0;i<1024;i++)
+		{
+			map.write((short)i, (byte)(t & 0xFF));
+			t++;
+		}
 		map.printAddressMap();
-		map.toString(8,false);
+		System.out.println(map.toString(8,true));
 		
 		
 		
@@ -217,49 +222,23 @@ public class AddressMapImpl implements Bus, AddressMap
 		}
 	}
 
-
+	public String dumpBytesAsString()
+	{
+		return toString(8, true);
+	}
+	
 	public String toString(int bytesPerLine, boolean addresses)
 	{
 		StringBuilder sb = new StringBuilder();
 
-		/*
-		if (addresses)
-			sb.append("0000: ");
-
-		for (int i = 1; i <= bank.length; i++)
-		{
-			if ((i % bytesPerLine != 0) || (i == 0))
-			{
-				sb.append(ROMLoader.byteToHexString(bank[i - 1]) + " ");
-			}
-			else
-			{
-				String zeroes = "0000";
-				sb.append(ROMLoader.byteToHexString(bank[i - 1]) + "\n");
-				if (addresses)
-					sb.append(zeroes.substring(0, Math.max(0, 4 - Integer.toHexString(i).length()))
-							+ Integer.toHexString(i) + ": ");
-			}
-		}
-		*/
-		
 		int lineSize = bytesPerLine;
-		System.out.println();
-		//for(Integer adr : this.mappedAddressSpace.keySet())
+		//System.out.println();
 		if(this.defaultSpace!=null)
 		{
-			
-			
-			//BusDevice bd = this.mappedAddressSpace.get(adr);
-			
-			//BusAddressRange bar = bd.getBusAddressRange();
-			//System.out.println(Integer.toHexString(adr & 0xFFFF));
 			BusAddressRange bar = defaultSpace.getBusAddressRange();
 			
-			for(int bk = bar.getLowAddress(); bk < bar.getHighAddress(); bk++)
+			for(int bk = bar.getLowAddress(); bk <= bar.getHighAddress(); bk++)
 			{
-				
-				
 				String hex = Integer.toHexString(this.read((short)bk) & 0xFF).toUpperCase();
 				
 				int hlen = hex.length();
@@ -273,19 +252,38 @@ public class AddressMapImpl implements Bus, AddressMap
 					}
 				}	
 				
-				//hex = hex.substring(0,4) + ":" + hex.substring(4); 	
-				if(lineSize == bytesPerLine)
+				if(addresses && (lineSize == bytesPerLine))
 				{
-					System.out.print(Integer.toHexString(bk) + ": ");
+					String hexAddress = Integer.toHexString(bk).toUpperCase(); 
+							
+					int halen = hexAddress.length();
+					int nalen = (4 - halen);
+					
+					if(nalen > 0)
+					{
+						for(int i=0;i<nalen;i++)
+						{
+							hexAddress = "0" + hexAddress;
+						}
+					}
+					
+					//System.out.print(hexAddress + ": ");
+					sb.append(hexAddress + ": ");
 				}				
 				
-				System.out.print(hex + " ");
+				//System.out.print(hex + " ");
+				sb.append(hex);
 				
 				lineSize--;
-				if(lineSize < 0)
+				if(lineSize < 1)
 				{
 					lineSize = bytesPerLine;
-					System.out.println();
+					//System.out.println();
+					sb.append("\n");
+				}
+				else
+				{
+					sb.append(" ");
 				}
 					
 			}

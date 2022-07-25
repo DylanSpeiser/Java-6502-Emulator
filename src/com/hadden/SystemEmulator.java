@@ -98,6 +98,8 @@ public class SystemEmulator extends JFrame implements ActionListener
 		   ;		
 		
 		map.printAddressMap();
+		System.out.println(  ((Bus)map).dumpBytesAsString());
+		
 		
 		bus = (Bus)map;
 		cpu = new MOS65C02(bus);
@@ -166,6 +168,11 @@ public class SystemEmulator extends JFrame implements ActionListener
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
 
+	public static Bus getBus()
+	{
+		return bus;
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{

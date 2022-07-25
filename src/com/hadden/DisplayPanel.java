@@ -33,7 +33,8 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener
 		setPreferredSize(new Dimension(1200, 900));
 
 		romPageString = SystemEmulator.rom.getROMString().substring(romPage * 960, (romPage + 1) * 960);
-		ramPageString = SystemEmulator.ram.getRAMString().substring(ramPage * 960, (ramPage + 1) * 960);
+		ramPageString = SystemEmulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
+		
 
 		this.setFocusable(true);
 		this.requestFocus();
@@ -197,7 +198,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener
 	{
 		if (e.getSource().equals(t))
 		{
-			ramPageString = SystemEmulator.ram.getRAMString().substring(ramPage * 960, (ramPage + 1) * 960);
+			ramPageString = SystemEmulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
 			SystemEmulator.ROMopenButton.setBounds(rightAlignHelper - 150, 15, 125, 25);
 			SystemEmulator.RAMopenButton.setBounds(rightAlignHelper - 150, 45, 125, 25);
 			this.repaint();
@@ -225,28 +226,31 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener
 			if (romPage < 0x80)
 			{
 				romPage += 1;
-				romPageString = SystemEmulator.rom.getROMString().substring(romPage * 960, (romPage + 1) * 960);
+				romPageString = SystemEmulator.getBus().dumpBytesAsString().substring(romPage * 960, (romPage + 1) * 960);
 			}
 			break;
 		case 'k':
 			if (romPage > 0)
 			{
 				romPage -= 1;
-				romPageString = SystemEmulator.rom.getROMString().substring(romPage * 960, (romPage + 1) * 960);
+				//romPageString = SystemEmulator.rom.getROMString().substring(romPage * 960, (romPage + 1) * 960);
+				romPageString = SystemEmulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
 			}
 			break;
 		case 'j':
 			if (ramPage < 0xFF)
 			{
 				ramPage += 1;
-				ramPageString = SystemEmulator.ram.getRAMString().substring(ramPage * 960, (ramPage + 1) * 960);
+				//ramPageString = SystemEmulator.ram.getRAMString().substring(ramPage * 960, (ramPage + 1) * 960);
+				ramPageString = SystemEmulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
 			}
 			break;
 		case 'h':
 			if (ramPage > 0)
 			{
 				ramPage -= 1;
-				ramPageString = SystemEmulator.ram.getRAMString().substring(ramPage * 960, (ramPage + 1) * 960);
+				//ramPageString = SystemEmulator.ram.getRAMString().substring(ramPage * 960, (ramPage + 1) * 960);
+				ramPageString = SystemEmulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
 			}
 			break;
 		case 'r':
@@ -255,7 +259,9 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener
 			SystemEmulator.via = new VIA();
 			//SystemEmulator.ram = new RAM();
 			SystemEmulator.ram.reset();
-			ramPageString = SystemEmulator.ram.getRAMString().substring(ramPage * 960, (ramPage + 1) * 960);
+			//ramPageString = SystemEmulator.ram.getRAMString().substring(ramPage * 960, (ramPage + 1) * 960);
+			ramPageString = SystemEmulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
+			
 			System.out.println("Size: " + this.getWidth() + " x " + this.getHeight());
 			break;
 		case ' ':

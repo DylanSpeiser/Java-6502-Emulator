@@ -56,8 +56,8 @@ public class SerialDevice implements BusDevice, RaisesIRQ, HasPorts
 			{
 				try
 				{
-					final ServerSocket server = new ServerSocket(8080);
-					System.out.println("Listening for connection on port 8080 ....");
+					final ServerSocket server = new ServerSocket(11001);
+					//System.out.println("Listening for connection on port 11001 ....");
 					while (true)
 					{
 						final Socket clientSocket = server.accept();

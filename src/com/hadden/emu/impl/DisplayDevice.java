@@ -364,21 +364,40 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 		
 		try
 		{
+			
+			if(ports[CONST_PALETTEPORT].bar.getLowAddress() == address)
+			{
+				return 0;
+			} 
+			if(ports[CONST_PALETTEPORT].bar.getLowAddress() + 1 == address) 
+			{
+				return regsPalette[0];
+			}
+			if(ports[CONST_PALETTEPORT].bar.getLowAddress() + 2 == address) 
+			{
+				return regsPalette[1];
+			}
+			if(ports[CONST_PALETTEPORT].bar.getLowAddress() + 3 == address)
+			{
+				return  regsPalette[2];
+			}
+			
+			
 			v = bank[this.bar.getRelativeAddress(address)];
 		} 
 		catch (Exception e)
 		{
-			// TODO Auto-generated catch block
+			System.out.println(Integer.toHexString(address));
 			e.printStackTrace();
 		}
 		
-		return bank[this.bar.getRelativeAddress(address)];
+		return v;
 	}
 
 	@Override
 	public int readAddressUnsigned(int address, IOSize size)
 	{
-		return bank[this.bar.getRelativeAddress(address)];
+		return readAddressSigned(address, size);
 	}
 
 	public void dumpContents(int max)
