@@ -23,7 +23,7 @@ ADDED FEATURES:
  - New System Configuration Loader
  - Extensible CPU model, could model, say a Z-80
  - Address Mapper
- - C64 Testing ability.  Loads the Kernal and BASIC, but not 100% functional
+ - C64 Testing ability. Loads the Kernal and BASIC, but not 100% functional
 
 UNIMPLEMENTED FEATURES:
  - All 65c02-specific features (it is functionally a regular 6502 target when compiling code).
