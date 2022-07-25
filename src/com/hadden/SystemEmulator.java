@@ -18,12 +18,18 @@ import com.hadden.emu.CPU;
 import com.hadden.emu.RAM;
 import com.hadden.emu.ROM;
 import com.hadden.emu.VIA;
+import com.hadden.emu.c64.BASICDevice;
+import com.hadden.emu.c64.CIADevice;
+import com.hadden.emu.c64.CharacterDevice;
+import com.hadden.emu.c64.KernalDevice;
 import com.hadden.emu.cpu.MOS65C02;
 import com.hadden.emu.impl.DisplayDevice;
 import com.hadden.emu.impl.LCDDevice;
 import com.hadden.emu.impl.RAMDevice;
 import com.hadden.emu.impl.ROMDevice;
+import com.hadden.emu.impl.SerialDevice;
 import com.hadden.emu.impl.TimerDevice;
+import com.hadden.roms.ROMManager;
 
 
 public class SystemEmulator extends JFrame implements ActionListener
@@ -73,14 +79,23 @@ public class SystemEmulator extends JFrame implements ActionListener
 							cpu.interrupt();
 					}
 				});
-
+/*
 		map.addBusDevice((BusDevice)rom)
 		   //.addBusDevice(new DisplayDevice(0x0000A000,40,10))
 		   .addBusDevice(new DisplayDevice(0x0000A000,80,25))
 		   //.addBusDevice(new LCDDevice(0x0000B000))
 		   .addBusDevice(new TimerDevice(0x0000B003,60000))
-		   //.addBusDevice(new TimerDevice(0x0000B005,1000))
+		   .addBusDevice(new TimerDevice(0x0000B005,5000))
+		   .addBusDevice(new SerialDevice(0x00000200))
 		   ;
+		
+		*/
+		map.addBusDevice(new CIADevice(0x0000DC00))
+		   .addBusDevice(new DisplayDevice(0x00000400,40,25))
+		   .addBusDevice(new BASICDevice(0x0000A000,ROMManager.loadROM("basic.rom")))
+		   .addBusDevice(new CharacterDevice(0x0000D000,ROMManager.loadROM("characters.rom")))
+		   .addBusDevice(new KernalDevice(0x0000E000,ROMManager.loadROM("kernal.rom")))
+		   ;		
 		
 		map.printAddressMap();
 		
@@ -187,6 +202,8 @@ public class SystemEmulator extends JFrame implements ActionListener
 		}
 	}
 
+
+	
 	public static void main(String[] args)
 	{
 		emu = new SystemEmulator();

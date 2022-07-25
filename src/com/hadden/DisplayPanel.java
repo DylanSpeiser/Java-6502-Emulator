@@ -236,7 +236,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener
 			}
 			break;
 		case 'j':
-			if (ramPage < 0x80)
+			if (ramPage < 0xFF)
 			{
 				ramPage += 1;
 				ramPageString = SystemEmulator.ram.getRAMString().substring(ramPage * 960, (ramPage + 1) * 960);

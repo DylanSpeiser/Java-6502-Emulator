@@ -360,6 +360,18 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 	@Override
 	public int readAddressSigned(int address, IOSize size)
 	{
+		int v = 0;
+		
+		try
+		{
+			v = bank[this.bar.getRelativeAddress(address)];
+		} 
+		catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		return bank[this.bar.getRelativeAddress(address)];
 	}
 

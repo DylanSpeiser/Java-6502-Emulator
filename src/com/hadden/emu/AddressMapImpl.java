@@ -4,12 +4,18 @@ package com.hadden.emu;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
+import com.hadden.ROMLoader;
 import com.hadden.emu.BusDevice.IOSize;
+import com.hadden.emu.c64.BASICDevice;
+import com.hadden.emu.c64.CIADevice;
+import com.hadden.emu.c64.CharacterDevice;
+import com.hadden.emu.c64.KernalDevice;
 import com.hadden.emu.impl.DisplayDevice;
 import com.hadden.emu.impl.Gfx256Device;
 import com.hadden.emu.impl.LCDDevice;
 import com.hadden.emu.impl.RAMDevice;
 import com.hadden.emu.impl.ROMDevice;
+import com.hadden.emu.impl.SerialDevice;
 import com.hadden.emu.impl.TimerDevice;
 
 public class AddressMapImpl implements Bus, AddressMap
@@ -26,6 +32,8 @@ public class AddressMapImpl implements Bus, AddressMap
 	public void setDefaultDevice(BusDevice bd)
 	{
 		this.defaultSpace  = bd;		
+		mappedAddressSpace.put(defaultSpace.getBusAddressRange().getLowAddress(), defaultSpace);
+		mappedAddressSpace.put(defaultSpace.getBusAddressRange().getHighAddress() + 1,defaultSpace);
 	}
 
 	public void setIRQHandler(BusIRQ busIRQ)
@@ -35,7 +43,7 @@ public class AddressMapImpl implements Bus, AddressMap
 	
 	public AddressMapImpl(BusDevice bd, BusIRQ birq)
 	{
-		this.defaultSpace  = bd;		
+		setDefaultDevice(bd);
 		this.birq = birq;
 	}
 
@@ -89,16 +97,28 @@ public class AddressMapImpl implements Bus, AddressMap
 												
 											}
 										});
-
+		/*
 		map.addBusDevice(new ROMDevice(0x00008000))
 		   .addBusDevice(new DisplayDevice(0x0000A000,40,10))
 		   .addBusDevice(new LCDDevice(0x0000B000))
 		   .addBusDevice(new TimerDevice(0x0000B003,60000))
 		   .addBusDevice(new Gfx256Device(0x0000E000))
+		   .addBusDevice(new SerialDevice(0x00000200))
 		   ;
-		
+		*/
+		map.addBusDevice(new CIADevice(0x0000DC00))
+		   //.addBusDevice(new DisplayDevice(0x00000400,40,25))
+		   .addBusDevice(new BASICDevice(0x0000A000))
+		   .addBusDevice(new CharacterDevice(0x0000D000))
+		   .addBusDevice(new KernalDevice(0x0000E000))
+		   ;
+
 		
 		map.printAddressMap();
+		map.toString(8,false);
+		
+		
+		
 		
 		BusDevice bd = map.getMemoryMappedDevice(0x00001000);
 		if(bd!=null)
@@ -198,4 +218,85 @@ public class AddressMapImpl implements Bus, AddressMap
 	}
 
 
+	public String toString(int bytesPerLine, boolean addresses)
+	{
+		StringBuilder sb = new StringBuilder();
+
+		/*
+		if (addresses)
+			sb.append("0000: ");
+
+		for (int i = 1; i <= bank.length; i++)
+		{
+			if ((i % bytesPerLine != 0) || (i == 0))
+			{
+				sb.append(ROMLoader.byteToHexString(bank[i - 1]) + " ");
+			}
+			else
+			{
+				String zeroes = "0000";
+				sb.append(ROMLoader.byteToHexString(bank[i - 1]) + "\n");
+				if (addresses)
+					sb.append(zeroes.substring(0, Math.max(0, 4 - Integer.toHexString(i).length()))
+							+ Integer.toHexString(i) + ": ");
+			}
+		}
+		*/
+		
+		int lineSize = bytesPerLine;
+		System.out.println();
+		//for(Integer adr : this.mappedAddressSpace.keySet())
+		if(this.defaultSpace!=null)
+		{
+			
+			
+			//BusDevice bd = this.mappedAddressSpace.get(adr);
+			
+			//BusAddressRange bar = bd.getBusAddressRange();
+			//System.out.println(Integer.toHexString(adr & 0xFFFF));
+			BusAddressRange bar = defaultSpace.getBusAddressRange();
+			
+			for(int bk = bar.getLowAddress(); bk < bar.getHighAddress(); bk++)
+			{
+				
+				
+				String hex = Integer.toHexString(this.read((short)bk) & 0xFF).toUpperCase();
+				
+				int hlen = hex.length();
+				int nlen = (2 - hlen);
+				
+				if(nlen > 0)
+				{
+					for(int i=0;i<nlen;i++)
+					{
+						hex = "0" + hex;
+					}
+				}	
+				
+				//hex = hex.substring(0,4) + ":" + hex.substring(4); 	
+				if(lineSize == bytesPerLine)
+				{
+					System.out.print(Integer.toHexString(bk) + ": ");
+				}				
+				
+				System.out.print(hex + " ");
+				
+				lineSize--;
+				if(lineSize < 0)
+				{
+					lineSize = bytesPerLine;
+					System.out.println();
+				}
+					
+			}
+			
+
+			
+			//System.out.println("[" + hex + "] " + mappedAddressSpace.get(adr).getName());
+			
+		}
+		
+		return sb.toString();
+	}	
+	
 }

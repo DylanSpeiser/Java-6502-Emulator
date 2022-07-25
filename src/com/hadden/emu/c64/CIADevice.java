@@ -1,4 +1,4 @@
-package com.hadden.emu.impl;
+package com.hadden.emu.c64;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,19 +14,19 @@ import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
 import com.hadden.emu.RAM;
 import com.hadden.emu.RaisesIRQ;
+import com.hadden.emu.impl.AuxPortImpl;
 import com.hadden.emu.BusDevice.IOSize;
-import com.hadden.emu.impl.Gfx256Device.GfxPort;
 import com.hadden.emu.BusIRQ;
 import com.hadden.emu.HasPorts;
 
-public class SerialDevice implements BusDevice, RaisesIRQ, HasPorts
+
+
+public class CIADevice implements BusDevice, RaisesIRQ, HasPorts
 {
-	private static final int CONST_READ_BUFFER 	= 0;
-	private static final int CONST_WRITE_BUFFER 	= 1;
-	private static final int CONST_READY 		= 2;
-	private static final int CONST_IRQ_STATUS 	= 3;
-	private static final int CONST_CONTROL    	= 4;
-	private static final int CONST_LAST    	    = 5;
+	private static final int CONST_COL_BUFFER 	= 0;
+	private static final int CONST_ROW_BUFFER 	= 1;
+
+	private static final int CONST_LAST    	    = 2;
 	
 	private byte[] bank;
 	private BusAddressRange   	bar;
@@ -37,16 +37,13 @@ public class SerialDevice implements BusDevice, RaisesIRQ, HasPorts
 	private Queue<Byte> rcvBuffer = new LinkedList<Byte>();
 	private BusIRQ irq;
 
-	public SerialDevice(BusAddressRange bar)
+	public CIADevice(BusAddressRange bar)
 	{
-		this.bank = new byte[4];
+		this.bank = new byte[CONST_LAST];
 		this.bar = bar;
 
-		ports[CONST_READ_BUFFER]  	= new AuxPortImpl("SERIAL_READ_BUFFER",bar.getLowAddress() 	+ CONST_READ_BUFFER);
-		ports[CONST_WRITE_BUFFER] 	= new AuxPortImpl("SERIAL_WRITE_BUFFER",bar.getLowAddress()	+ CONST_WRITE_BUFFER);
-		ports[CONST_READY] 		  	= new AuxPortImpl("SERIAL_READY",bar.getLowAddress() 		    + CONST_READY);
-		ports[CONST_IRQ_STATUS] 		= new AuxPortImpl("SERIAL_IRQ_STATUS",bar.getLowAddress() 	+ CONST_IRQ_STATUS);
-		ports[CONST_CONTROL]      	= new AuxPortImpl("SERIAL_CONTROL",bar.getLowAddress() 		+ CONST_CONTROL);
+		ports[CONST_COL_BUFFER]  	= new AuxPortImpl("COL_KEY_BUFFER",bar.getLowAddress() 	+ CONST_COL_BUFFER);
+		ports[CONST_ROW_BUFFER] 	= new AuxPortImpl("ROW_KEY_BUFFER",bar.getLowAddress()	+ CONST_ROW_BUFFER);
 	
 		this.threadServer = new Thread(new Runnable()
 		{
@@ -71,12 +68,12 @@ public class SerialDevice implements BusDevice, RaisesIRQ, HasPorts
 								b = clientSocket.getInputStream().read();								
 								//System.out.println(Integer.toHexString(b));
 								rcvBuffer.add((byte)b);
-								bank[CONST_READY] = 1;
-								bank[CONST_IRQ_STATUS] = 1;
+								//bank[CONST_READY] = 1;
+								//bank[CONST_IRQ_STATUS] = 1;
 								if(irq!=null)
 								{
 									irq.raise(0);
-									bank[CONST_IRQ_STATUS] = 0;
+									//bank[CONST_IRQ_STATUS] = 0;
 								}
 							}
 							if(sndBuffer.size() > 0)
@@ -98,7 +95,7 @@ public class SerialDevice implements BusDevice, RaisesIRQ, HasPorts
 		this.threadServer.start();
 	}
 
-	public SerialDevice(int bankAddress)
+	public CIADevice(int bankAddress)
 	{
 		this(new BusAddressRange(bankAddress, CONST_LAST, 1));
 	}
@@ -106,7 +103,7 @@ public class SerialDevice implements BusDevice, RaisesIRQ, HasPorts
 	@Override
 	public String getName()
 	{
-		return "SERIAL";
+		return "CIA";
 	}
 
 	@Override
@@ -136,6 +133,7 @@ public class SerialDevice implements BusDevice, RaisesIRQ, HasPorts
 		
 		switch(effectiveAddress)
 		{
+		/*
 		case CONST_READ_BUFFER:		
 			if(this.rcvBuffer.size() > 0)
 			{
@@ -149,6 +147,7 @@ public class SerialDevice implements BusDevice, RaisesIRQ, HasPorts
 				return (b!=null)?(int)b:0;
 			}
 			break;
+			*/
 		}	
 		
 		return bank[effectiveAddress];
@@ -214,11 +213,9 @@ public class SerialDevice implements BusDevice, RaisesIRQ, HasPorts
 	public BusDevice[] ports(int baseAddress)
 	{
 		BusDevice[] auxPorts = {
-				ports[CONST_READ_BUFFER],
-				ports[CONST_WRITE_BUFFER],
-				ports[CONST_READY],
-				ports[CONST_IRQ_STATUS],
-				ports[CONST_CONTROL],	
+				ports[CONST_COL_BUFFER],
+				ports[CONST_ROW_BUFFER],
+
 		};
 		return auxPorts;
 	}	
@@ -226,7 +223,7 @@ public class SerialDevice implements BusDevice, RaisesIRQ, HasPorts
 	
 	public static void main(String[] args)
 	{
-		SerialDevice rd = new SerialDevice(0x00000200);
+		CIADevice rd = new CIADevice(0x00000200);
 		
 		rd.attach(new BusIRQ() 
 		{
