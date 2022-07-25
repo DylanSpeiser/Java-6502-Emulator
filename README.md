@@ -13,6 +13,7 @@ ADDED FEATURES:
  - System can be defined in configuration
  - Many bus devices out of the box with changeable addresses
      - 40x25 Text Display with variable fonts
+	 - 80x25 Text Display with variable fonts
      - 640x480 256 Color Paged Graphics Mode
      - Banked RAM module, up to 256 banks with 64k each
      - Timer Device with IRQ
@@ -22,7 +23,7 @@ ADDED FEATURES:
  - New System Configuration Loader
  - Extensible CPU model, could model, say a Z-80
  - Address Mapper
- 
+ - C64 Testing ability.  Loads the Kernal and BASIC, but not 100% functional
 
 UNIMPLEMENTED FEATURES:
  - All 65c02-specific features (it is functionally a regular 6502 target when compiling code).
