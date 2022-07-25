@@ -22,6 +22,8 @@ import com.hadden.emu.c64.BASICDevice;
 import com.hadden.emu.c64.CIADevice;
 import com.hadden.emu.c64.CharacterDevice;
 import com.hadden.emu.c64.KernalDevice;
+import com.hadden.emu.c64.ScreenDevice;
+import com.hadden.emu.c64.VICIIDevice;
 import com.hadden.emu.cpu.MOS65C02;
 import com.hadden.emu.impl.DisplayDevice;
 import com.hadden.emu.impl.LCDDevice;
@@ -91,7 +93,8 @@ public class SystemEmulator extends JFrame implements ActionListener
 		
 		*/
 		map.addBusDevice(new CIADevice(0x0000DC00))
-		   .addBusDevice(new DisplayDevice(0x00000400,40,25))
+		   .addBusDevice(new ScreenDevice(0x00000400,40,25))
+		   .addBusDevice(new VICIIDevice(0x000D012))
 		   .addBusDevice(new BASICDevice(0x0000A000,ROMManager.loadROM("basic.rom")))
 		   .addBusDevice(new CharacterDevice(0x0000D000,ROMManager.loadROM("characters.rom")))
 		   .addBusDevice(new KernalDevice(0x0000E000,ROMManager.loadROM("kernal.rom")))

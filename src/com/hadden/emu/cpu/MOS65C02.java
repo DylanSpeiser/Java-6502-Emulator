@@ -418,6 +418,7 @@ public class MOS65C02 implements CPU
 					
 				} catch (Exception e)
 				{
+					System.out.println(Integer.toHexString(opcode & 0xFF) + ": " + Integer.toHexString(this.addressAbsolute & 0xFFFF));
 					e.printStackTrace();
 				}
 			}

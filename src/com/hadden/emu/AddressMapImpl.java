@@ -10,6 +10,7 @@ import com.hadden.emu.c64.BASICDevice;
 import com.hadden.emu.c64.CIADevice;
 import com.hadden.emu.c64.CharacterDevice;
 import com.hadden.emu.c64.KernalDevice;
+import com.hadden.emu.c64.ScreenDevice;
 import com.hadden.emu.impl.DisplayDevice;
 import com.hadden.emu.impl.Gfx256Device;
 import com.hadden.emu.impl.LCDDevice;
@@ -25,6 +26,8 @@ public class AddressMapImpl implements Bus, AddressMap
 	private BusDevice defaultSpace = null;
 	private BusIRQ birq = null;
 
+	private BusListener busListener = null;
+
 	public AddressMapImpl()
 	{
 	}	
@@ -36,6 +39,11 @@ public class AddressMapImpl implements Bus, AddressMap
 		mappedAddressSpace.put(defaultSpace.getBusAddressRange().getHighAddress() + 1,defaultSpace);
 	}
 
+	public void setBusListener(BusListener bl)
+	{
+		this.busListener  = bl;
+	}
+	
 	public void setIRQHandler(BusIRQ busIRQ)
 	{
 		this.birq  = busIRQ;		
@@ -107,7 +115,7 @@ public class AddressMapImpl implements Bus, AddressMap
 		   ;
 		*/
 		map.addBusDevice(new CIADevice(0x0000DC00))
-		   //.addBusDevice(new DisplayDevice(0x00000400,40,25))
+		   .addBusDevice(new ScreenDevice(0x00000400,40,25))
 		   .addBusDevice(new BASICDevice(0x0000A000))
 		   .addBusDevice(new CharacterDevice(0x0000D000))
 		   .addBusDevice(new KernalDevice(0x0000E000))
@@ -179,7 +187,12 @@ public class AddressMapImpl implements Bus, AddressMap
 			laddr = 0xFFFF + address + 1;
 			//System.out.println(Integer.toHexString(laddr));
 		}
-		return (byte) getMemoryMappedDevice(laddr).readAddressUnsigned(laddr, IOSize.IO8Bit);
+		byte v =  (byte) getMemoryMappedDevice(laddr).readAddressUnsigned(laddr, IOSize.IO8Bit);
+		
+		if(busListener!=null)
+			busListener.readListener(address);
+		
+		return v;
 	}
 
 
@@ -188,6 +201,7 @@ public class AddressMapImpl implements Bus, AddressMap
 	{
 		int laddr = address;
 		
+		
 		if(address < 0)
 		{
 			laddr = 0xFFFF + address + 1;
@@ -195,6 +209,10 @@ public class AddressMapImpl implements Bus, AddressMap
 		}		
 		
 		getMemoryMappedDevice(laddr).writeAddress(laddr, data,IOSize.IO8Bit);		
+
+		if(busListener!=null)
+			busListener.writeListener(address, data);
+
 	}
 
 

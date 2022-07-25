@@ -5,13 +5,15 @@ import java.awt.event.*;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import com.hadden.emu.BusListener;
 import com.hadden.emu.CPU;
 import com.hadden.emu.CPU.ClockRateUnit;
 import com.hadden.emu.CPU.Telemetry;
 import com.hadden.emu.VIA;
 
-public class DisplayPanel extends JPanel implements ActionListener, KeyListener
+public class DisplayPanel extends JPanel implements ActionListener, KeyListener, BusListener
 {
+	private boolean writeEvent = false;
 	Timer t;
 	public int ramPage = 0;
 	public int romPage = 0;
@@ -198,13 +200,29 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener
 	{
 		if (e.getSource().equals(t))
 		{
-			ramPageString = SystemEmulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
-			SystemEmulator.ROMopenButton.setBounds(rightAlignHelper - 150, 15, 125, 25);
-			SystemEmulator.RAMopenButton.setBounds(rightAlignHelper - 150, 45, 125, 25);
+			if(this.writeEvent)
+			{
+				ramPageString = SystemEmulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
+				SystemEmulator.ROMopenButton.setBounds(rightAlignHelper - 150, 15, 125, 25);
+				SystemEmulator.RAMopenButton.setBounds(rightAlignHelper - 150, 45, 125, 25);				
+				writeEvent = false;
+			}
 			this.repaint();
 		}
 	}
 
+
+	@Override
+	public void readListener(short address)
+	{
+	}
+
+	@Override
+	public void writeListener(short address, byte data)
+	{
+		this.writeEvent = true;
+	}	
+	
 	@Override
 	public void keyPressed(KeyEvent arg0)
 	{
@@ -278,4 +296,5 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener
 			break;
 		}
 	}
+
 }

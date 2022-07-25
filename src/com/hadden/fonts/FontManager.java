@@ -12,13 +12,15 @@ public class FontManager
 	public static final int FONT_KONG_TEXT = 3;
 	public static final int FONT_NPIXELTEXT = 4;
 	public static final int FONT_JOYSTICK_TEXT = 5;
+	public static final int C64_TEXT = 6;
 	
 	private static final String[][] fontNames = {{"5x8_lcd_hd44780u_a02.ttf"},
 			                                     {"ARCADECLASSIC.TTF"},
 			                                     {"lcd-block.ttf"},
 			                                     {"kongtext.ttf"},
 			                                     {"NeuePixelSans.ttf"},
-			                                     {"joystixmono.ttf"}};
+			                                     {"joystixmono.ttf"},
+			                                     {"C64_Pro_Mono-STYLE.ttf"}};
 	
 	public FontManager()
 	{
