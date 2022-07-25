@@ -111,6 +111,7 @@ public class SystemEmulator extends JFrame implements ActionListener
 		this.setSize(1500, 1000);
 
 		GraphicsPanel = new DisplayPanel(cpu.getName() + " Emulator");
+		map.setBusListener(GraphicsPanel);
 		
 		// Open .bin file button
 		ROMopenButton.setVisible(true);

@@ -7,4 +7,5 @@ public interface AddressMap
 	public AddressMap addBusDevice(BusDevice bd);
 	public BusDevice getMemoryMappedDevice(int address);
 	public void printAddressMap();
+	public void setBusListener(BusListener listener);
 }
