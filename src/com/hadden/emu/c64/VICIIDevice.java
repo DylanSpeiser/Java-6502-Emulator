@@ -71,13 +71,13 @@ public class VICIIDevice implements BusDevice, RaisesIRQ
 
 	public VICIIDevice(int bankAddress)
 	{
-		this(new BusAddressRange(bankAddress, 1, 1));
+		this(new BusAddressRange(bankAddress, bankAddress + 0x3FF));
 	}
 
 	@Override
 	public String getName()
 	{
-		return "SERIAL";
+		return "VICII";
 	}
 
 	@Override
@@ -89,13 +89,31 @@ public class VICIIDevice implements BusDevice, RaisesIRQ
 	@Override
 	public void writeAddress(int address, int value, IOSize size)
 	{
-		System.out.println("VIC WRITE");
+		System.out.println("VIC WRITE[" + Integer.toHexString(address & 0xFFFF) + "]:" + Integer.toHexString(value & 0xFF));
+		if((address & 0xFFFF) == 0xD011)
+		{
+			//System.out.println("VIC WRITE[" + Integer.toHexString(address & 0xFFFF) + "]:" + Integer.toHexString(value & 0xFF));
+			
+		}
+		else if((address & 0xFFFF) == 0xD012)
+		{
+			
+			
+		}
+		else if((address & 0xFFFF) == 0xD013)
+		{
+			
+			
+		}
+		
+		
 	}
 
 	@Override
 	public int readAddressSigned(int address, IOSize size)
 	{
-		return rasterLine;
+		System.out.println("VIC READ[" + Integer.toHexString(address & 0xFFFF) + "]:" + Integer.toHexString(rasterLine & 0xFF));
+		return rasterLine & 0xFF;
 	}
 
 	@Override

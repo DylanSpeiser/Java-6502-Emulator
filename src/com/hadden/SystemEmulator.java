@@ -94,7 +94,7 @@ public class SystemEmulator extends JFrame implements ActionListener
 		*/
 		map.addBusDevice(new CIADevice(0x0000DC00))
 		   .addBusDevice(new ScreenDevice(0x00000400,40,25))
-		   .addBusDevice(new VICIIDevice(0x000D012))
+		   .addBusDevice(new VICIIDevice(0x0000D000))
 		   .addBusDevice(new BASICDevice(0x0000A000,ROMManager.loadROM("basic.rom")))
 		   .addBusDevice(new CharacterDevice(0x0000D000,ROMManager.loadROM("characters.rom")))
 		   .addBusDevice(new KernalDevice(0x0000E000,ROMManager.loadROM("kernal.rom")))

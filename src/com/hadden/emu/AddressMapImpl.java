@@ -75,6 +75,25 @@ public class AddressMapImpl implements Bus, AddressMap
 				}
 			}
 		}
+		if(bd instanceof BusAccessor)
+		{
+			((BusAccessor)bd).setReader(new BusReader() 
+			{
+				@Override
+				public int read(int address)
+				{
+					return AddressMapImpl.this.read((short)address);
+				}
+			} );
+			((BusAccessor)bd).setWriter(new BusWriter() 
+			{
+				@Override
+				public void write(int address, int value)
+				{
+					AddressMapImpl.this.write((short)(address & 0xFFFF),(byte)(address & 0xFF));
+				}				
+			});
+		}
 		
 		return this;
 	}

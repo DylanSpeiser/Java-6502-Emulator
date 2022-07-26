@@ -1,1 +1,5 @@
 theme: jekyll-theme-slate
+
+url: "https://miketbush.github.io" # the base hostname & protocol for your site
+plugins:
+  - jekyll-sitemap
