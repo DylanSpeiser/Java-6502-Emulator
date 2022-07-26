@@ -98,6 +98,8 @@ public class SystemEmulator extends JFrame implements ActionListener
 		   .addBusDevice(new BASICDevice(0x0000A000,ROMManager.loadROM("basic.rom")))
 		   .addBusDevice(new CharacterDevice(0x0000D000,ROMManager.loadROM("characters.rom")))
 		   .addBusDevice(new KernalDevice(0x0000E000,ROMManager.loadROM("kernal.rom")))
+		   .addBusDevice(new com.hadden.emu.c64.TimerDevice("TIMER-A", 0x0000DC04))
+		   .addBusDevice(new com.hadden.emu.c64.TimerDevice("TIMER-B", 0x0000DC06))
 		   .addBusDevice(new com.hadden.emu.c64.TimerDevice("TIMER-A", 0x0000DD04))
 		   .addBusDevice(new com.hadden.emu.c64.TimerDevice("TIMER-B", 0x0000DD06))
 		   ;		
