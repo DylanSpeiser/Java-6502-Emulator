@@ -65,6 +65,7 @@ public class SystemEmulator extends JFrame implements ActionListener
 	public static Bus bus = null;
 	
 	public static CPU cpu = null;// new CPU();
+	private static boolean debugEnabled = false;
 
 	public DisplayPanel GraphicsPanel = null;
 
@@ -129,6 +130,7 @@ public class SystemEmulator extends JFrame implements ActionListener
 		map.printAddressMap();
 		System.out.println(  ((Bus)map).dumpBytesAsString());
 		
+		SystemEmulator.enableDebug(true);
 		
 		bus = (Bus)map;
 		cpu = new MOS65C02(bus);
@@ -239,7 +241,18 @@ public class SystemEmulator extends JFrame implements ActionListener
 		}
 	}
 
-
+	public static boolean enableDebug(boolean enabled)
+	{
+		boolean mode = debugEnabled;
+		debugEnabled = enabled;
+		return mode;
+	}
+	
+	public static void debug(String message)
+	{
+		if(debugEnabled)
+			System.out.println(message);
+	}
 	
 	public static void main(String[] args)
 	{

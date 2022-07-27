@@ -3,6 +3,7 @@ package com.hadden.emu.c64;
 import java.util.Arrays;
 
 import com.hadden.ROMLoader;
+import com.hadden.SystemEmulator;
 import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
 import com.hadden.emu.RAM;
@@ -58,6 +59,7 @@ public class CharacterDevice implements BusDevice, ROM
 	@Override
 	public int readAddressSigned(int address, IOSize size)
 	{
+		SystemEmulator.debug("CHAR-ROM READ[" + Integer.toHexString(address & 0xFFFF) + "]");
 		int effectiveAddress = address - this.bar.getLowAddress();
 		return bank[effectiveAddress];
 	}
@@ -65,8 +67,7 @@ public class CharacterDevice implements BusDevice, ROM
 	@Override
 	public int readAddressUnsigned(int address, IOSize size)
 	{
-		int effectiveAddress = address - this.bar.getLowAddress();
-		return bank[effectiveAddress];
+		return readAddressSigned(address, size);
 	}
 
 	public void dumpContents(int max)

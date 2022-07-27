@@ -5,6 +5,7 @@ import java.util.Queue;
 import java.util.Scanner;
 
 import com.hadden.ROMLoader;
+import com.hadden.SystemEmulator;
 import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
 import com.hadden.emu.RaisesIRQ;
@@ -89,7 +90,7 @@ public class VICIIDevice implements BusDevice, RaisesIRQ
 	@Override
 	public void writeAddress(int address, int value, IOSize size)
 	{
-		System.out.println("VIC WRITE[" + Integer.toHexString(address & 0xFFFF) + "]:" + Integer.toHexString(value & 0xFF));
+		SystemEmulator.debug("VIC WRITE[" + Integer.toHexString(address & 0xFFFF) + "]:" + Integer.toHexString(value & 0xFF));
 		if((address & 0xFFFF) == 0xD011)
 		{
 			//System.out.println("VIC WRITE[" + Integer.toHexString(address & 0xFFFF) + "]:" + Integer.toHexString(value & 0xFF));
@@ -112,7 +113,7 @@ public class VICIIDevice implements BusDevice, RaisesIRQ
 	@Override
 	public int readAddressSigned(int address, IOSize size)
 	{
-		System.out.println("VIC READ[" + Integer.toHexString(address & 0xFFFF) + "]:" + Integer.toHexString(rasterLine & 0xFF));
+		SystemEmulator.debug("VIC READ[" + Integer.toHexString(address & 0xFFFF) + "]:" + Integer.toHexString(rasterLine & 0xFF));
 		return rasterLine & 0xFF;
 	}
 
