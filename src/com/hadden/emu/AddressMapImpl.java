@@ -5,6 +5,7 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import com.hadden.ROMLoader;
+import com.hadden.SystemEmulator;
 import com.hadden.emu.BusDevice.IOSize;
 import com.hadden.emu.c64.BASICDevice;
 import com.hadden.emu.c64.CIADevice;
@@ -268,6 +269,8 @@ public class AddressMapImpl implements Bus, AddressMap
 	{
 		StringBuilder sb = new StringBuilder();
 
+		boolean mode = SystemEmulator.enableDebug(false);
+		
 		int lineSize = bytesPerLine;
 		//System.out.println();
 		if(this.defaultSpace!=null)
@@ -330,6 +333,8 @@ public class AddressMapImpl implements Bus, AddressMap
 			//System.out.println("[" + hex + "] " + mappedAddressSpace.get(adr).getName());
 			
 		}
+		
+		SystemEmulator.enableDebug(mode);
 		
 		return sb.toString();
 	}	

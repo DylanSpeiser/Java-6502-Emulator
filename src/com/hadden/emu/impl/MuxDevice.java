@@ -48,7 +48,16 @@ public class MuxDevice implements BusDevice, RAM, BusAccessor
 	@Override
 	public String getName()
 	{
-		return "MUX";
+		String name = "";
+		
+		for(int i = 0;i<this.banks.length;i++)
+		{
+			if(name.length() > 0)
+				name+=",";
+			name+=banks[i].getName();
+		}
+		
+		return "MUX:" + name ;
 	}
 
 	@Override
@@ -155,39 +164,7 @@ public class MuxDevice implements BusDevice, RAM, BusAccessor
 		System.out.println("Read[" + map.read((short)0x0000) + "]:" + map.read((short)0xD000));
 
 		System.out.println();
-		/*
-		System.out.println(rd.getName());
-		System.out.println(rd.getBusAddressRange().getLowAddressHex() + 
-						   ":" + 
-		                   rd.getBusAddressRange().getHighAddressHex());
 
-		System.out.println("Bank 0:");
-		rd.dumpContents(32);
-		rd.writeAddress(0x0000, 0xFF, IOSize.IO8Bit);
-		rd.writeAddress(0x0001, 0xFE, IOSize.IO8Bit);
-		rd.writeAddress(0x0002, 0xFD, IOSize.IO8Bit);
-		System.out.println("=========================================");
-		rd.dumpContents(32);
-
-		//System.out.println(BusAddressRange.makeHex((byte) rd.readAddressUnsigned(0x0000, IOSize.IO8Bit)));
-		//System.out.println(BusAddressRange.makeHex((byte) rd.readAddressUnsigned(0x0002, IOSize.IO8Bit)));
-
-		rd.writeAddress(0x0000B00A, 0x01, IOSize.IO8Bit);
-		System.out.println("Bank 1:");
-		rd.dumpContents(32);
-		rd.writeAddress(0x0000, 0xAF, IOSize.IO8Bit);
-		rd.writeAddress(0x0001, 0xAE, IOSize.IO8Bit);
-		rd.writeAddress(0x0002, 0xAD, IOSize.IO8Bit);
-		System.out.println("=========================================");
-		rd.dumpContents(32);
-		System.out.println("=========================================");
-		rd.writeAddress(0x0000B00A, 0x00, IOSize.IO8Bit);
-		System.out.println("Bank 0:");
-		rd.dumpContents(32);
-		rd.writeAddress(0x0000B00A, 0x01, IOSize.IO8Bit);
-		System.out.println("Bank 1:");
-		rd.dumpContents(32);		
-		*/
 	}
 
 	@Override

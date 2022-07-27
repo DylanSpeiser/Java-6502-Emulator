@@ -27,10 +27,12 @@ import com.hadden.emu.c64.VICIIDevice;
 import com.hadden.emu.cpu.MOS65C02;
 import com.hadden.emu.impl.DisplayDevice;
 import com.hadden.emu.impl.LCDDevice;
+import com.hadden.emu.impl.MuxDevice;
 import com.hadden.emu.impl.RAMDevice;
 import com.hadden.emu.impl.ROMDevice;
 import com.hadden.emu.impl.SerialDevice;
 import com.hadden.emu.impl.TimerDevice;
+import com.hadden.emu.impl.MuxDevice.MuxMapper;
 import com.hadden.roms.ROMManager;
 
 
@@ -62,6 +64,7 @@ public class SystemEmulator extends JFrame implements ActionListener
 	public static Bus bus = null;
 	
 	public static CPU cpu = null;// new CPU();
+	private static boolean debugEnabled = false;
 
 	public DisplayPanel GraphicsPanel = null;
 
@@ -92,11 +95,29 @@ public class SystemEmulator extends JFrame implements ActionListener
 		   ;
 		
 		*/
+
+		MuxDevice mux = new MuxDevice(0x0000D000, 0x3FF, 0x00000001, 
+				new MuxMapper() 
+				{
+					@Override
+					public int map(int value)
+					{
+						if( (((byte)value) & (byte)0x04) == 0x04)
+							return 1;
+						return 0;
+					}
+				},new BusDevice[] 
+				{
+					new CharacterDevice(0x0000D000,ROMManager.loadROM("characters.rom")),
+					new VICIIDevice(0x0000D000)
+				} );
+		
 		map.addBusDevice(new CIADevice(0x0000DC00))
 		   .addBusDevice(new ScreenDevice(0x00000400,40,25))
-		   .addBusDevice(new VICIIDevice(0x0000D000))
+		   .addBusDevice(mux)
+		   //.addBusDevice(new VICIIDevice(0x0000D000))
 		   .addBusDevice(new BASICDevice(0x0000A000,ROMManager.loadROM("basic.rom")))
-		   .addBusDevice(new CharacterDevice(0x0000D000,ROMManager.loadROM("characters.rom")))
+		   //.addBusDevice(new CharacterDevice(0x0000D000,ROMManager.loadROM("characters.rom")))
 		   .addBusDevice(new KernalDevice(0x0000E000,ROMManager.loadROM("kernal.rom")))
 		   .addBusDevice(new com.hadden.emu.c64.TimerDevice("TIMER-A", 0x0000DC04))
 		   .addBusDevice(new com.hadden.emu.c64.TimerDevice("TIMER-B", 0x0000DC06))
@@ -107,6 +128,7 @@ public class SystemEmulator extends JFrame implements ActionListener
 		map.printAddressMap();
 		System.out.println(  ((Bus)map).dumpBytesAsString());
 		
+		SystemEmulator.enableDebug(true);
 		
 		bus = (Bus)map;
 		cpu = new MOS65C02(bus);
@@ -217,7 +239,18 @@ public class SystemEmulator extends JFrame implements ActionListener
 		}
 	}
 
-
+	public static boolean enableDebug(boolean enabled)
+	{
+		boolean mode = debugEnabled;
+		debugEnabled = enabled;
+		return mode;
+	}
+	
+	public static void debug(String message)
+	{
+		if(debugEnabled)
+			System.out.println(message);
+	}
 	
 	public static void main(String[] args)
 	{
