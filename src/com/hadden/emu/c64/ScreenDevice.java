@@ -345,8 +345,8 @@ public class ScreenDevice extends JFrame implements BusDevice, HasPorts, ActionL
 		{				
 			bank[this.bar.getRelativeAddress(address)] = (char) value;
 			
-			if(value!=0 && value!=85 && value!=32 && value!=-85)
-				System.out.println("CC:" + value + "[" + Integer.toHexString( (int)value & 0xFF) + "]" + (char) value);
+			//if(value!=0 && value!=85 && value!=32 && value!=-85)
+			//	System.out.println("CC:" + value + "[" + Integer.toHexString( (int)value & 0xFF) + "]" + (char) value);
 		
 		}
 		
