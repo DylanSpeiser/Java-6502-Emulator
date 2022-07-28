@@ -1,6 +1,6 @@
 theme: jekyll-theme-slate
 
-title: Java Based (6502/65C02) System Emulator
+title: Java Based 6502/65C02 System Emulator
 
 url: "https://miketbush.github.io" # the base hostname & protocol for your site
 plugins:
