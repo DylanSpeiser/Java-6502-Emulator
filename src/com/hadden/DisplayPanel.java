@@ -143,7 +143,9 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener,
 		g.drawString("Opcode: " + t.opcodeName + " ("
 				+ ROMLoader.byteToHexString(t.opcode) + ")", 35, 410);
 		g.drawString("Cycles: " + t.cycles, 35, 440);
-
+		g.drawString("IRQs  : " + t.irqs, 35, 470);
+		
+		
 		int counter = 0;
 		String flagsString = "NVUBDIZC";
 		for (char c : ROMLoader
@@ -157,7 +159,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener,
 
 		g.setColor(Color.white);
 		// VIA
-		g.drawString("VIA Registers:", 50, 490);
+		g.drawString("VIA Registers:", 50, 495);
 		g.drawString("PORT A: "
 				+ ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(SystemEmulator.via.PORTA)), 8)
 				+ " (" + ROMLoader.byteToHexString(SystemEmulator.via.PORTA) + ")", 35, 520);

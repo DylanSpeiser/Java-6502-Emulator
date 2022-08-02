@@ -7,16 +7,23 @@ public class ROMLoader
 {
 	static ArrayList<Byte> ROM = new ArrayList<Byte>();
 
-	public static byte[] readROM(File file)
+	
+	public static byte[] readROM(File selectedFile)
+	{
+		return readROM(selectedFile,null);
+	}
+	
+	public static byte[] readROM(File file,Integer[] baseAddress)
 	{
 		ROM = new ArrayList<Byte>();
 		
+		int value = 0;
 		//InputStream inputStream;
 		DataInputStream inputStream;
 		try
 		{
 			byte[] bytes = new byte[4];
-			int value = 0;
+			
 			
 			inputStream = new DataInputStream(new FileInputStream(file));
 			
@@ -30,6 +37,16 @@ public class ROMLoader
 				//for (byte b : bytes) {
 				//    value = (value << 8) + (b & 0xFF);
 				//}
+			}
+			
+			if(file.getName().startsWith("B-") )
+			{
+				String[] parts = file.getName().split("-");
+				if(parts.length > 1)
+				{
+					value = Integer.parseInt(parts[1],16);
+				}
+				
 			}
 			
 			while ((byteRead = inputStream.read()) != -1)
@@ -51,9 +68,17 @@ public class ROMLoader
 			counter++;
 		}
 
+		if(baseAddress != null && value > 0)
+		{
+			baseAddress[0] = Integer.valueOf(value);
+		}
+		
+		
 		return ROMArray;
 	}
 
+	
+	
 	public static String ROMString(byte[] array, int bytesPerLine, boolean addresses)
 	{
 		StringBuilder sb = new StringBuilder();
@@ -115,6 +140,8 @@ public class ROMLoader
 		}
 		return String.valueOf(pads) + s;
 	}
+
+
 
 //	public static void main(String[] args) {
 //		byte[] be = {(byte)255,(byte)0,(byte)16,(byte)128,(byte)11,(byte)32,(byte)255,(byte)0,(byte)16,(byte)128,(byte)11,(byte)32,(byte)255,(byte)0,(byte)16,(byte)128,(byte)11,(byte)32,(byte)255,(byte)0,(byte)16,(byte)128,(byte)11,(byte)32,(byte)255,(byte)0,(byte)16,(byte)128,(byte)11,(byte)32,(byte)255,(byte)0,(byte)16,(byte)128,(byte)11,(byte)32};

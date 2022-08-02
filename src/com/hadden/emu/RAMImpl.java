@@ -33,7 +33,14 @@ public class RAMImpl implements  RAM
 			this.array[p] = 0x00;		
 	}
 	
-	public void setRAMArray(byte[] array) 
+	
+	@Override
+	public void setRAMArray(byte[] array)
+	{
+		setRAMArray(0,array);	
+	}	
+	
+	public void setRAMArray(int base, byte[] array) 
 	{
 		//this.array = array;
 		for(int p=0;p<this.array.length;p++)
@@ -80,4 +87,6 @@ public class RAMImpl implements  RAM
 		
 		return sb.toString();
 	}
+
+
 }

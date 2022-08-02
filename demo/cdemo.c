@@ -4,7 +4,26 @@
 // cl65 cdemo.o --target none --start-addr 0x0000 -o cdemo.bin
 void main(void)
 {
-	unsigned int i = 0;
+	unsigned int i = 2;
+	char far *p = (char far *)(0xA000);
+	
+	((char far*)p)[0] = 'A';
+	*((char far*)0xA001) = 'B';
+	*((char far*)0xA002) = 'C';
+	*((char far*)0xA003) = 'D';
+	*((char far*)(0xA003 + i)) = 'F';
+
+	for(i=0;i<10;i++)
+	{
+		*((char far*)(0xA005 + i)) = 'X';
+	}
+
+
+	while(1)
+	{
+	};
+	
+	/*
 	char c = 70;
 	//char* p0 = ((char*)(0xA000));
 	//char* p1 = ((char*)(0xA001));
@@ -27,6 +46,6 @@ void main(void)
 	//((char*)((int)0xA000 + i))[0]  = 66;
 
 	while(1);
-
+	*/
 	return;
 }

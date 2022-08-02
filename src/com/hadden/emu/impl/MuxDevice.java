@@ -9,9 +9,10 @@ import com.hadden.emu.BusIRQ;
 import com.hadden.emu.BusReader;
 import com.hadden.emu.BusWriter;
 import com.hadden.emu.RAM;
+import com.hadden.emu.RaisesIRQ;
 import com.hadden.emu.c64.CIADevice;
 
-public class MuxDevice implements BusDevice, RAM, BusAccessor
+public class MuxDevice implements BusDevice, RAM, BusAccessor, RaisesIRQ
 {
 	//private byte[] bank;
 	private BusAddressRange bar;
@@ -21,6 +22,7 @@ public class MuxDevice implements BusDevice, RAM, BusAccessor
 	private MuxMapper mapper = null;
 
 	private BusReader busReader = null;
+	private BusIRQ muxIRQ = null;
 
 	public interface MuxMapper
 	{
@@ -37,6 +39,18 @@ public class MuxDevice implements BusDevice, RAM, BusAccessor
 		for(int b=0;b<devs.length;b++)
 		{
 			banks[b] = devs[b];
+			if(banks[b] instanceof RaisesIRQ)
+			{
+				((RaisesIRQ)banks[b]).attach(new BusIRQ()
+				{
+					@Override
+					public void raise(int source)
+					{
+						if(muxIRQ!=null)
+							muxIRQ.raise(source);
+					}
+				});
+			}
 		}
 	}
 
@@ -168,7 +182,13 @@ public class MuxDevice implements BusDevice, RAM, BusAccessor
 	}
 
 	@Override
-	public void setRAMArray(byte[] array) 
+	public void setRAMArray(byte[] array)
+	{
+		setRAMArray(0,array);	
+	}	
+	
+	@Override
+	public void setRAMArray(int base, byte[] array) 
 	{
 		//this.banks[bankId].setRAMArray(array);		
 	}
@@ -207,6 +227,13 @@ public class MuxDevice implements BusDevice, RAM, BusAccessor
 	@Override
 	public void setWriter(BusWriter write)
 	{
+	}
+
+	@Override
+	public void attach(BusIRQ irq)
+	{
+		this.muxIRQ = irq;
+		
 	}
 
 }

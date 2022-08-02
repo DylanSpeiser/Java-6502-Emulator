@@ -133,7 +133,13 @@ public class MMUDevice implements BusDevice, RAM
 	}
 
 	@Override
-	public void setRAMArray(byte[] array) 
+	public void setRAMArray(byte[] array)
+	{
+		setRAMArray(0,array);	
+	}	
+	
+	@Override
+	public void setRAMArray(int base, byte[] array) 
 	{
 		this.banks[bankId].setRAMArray(array);		
 	}

@@ -31,6 +31,11 @@ public class VICIIDevice implements BusDevice, RaisesIRQ
 	private Queue<Byte> rcvBuffer = new LinkedList<Byte>();
 	private BusIRQ irq;
 	private int rasterLine;
+	
+	byte irqFlag = 0;
+	byte borderColor = 0;
+	byte backgroundColor = 0;
+	
 
 	public VICIIDevice(BusAddressRange bar)
 	{
@@ -56,7 +61,12 @@ public class VICIIDevice implements BusDevice, RaisesIRQ
 						if(rasterLine < 262)
 							rasterLine++;
 						else 
+						{
 							rasterLine = 0;
+							writeAddress(0xDC0D,0x80,IOSize.IO8Bit);
+							if(irq!=null)
+								irq.raise(0);
+						}
 						Thread.sleep(16);
 					}
 				} 
@@ -90,7 +100,7 @@ public class VICIIDevice implements BusDevice, RaisesIRQ
 	@Override
 	public void writeAddress(int address, int value, IOSize size)
 	{
-		SystemEmulator.debug("VIC WRITE[" + Integer.toHexString(address & 0xFFFF) + "]:" + Integer.toHexString(value & 0xFF));
+		//SystemEmulator.debug("VIC WRITE[" + Integer.toHexString(address & 0xFFFF) + "]:" + Integer.toHexString(value & 0xFF));
 		if((address & 0xFFFF) == 0xD011)
 		{
 			//System.out.println("VIC WRITE[" + Integer.toHexString(address & 0xFFFF) + "]:" + Integer.toHexString(value & 0xFF));
@@ -106,6 +116,20 @@ public class VICIIDevice implements BusDevice, RaisesIRQ
 			
 			
 		}
+		else if((address & 0xFFFF) == 0xD020)
+		{
+			borderColor = (byte)(value & 0xFF);			
+		}
+		else if((address & 0xFFFF) == 0xD021)
+		{
+			backgroundColor = (byte)(value & 0xFF);
+		}
+		else if((address & 0xFFFF) == 0xDC0D) 
+		{
+			System.out.println("VIC WRITE[" + Integer.toHexString(address & 0xFFFF) + "]:" + Integer.toHexString(value & 0xFF));
+			irqFlag = (byte) (value & 0xFF);
+		}
+		
 		
 		
 	}
@@ -113,7 +137,23 @@ public class VICIIDevice implements BusDevice, RaisesIRQ
 	@Override
 	public int readAddressSigned(int address, IOSize size)
 	{
-		SystemEmulator.debug("VIC READ[" + Integer.toHexString(address & 0xFFFF) + "]:" + Integer.toHexString(rasterLine & 0xFF));
+		SystemEmulator.debug("VIC READ[" + Integer.toHexString(address & 0xFFFF) + "]:" + Integer.toHexString(backgroundColor & 0xFF));
+		if(0xDC0D == (address & 0xFFFF))
+		{
+			//SystemEmulator.debug("VIC READ[" + Integer.toHexString(address & 0xFFFF) + "]:" + Integer.toHexString(rasterLine & 0xFF));
+			int temp = irqFlag;
+			irqFlag = 0;
+			return temp;
+		}	
+		else if((address & 0xFFFF) == 0xD020)
+		{
+			return borderColor;	
+		}
+		else if((address & 0xFFFF) == 0xD021)
+		{
+			return backgroundColor;
+		}
+
 		return rasterLine & 0xFF;
 	}
 

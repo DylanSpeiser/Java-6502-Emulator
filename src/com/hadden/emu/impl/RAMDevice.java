@@ -1,9 +1,11 @@
 package com.hadden.emu.impl;
 
 import com.hadden.ROMLoader;
+import com.hadden.emu.AddressMap;
 import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
 import com.hadden.emu.RAM;
+import com.hadden.emu.BusDevice.IOSize;
 
 public class RAMDevice implements BusDevice, RAM
 {
@@ -126,20 +128,27 @@ public class RAMDevice implements BusDevice, RAM
 	}
 
 	@Override
-	public void setRAMArray(byte[] array) 
+	public void setRAMArray(byte[] array)
+	{
+		setRAMArray(0,array);	
+	}	
+	
+	@Override
+	public void setRAMArray(int base, byte[] array) 
 	{
 		//this.array = array;
 		for(int p=0;p<this.bank.length;p++)
 			this.bank[p] = 0x00;
 		
 		for(int p=0;p<array.length;p++)
-			this.bank[p] = array[p];
+			this.bank[base + p] = array[p];
 		
 	}
 
 	@Override
 	public byte read(short address)
 	{
+		System.out.println(AddressMap.toHexAddress(address, IOSize.IO16Bit));
 		return (byte)this.readAddressSigned((int)address, IOSize.IO8Bit);
 	}
 

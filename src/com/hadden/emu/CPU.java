@@ -24,6 +24,7 @@ public interface CPU
 		public double 	clocksPerSecond;
 		public int      clocks;
 		public byte     flags;
+		public long     irqs;
 	};
 	
 	public String getName();

@@ -26,6 +26,7 @@ import com.hadden.emu.c64.KeyboardDevice;
 import com.hadden.emu.c64.ScreenDevice;
 import com.hadden.emu.c64.VICIIDevice;
 import com.hadden.emu.cpu.MOS65C02;
+import com.hadden.emu.cpu.MOS65C02A;
 import com.hadden.emu.impl.DisplayDevice;
 import com.hadden.emu.impl.LCDDevice;
 import com.hadden.emu.impl.MuxDevice;
@@ -85,18 +86,19 @@ public class SystemEmulator extends JFrame implements ActionListener
 							cpu.interrupt();
 					}
 				});
-/*
+		
+
 		map.addBusDevice((BusDevice)rom)
 		   //.addBusDevice(new DisplayDevice(0x0000A000,40,10))
 		   .addBusDevice(new DisplayDevice(0x0000A000,80,25))
 		   //.addBusDevice(new LCDDevice(0x0000B000))
-		   .addBusDevice(new TimerDevice(0x0000B003,60000))
-		   .addBusDevice(new TimerDevice(0x0000B005,5000))
-		   .addBusDevice(new SerialDevice(0x00000200))
+		   //.addBusDevice(new TimerDevice(0x0000B003,60000))
+		   //.addBusDevice(new TimerDevice(0x0000B005,5000))
+		   //.addBusDevice(new SerialDevice(0x00000200))
 		   ;
 		
-		*/
 		
+		/*
 		MuxDevice mux = new MuxDevice(0x0000D000, 0x3FF, 0x00000000, 
 				new MuxMapper() 
 				{
@@ -125,15 +127,16 @@ public class SystemEmulator extends JFrame implements ActionListener
 		   .addBusDevice(new com.hadden.emu.c64.TimerDevice("TIMER-A", 0x0000DD04))
 		   .addBusDevice(new com.hadden.emu.c64.TimerDevice("TIMER-B", 0x0000DD06))
 		   .addBusDevice(new KeyboardDevice(0x0000DC00))
+		   .addBusDevice(new TimerDevice(0x0000B005,1000))
 		   ;		
-		
+		*/
 		map.printAddressMap();
 		System.out.println(  ((Bus)map).dumpBytesAsString());
 		
 		SystemEmulator.enableDebug(true);
 		
 		bus = (Bus)map;
-		cpu = new MOS65C02(bus);
+		cpu = new MOS65C02A(bus);
 		// Swing Stuff:
 		System.setProperty("sun.java2d.opengl", "true");
 		this.setSize(1500, 1000);
@@ -175,18 +178,25 @@ public class SystemEmulator extends JFrame implements ActionListener
 		clockThread = new Thread(() -> {
 			while (true)
 			{
-				if (SystemEmulator.clockState)
-					cpu.clock();
-				System.out.print("");
-				if (slowerClock)
+				try
 				{
-					try
+					if (SystemEmulator.clockState)
+						cpu.clock();
+					System.out.print("");
+					if (slowerClock)
 					{
-						Thread.sleep(1);
-					} catch (InterruptedException e)
-					{
-						e.printStackTrace();
+						try
+						{
+							Thread.sleep(1);
+						} catch (InterruptedException e)
+						{
+							e.printStackTrace();
+						}
 					}
+				} 
+				catch (Exception e)
+				{
+					e.printStackTrace();
 				}
 			}
 		});
@@ -232,7 +242,22 @@ public class SystemEmulator extends JFrame implements ActionListener
 
 			if (returnVal == JFileChooser.APPROVE_OPTION)
 			{
-				ram.setRAMArray(ROMLoader.readROM(fc.getSelectedFile()));
+				File selectedFile = fc.getSelectedFile();
+				
+				Integer[] baseAddress = new Integer[1];
+				
+				byte[] array = ROMLoader.readROM(selectedFile,baseAddress);
+				
+				if(baseAddress[0] == null)
+					baseAddress[0] = 0;
+				ram.setRAMArray(baseAddress[0],array);
+				
+				if(baseAddress[0] > 0)
+				{
+					ram.write((short)0x0000,(byte)0x4C);
+					ram.write((short)0x0001,(byte)(baseAddress[0] & 0xFF));
+					ram.write((short)0x0002, (byte)((baseAddress[0] & 0xFF00) >> 8));
+				}
 			}
 			GraphicsPanel.requestFocus();
 			GraphicsPanel.ramPageString = SystemEmulator.ram.getRAMString().substring(GraphicsPanel.ramPage * 960,

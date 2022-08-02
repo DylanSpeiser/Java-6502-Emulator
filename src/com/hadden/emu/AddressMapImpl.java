@@ -115,6 +115,12 @@ public class AddressMapImpl implements Bus, AddressMap
 	@SuppressWarnings("unused")
 	public static void main(String[] args)
 	{
+		System.out.println(AddressMap.toHexAddress(15, IOSize.IO8Bit));
+		System.out.println(AddressMap.toHexAddress(15, IOSize.IO16Bit));
+		System.out.println(AddressMap.toHexAddress(15, IOSize.IO32Bit));
+		
+		System.out.println(AddressMap.toHexAddress(0xABCD, IOSize.IO16Bit));
+		
 		AddressMapImpl map =  new AddressMapImpl(new RAMDevice(0x00000000,64*1024),
 				                         new BusIRQ() 
 										{

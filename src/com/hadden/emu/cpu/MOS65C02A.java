@@ -2,7 +2,9 @@ package com.hadden.emu.cpu;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 import com.hadden.Instruction;
 import com.hadden.ROMLoader;
@@ -11,7 +13,7 @@ import com.hadden.emu.Bus;
 import com.hadden.emu.CPU;
 
 
-public class MOS65C02 implements CPU
+public class MOS65C02A implements CPU
 {
 	public byte flags = 0x00;
 	// C,Z,I,D,B,U,V,N
@@ -23,7 +25,7 @@ public class MOS65C02 implements CPU
 	public byte stackPointer = 0x00;
 	public short programCounter = 0x0000;
 
-	public boolean debug = false;
+	public boolean debug = true;
 
 	public short addressAbsolute = 0x0000;
 	public short addressRelative = 0x0000;
@@ -42,6 +44,8 @@ public class MOS65C02 implements CPU
 
 	public Instruction[] lookup = new Instruction[0x100];
 
+	public Queue<Integer> pendingIRQ = new LinkedList<Integer>();
+	
 	public Map<Integer,Integer> cyclesCache = new HashMap<Integer,Integer>();
 	public Map<Integer,Method> addressModeCache = new HashMap<Integer,Method>();
 	public Map<Integer,Method> instructionCache = new HashMap<Integer,Method>();
@@ -59,10 +63,10 @@ public class MOS65C02 implements CPU
 
 	public String getName()
 	{
-		return "65C02";
+		return "65C02A";
 	}
 	
-	public MOS65C02(Bus bus)
+	public MOS65C02A(Bus bus)
 	{
 		cpuBus = bus;
 		
@@ -377,34 +381,37 @@ public class MOS65C02 implements CPU
 
 	public void interrupt()
 	{
-		debug = true;
-		if(interruptsEnabled &&  clocks > 0)
+		//debug = false;
+		if(true)
 		{
-			interruptRequested = true;
-			
+			//interruptRequested = true;
+			pendingIRQ.offer(this.clocks);
 		}
 	}		
 	
 	public void clock()
 	{
-		if (cycles == 0)
+ 		if (cycles == 0)
 		{
-			if(interruptRequested && interruptsEnabled && (starveProtect < 1))
+			//if(pendingIRQ.size() > 0 && (starveProtect < 1))
+			if(pendingIRQ.size() > 0 && (starveProtect < 1))
 			{
-				starveProtect  = 2;
-				interruptsEnabled = false;
-				if (interruptRequested)
+				//starveProtect  = 2;
+				//interruptsEnabled = false;
+				if (pendingIRQ.size() > 0)
+				{	
 					irq();
-					
+					starveProtect = 4;
+				}	
 				if (NMinterruptRequested)
 					nmi();		
 				
-				debug = false;
+				//debug = false;
 			}
 			else			
 			//if(!interruptRequested && !interruptsEnabled)
 			{
-				starveProtect--;
+  				starveProtect--;
 				additionalCycles = 0;
 				opcode = cpuBus.read(programCounter);
 				programCounter++;
@@ -500,6 +507,20 @@ public class MOS65C02 implements CPU
 						+ ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(flags)), 8));
 				System.out.println();
 			}
+			else
+			{
+				
+				try
+				{
+					Thread.sleep(1);
+				} 
+				catch (InterruptedException e)
+				{
+					e.printStackTrace();
+				}
+				
+			}
+		
 		}
 
 		if (((System.currentTimeMillis() - startTime) / 1000) > 0)
@@ -588,6 +609,7 @@ public class MOS65C02 implements CPU
 		boolean fi = getFlag('I');
 		if(!fi)
 		{
+			pendingIRQ.poll();
 			irqCount++;
 			this.interrupted = true;
 			if(debug)
@@ -619,8 +641,8 @@ public class MOS65C02 implements CPU
 			
 			cycles = 7;
 			irqCycles = 7;
-			interruptRequested = false;
-			interruptsEnabled = false;
+			//interruptRequested = false;
+			//interruptsEnabled = false;
 		}
 		else
 		{
@@ -970,9 +992,9 @@ public class MOS65C02 implements CPU
 
 	public void CLI()
 	{
-		System.out.println("**CLI**");
+		//System.out.println("**CLI**");
 		setFlag('I', false);
-		this.interruptsEnabled = true;
+
 	}
 
 	public void CLV()
@@ -1286,8 +1308,8 @@ public class MOS65C02 implements CPU
 
 	public void SEI()
 	{
-		System.out.println("**SEI**");
-		this.interruptsEnabled = false;
+		//System.out.println("**SEI**");
+		//this.interruptsEnabled = false;
 		setFlag('I', true);
 	}
 
