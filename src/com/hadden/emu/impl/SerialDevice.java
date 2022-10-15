@@ -271,4 +271,10 @@ public class SerialDevice implements BusDevice, RaisesIRQ, HasPorts
 		this.irq = irq;		
 	}
 
+	@Override
+	public void reset()
+	{
+		// TODO Auto-generated method stub
+		
+	}	
 }

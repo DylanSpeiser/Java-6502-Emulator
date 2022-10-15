@@ -168,4 +168,11 @@ public class TimerDevice implements BusDevice, RaisesIRQ
 		//this.irq = irq;		
 	}
 
+	@Override
+	public void reset()
+	{
+		// TODO Auto-generated method stub
+		
+	}	
+	
 }

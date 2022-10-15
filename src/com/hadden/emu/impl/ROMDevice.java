@@ -24,7 +24,7 @@ public class ROMDevice implements BusDevice, ROM
 
 	public ROMDevice(int bankAddress, byte[] romImage)
 	{
-		this(new BusAddressRange(bankAddress, romImage.length, 1), romImage);
+		this(new BusAddressRange(bankAddress, romImage.length - 1, 1), romImage);
 	}
 
 	public ROMDevice(int bankAddress)
@@ -164,8 +164,8 @@ public class ROMDevice implements BusDevice, ROM
 	@Override
 	public void reset()
 	{
-		for(int p=0;p<this.bank.length;p++)
-			this.bank[p] = 0x00;		
+		//for(int p=0;p<this.bank.length;p++)
+	    //	this.bank[p] = 0x00;		
 	}
 
 }

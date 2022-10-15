@@ -1,6 +1,8 @@
 package com.hadden.emu;
 
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
@@ -343,6 +345,12 @@ public class AddressMapImpl implements Bus, AddressMap
 		SystemEmulator.enableDebug(mode);
 		
 		return sb.toString();
+	}
+
+	@Override
+	public Collection<BusDevice> getDevices()
+	{
+		return this.mappedAddressSpace.values();
 	}	
 	
 }

@@ -1,5 +1,7 @@
 package com.hadden.emu;
 
+import java.util.Collection;
+
 import com.hadden.emu.BusDevice.IOSize;
 
 public interface AddressMap
@@ -10,6 +12,7 @@ public interface AddressMap
 	public BusDevice getMemoryMappedDevice(int address);
 	public void printAddressMap();
 	public void setBusListener(BusListener listener);
+	public Collection<BusDevice> getDevices();
 	
 	static public String toHexAddress(int address, IOSize size)
 	{

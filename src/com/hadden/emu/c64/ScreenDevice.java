@@ -152,6 +152,13 @@ public class ScreenDevice extends JFrame implements BusDevice, HasPorts, ActionL
 			
 			return 0;		
 		}
+
+		@Override
+		public void reset()
+		{
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
 	
@@ -485,5 +492,10 @@ public class ScreenDevice extends JFrame implements BusDevice, HasPorts, ActionL
 		}
 	}
 
-	
+	@Override
+	public void reset()
+	{
+		// TODO Auto-generated method stub
+		
+	}	
 }

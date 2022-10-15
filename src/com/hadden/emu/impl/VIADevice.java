@@ -224,4 +224,10 @@ public class VIADevice implements BusDevice
 		}
 	}
 
+	@Override
+	public void reset()
+	{
+		// TODO Auto-generated method stub	
+	}	
+	
 }

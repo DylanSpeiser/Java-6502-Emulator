@@ -12,7 +12,7 @@ import javax.swing.*;
 
 import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
-import com.hadden.emu.BusDevice.IOSize;
+
 
 import com.hadden.emu.HasPorts;
 import com.hadden.fonts.FontManager;
@@ -151,10 +151,22 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 			
 			return 0;		
 		}
+
+		@Override
+		public void reset()
+		{
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
 	
 	public DisplayDevice(int baseAddress, int displayColumns, int displayRows)
+	{
+		init(baseAddress, displayColumns, displayRows);
+	}
+	
+	private void init(int baseAddress, int displayColumns, int displayRows)
 	{
 		this.x_offset = 12;
 		this.x_width  = 30;
@@ -496,5 +508,10 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 		}
 	}
 
+	@Override
+	public void reset()
+	{
+		this.init(this.baseAddress, this.displayColumns, this.displayRows);
+	}
 	
 }

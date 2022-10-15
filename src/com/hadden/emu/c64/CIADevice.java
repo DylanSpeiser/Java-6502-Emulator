@@ -268,4 +268,11 @@ public class CIADevice implements BusDevice, RaisesIRQ, HasPorts
 		this.irq = irq;		
 	}
 
+	@Override
+	public void reset()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
 }
