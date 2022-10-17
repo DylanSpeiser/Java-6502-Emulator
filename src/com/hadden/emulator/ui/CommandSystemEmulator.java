@@ -131,4 +131,11 @@ public class CommandSystemEmulator implements Emulator
 		
 	}
 
+	@Override
+	public Bus getBus()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

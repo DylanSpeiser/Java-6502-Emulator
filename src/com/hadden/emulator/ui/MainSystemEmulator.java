@@ -280,5 +280,11 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 		
 		this.graphicsPanel.repaint();
 	}
+
+	@Override
+	public Bus getBus()
+	{
+		return bus;
+	}
 	
 }

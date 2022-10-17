@@ -12,6 +12,7 @@ import com.hadden.emu.CPU.Telemetry;
 import com.hadden.emu.VIA;
 import com.hadden.emulator.Clock;
 import com.hadden.emulator.Emulator;
+import com.hadden.emulator.util.Convert;
 
 public class DisplayPanel extends JPanel implements ActionListener, KeyListener, BusListener
 {
@@ -42,7 +43,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener,
 		setPreferredSize(new Dimension(1200, 900));
 
 		//romPageString = SystemEmulator.rom.getROMString().substring(romPage * 960, (romPage + 1) * 960);
-		//ramPageString = SystemEmulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
+		ramPageString = emulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
 		
 
 		this.setFocusable(true);
@@ -56,10 +57,10 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener,
 		g.setColor(Color.white);
 		// g.drawString("Render Mode: paintComponent",5,15);
 
-//		g.setColor(getBackground());
-//		g.fillRect(0, 0, SystemEmulator.getWindows()[1].getWidth(), SystemEmulator.getWindows()[1].getHeight());
-//      g.setColor(Color.white);
-//      g.drawString("Render Mode: fillRect",5,15);
+		//g.setColor(getBackground());
+		//g.fillRect(0, 0, SystemEmulator.getWindows()[1].getWidth(), SystemEmulator.getWindows()[1].getHeight());
+        //g.setColor(Color.white);
+        //g.drawString("Render Mode: fillRect",5,15);
 
 		rightAlignHelper = Math.max(getWidth(), 1334);
 
@@ -74,28 +75,28 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener,
 		g.setFont(new Font("Courier New Bold", 20, 20));
 		g.drawString("v" + emulator.getSystemVersion(), 7, 1033);
 
-		/*
-		Telemetry t = SystemEmulator.cpu.getTelemetry();
+		
+		Telemetry t = emulator.getCPU().getTelemetry();
 		
 		// Clocks
 		g.drawString("Clocks: " + t.clocks, 40, 80);	
 		if(t.clocksPerSecond > 1000000.0)
 		{
 			g.drawString(
-					"Speed: " + (int)t.clocksPerSecond/1000000  + " MHz" + (SystemEmulator.slowerClock ? " (Slow)" : ""),
+					"Speed: " + (int)t.clocksPerSecond/1000000  + " MHz" + (emulator.getClock().isSlow()? " (Slow)" : ""),
 					40, 110);
 		}
 		else
 			g.drawString(
-					"Speed: " + (int)t.clocksPerSecond  + " Hz" + (SystemEmulator.slowerClock ? " (Slow)" : ""),
+					"Speed: " + (int)t.clocksPerSecond  + " Hz" + (emulator.getClock().isSlow() ? " (Slow)" : ""),
 					40, 110);
-		*/
 		
-		/*
+		
+		
 		// PAGE INDICATORS
-		g.drawString("(K) <-- " + ROMLoader.byteToHexString((byte) (romPage + 0x80)) + " --> (L)",
+		g.drawString("(K) <-- " + Convert.byteToHexString((byte) (romPage + 0x80)) + " --> (L)",
 				rightAlignHelper - 304, Math.max(getHeight() - 91, 920));
-		g.drawString("(H) <-- " + ROMLoader.byteToHexString((byte) ramPage) + " --> (J)", rightAlignHelper - 704,
+		g.drawString("(H) <-- " + Convert.byteToHexString((byte) ramPage) + " --> (J)", rightAlignHelper - 704,
 				Math.max(getHeight() - 91, 920));
 
 		// ROM
@@ -118,48 +119,48 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener,
 		// CPU
 		g.drawString("CPU Registers:", 50, 140);
 		g.drawString("A: "
-				+ ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.a)), 8)
-				+ " (" + ROMLoader.byteToHexString(t.a) + ")", 35, 170);
+				+ Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.a)), 8)
+				+ " (" + Convert.byteToHexString(t.a) + ")", 35, 170);
 		g.drawString("X: "
-				+ ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.x)), 8)
-				+ " (" + ROMLoader.byteToHexString(t.x) + ")", 35, 200);
+				+ Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.x)), 8)
+				+ " (" + Convert.byteToHexString(t.x) + ")", 35, 200);
 		g.drawString("Y: "
-				+ ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.y)), 8)
-				+ " (" + ROMLoader.byteToHexString(t.y) + ")", 35, 230);
+				+ Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.y)), 8)
+				+ " (" + Convert.byteToHexString(t.y) + ")", 35, 230);
 		g.drawString("Stack Pointer: "
-				+ ROMLoader.padStringWithZeroes(
+				+ Convert.padStringWithZeroes(
 						Integer.toBinaryString(Byte.toUnsignedInt(t.stackPointer)), 8)
-				+ " (" + ROMLoader.byteToHexString(t.stackPointer) + ")", 35, 260);
+				+ " (" + Convert.byteToHexString(t.stackPointer) + ")", 35, 260);
 		g.drawString(
 				"Program Counter: "
-						+ ROMLoader.padStringWithZeroes(
+						+ Convert.padStringWithZeroes(
 								Integer.toBinaryString(Short.toUnsignedInt(t.programCounter)), 16)
 						+ " ("
-						+ ROMLoader.padStringWithZeroes(Integer
+						+ Convert.padStringWithZeroes(Integer
 								.toHexString(Short.toUnsignedInt(t.programCounter)).toUpperCase(), 4)
 						+ ")",
 				35, 290);
-		g.drawString("Flags:             (" + ROMLoader.byteToHexString(t.flags) + ")", 35, 320);
+		g.drawString("Flags:             (" + Convert.byteToHexString(t.flags) + ")", 35, 320);
 
 		g.drawString("Absolute Address: "
-				+ ROMLoader.padStringWithZeroes(
+				+ Convert.padStringWithZeroes(
 						Integer.toBinaryString(Short.toUnsignedInt(t.addressAbsolute)), 16)
-				+ " (" + ROMLoader.byteToHexString((byte) ((short)t.addressAbsolute / 0xFF))
-				+ ROMLoader.byteToHexString((byte) t.addressAbsolute) + ")", 35, 350);
+				+ " (" + Convert.byteToHexString((byte) ((short)t.addressAbsolute / 0xFF))
+				+ Convert.byteToHexString((byte) t.addressAbsolute) + ")", 35, 350);
 		g.drawString("Relative Address: "
-				+ ROMLoader.padStringWithZeroes(
+				+ Convert.padStringWithZeroes(
 						Integer.toBinaryString(Short.toUnsignedInt((short)t.addressRelative)), 16)
-				+ " (" + ROMLoader.byteToHexString((byte) ((short)t.addressRelative / 0xFF))
-				+ ROMLoader.byteToHexString((byte)t.addressRelative) + ")", 35, 380);
+				+ " (" + Convert.byteToHexString((byte) ((short)t.addressRelative / 0xFF))
+				+ Convert.byteToHexString((byte)t.addressRelative) + ")", 35, 380);
 		g.drawString("Opcode: " + t.opcodeName + " ("
-				+ ROMLoader.byteToHexString(t.opcode) + ")", 35, 410);
+				+ Convert.byteToHexString(t.opcode) + ")", 35, 410);
 		g.drawString("Cycles: " + t.cycles, 35, 440);
 		g.drawString("IRQs  : " + t.irqs, 35, 470);
 		
 		
 		int counter = 0;
 		String flagsString = "NVUBDIZC";
-		for (char c : ROMLoader
+		for (char c : Convert
 				.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.flags)), 8)
 				.toCharArray())
 		{
@@ -168,7 +169,9 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener,
 			counter++;
 		}
 
+		
 		g.setColor(Color.white);
+		/*
 		// VIA
 		g.drawString("VIA Registers:", 50, 495);
 		g.drawString("PORT A: "
@@ -272,6 +275,24 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener,
 			
 			System.out.println("Size: " + this.getWidth() + " x " + this.getHeight());
 			break;
+		case 'j':
+			if (ramPage < 0xFF)
+			{
+				ramPage += 1;
+				//ramPageString = SystemEmulator.ram.getRAMString().substring(ramPage * 960, (ramPage + 1) * 960);
+				ramPageString = emulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
+			}
+			break;
+		case 'h':
+			if (ramPage > 0)
+			{
+				ramPage -= 1;
+				//ramPageString = SystemEmulator.ram.getRAMString().substring(ramPage * 960, (ramPage + 1) * 960);
+				ramPageString = emulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
+			}
+			break;
+		
+		
 		}
 		/*
 		switch (arg0.getKeyChar())

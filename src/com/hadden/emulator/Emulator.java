@@ -1,5 +1,6 @@
 package com.hadden.emulator;
 
+import com.hadden.emu.Bus;
 import com.hadden.emu.CPU;
 
 public interface Emulator
@@ -9,4 +10,5 @@ public interface Emulator
 	Clock  getClock();
 	CPU    getCPU();
 	void   reset();
+	Bus    getBus();
 }

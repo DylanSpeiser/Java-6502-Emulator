@@ -27,7 +27,7 @@ public class MOS65C02A implements CPU, ClockLine
 	public byte stackPointer = 0x00;
 	public short programCounter = 0x0000;
 
-	public boolean debug = true;
+	public boolean debug = false;
 
 	public short addressAbsolute = 0x0000;
 	public short addressRelative = 0x0000;
@@ -511,10 +511,10 @@ public class MOS65C02A implements CPU, ClockLine
 			}
 			else
 			{
-				
+			
 				try
 				{
-					Thread.sleep(1);
+					Thread.sleep(0);
 				} 
 				catch (InterruptedException e)
 				{
@@ -532,6 +532,13 @@ public class MOS65C02A implements CPU, ClockLine
 			mClocksPerSecond = kClocksPerSecond/1000; 
 		}
 		clocks++;
+		
+		if(clocks < 0)
+		{
+			clocks = 1;
+			startTime = System.currentTimeMillis();
+		}
+			
 		cycles--;
 		
 		
