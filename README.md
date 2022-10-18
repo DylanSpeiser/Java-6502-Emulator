@@ -1,5 +1,20 @@
 # Java 6502 Emulator
  
+
+## Update: v2.0 is here!
+Whoa! Almost a year after the last update it's back and better than ever! The emulator now includes a character-driven GPU (bitmap modes in development) and SO MUCH customizability!
+You can now hide and show the LCD and GPU windows with the buttons at the top right!
+You can now customize the address ranges of the VIA and GPU!
+The GPU's resolution and array size is _whatever you want it to be_!
+The fonts actually work now!
+And **COLORS!!**
+
+(The GPU Mode setting doesn't do anything yet, but that will allow me to implement more fun modes in the future.)
+
+Enjoy the new features!
+-Dylan
+
+## Overview
 This is a project I started because I wanted a place to write and test code for my Ben Eater 6502 kit. After seeing some other emulators written in C++ ~~(by sane people)~~, I tried downloading them but had trouble building them. So, I figured I would just write my own. It was a fun process, and was greatly helped by [OneLoneCoder's NES Emulator Tutorial](https://github.com/OneLoneCoder/olcNES). The LCD simulator was 100% me, and I'm proud of it.
 
 UNIMPLEMENTED FEATURES:

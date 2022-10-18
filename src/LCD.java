@@ -1,10 +1,12 @@
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Graphics;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -19,7 +21,7 @@ public class LCD extends JFrame implements ActionListener {
 	
 	boolean graphicalCursorBlinkFlag = false;
 	
-	boolean debug = true;
+	boolean debug = false;
 	
 	//Internal flags
 	int cursorPos = 0;
@@ -52,10 +54,9 @@ public class LCD extends JFrame implements ActionListener {
 		this.setContentPane(p);
 		this.setAlwaysOnTop(true);
 		this.setVisible(true);
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
 	}
 	
-	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		LCD lcd = new LCD();
 		
@@ -94,7 +95,6 @@ public class LCD extends JFrame implements ActionListener {
 		cursor = false;
 		cursorBlink = false;
 		fourBitMode = false;
-		
 	}
 	
 	//Regular write to LCD
@@ -199,10 +199,13 @@ public class LCD extends JFrame implements ActionListener {
 	public class LCDPanel extends JPanel {
 		public LCDPanel() {
 			try {
-				lcdFont = Font.createFont(Font.TRUETYPE_FONT, new File("5x8_lcd_hd44780u_a02.ttf")).deriveFont(47f);
-			    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-			    ge.registerFont(lcdFont);
-			} catch (Exception e) {}
+				lcdFont = Font.createFont(Font.TRUETYPE_FONT,this.getClass().getClassLoader().getResourceAsStream("5x8_lcd_hd44780u_a02.ttf")).deriveFont(47f);
+				GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+				ge.registerFont(lcdFont);
+			} catch (FontFormatException | IOException e) {
+				e.printStackTrace();
+				System.out.println("Error loading LCD Font!");
+			}
 		}
 		
 		public void paintComponent(Graphics g) {

@@ -2,6 +2,8 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+import java.io.File;
+import java.io.IOException;
 
 public class DisplayPanel extends JPanel implements ActionListener, KeyListener {
 	Timer t;
@@ -9,17 +11,31 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 	int romPage = 0;
 	
 	int rightAlignHelper = Math.max(getWidth(), 1334);
+
+	public Font courierNewBold;
 	
 	String ramPageString = "";
 	String romPageString = "";
+
+	public static Color bgColor = Color.blue;
+	public static Color fgColor = Color.white;
 	
 	public DisplayPanel() {
 		super(null);
 		
 		t = new javax.swing.Timer(16, this);
 		t.start();
-		setBackground(Color.blue);
+		setBackground(bgColor);
 		setPreferredSize(new Dimension(1936, 966));
+
+		try {
+			courierNewBold = Font.createFont(Font.TRUETYPE_FONT,this.getClass().getClassLoader().getResourceAsStream("courbd.ttf")).deriveFont(20f);
+			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			ge.registerFont(courierNewBold);
+		} catch (FontFormatException | IOException e) {
+			e.printStackTrace();
+			System.out.println("Error loading Courier Font!");
+		}
 		
 		romPageString = EaterEmulator.rom.ROMString.substring(romPage*960,(romPage+1)*960);
 		ramPageString = EaterEmulator.ram.RAMString.substring(ramPage*960,(ramPage+1)*960);
@@ -31,7 +47,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 	
 	public void paintComponent(Graphics g) {
         super.paintComponent(g);
-		g.setColor(Color.white);
+		g.setColor(fgColor);
 		//g.drawString("Render Mode: paintComponent",5,15);
 		
 //		g.setColor(getBackground());
@@ -46,7 +62,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
         g.drawString("Ben Eater 6502 Emulator", 40, 50);
         
         //Version
-        g.setFont(new Font("Courier New Bold",20,20));
+        g.setFont(courierNewBold);
         g.drawString("v"+EaterEmulator.versionString, 7, 1033);
         
         //Clocks
@@ -65,7 +81,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
         if (ramPage == 1) {
         	g.setColor(new Color(0.7f,0f,0f));
         	g.fillRect(rightAlignHelper-708+36*(Byte.toUnsignedInt(EaterEmulator.cpu.stackPointer)%8), 156+23*((int)Byte.toUnsignedInt(EaterEmulator.cpu.stackPointer)/8), 25, 22);
-        	g.setColor(Color.white);
+        	g.setColor(fgColor);
         }
         
         //RAM
@@ -95,7 +111,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
         	counter++;
         }
         
-        g.setColor(Color.white);
+        g.setColor(fgColor);
         //VIA
         g.drawString("VIA Registers:",50,490);
         g.drawString("PORT A: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.via.PORTA)), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.via.PORTA)+")", 35, 520);
@@ -120,13 +136,27 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 	        g.drawString(line, x, y += g.getFontMetrics().getHeight());
 	}
 
+	public void resetGraphics() {
+		bgColor = EaterEmulator.options.data.bgColor;
+		fgColor = EaterEmulator.options.data.fgColor;
+		setBackground(bgColor);
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource().equals(t)) {
+			EaterEmulator.running = true;
+			
 			ramPageString = EaterEmulator.ram.RAMString.substring(ramPage*960,(ramPage+1)*960);
 			EaterEmulator.ROMopenButton.setBounds(rightAlignHelper-150, 15, 125, 25);
 			EaterEmulator.RAMopenButton.setBounds(rightAlignHelper-150, 45, 125, 25);
+			EaterEmulator.ShowLCDButton.setBounds(rightAlignHelper-300, 15, 125, 25);
+			EaterEmulator.ShowGPUButton.setBounds(rightAlignHelper-300, 45, 125, 25);
+			EaterEmulator.optionsButton.setBounds(rightAlignHelper-450, 15, 125, 55);
 			this.repaint();
+
+			if (!EaterEmulator.options.isVisible())
+				this.requestFocus();
 		}
 	}
 
@@ -172,8 +202,11 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 				EaterEmulator.lcd.reset();
 				EaterEmulator.via = new VIA();
 				EaterEmulator.ram = new RAM();
+				EaterEmulator.gpu.setRAM(EaterEmulator.ram);
 				ramPageString = EaterEmulator.ram.RAMString.substring(ramPage*960,(ramPage+1)*960);
-				System.out.println("Size: "+this.getWidth()+" x "+this.getHeight());
+
+				if (EaterEmulator.debug)
+					System.out.println("Size: "+this.getWidth()+" x "+this.getHeight());
 				break;
 			case ' ':
 				EaterEmulator.cpu.clock();

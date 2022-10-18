@@ -6,6 +6,27 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch GPU",
+            "request": "launch",
+            "mainClass": "GPU",
+            "projectName": "Java-6502-Emulator_cdf032ed"
+        },
+        {
+            "type": "java",
+            "name": "Launch EaterEmulator",
+            "request": "launch",
+            "mainClass": "EaterEmulator",
+            "projectName": "Java-6502-Emulator_cdf032ed"
+        },
+        {
+            "type": "java",
+            "name": "Launch OptionsPane",
+            "request": "launch",
+            "mainClass": "OptionsPane",
+            "projectName": "Java-6502-Emulator_cdf032ed"
+        },
+        {
+            "type": "java",
             "name": "Launch Current File",
             "request": "launch",
             "mainClass": "${file}"
