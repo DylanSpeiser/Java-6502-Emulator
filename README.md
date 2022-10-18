@@ -9,6 +9,9 @@ The GPU's resolution and array size is _whatever you want it to be_!
 The fonts actually work now!
 And **COLORS!!**
 
+Store the configs in our fancy new .pref files!
+These configuration settings are stored in your AppData or Application Support folder on Windows/Mac respectively. It generates a defaults.pref file on startup every time if you want to go back to the default settings. (options.pref is loaded on startup.)
+
 (The GPU Mode setting doesn't do anything yet, but that will allow me to implement more fun modes in the future.)
 
 Enjoy the new features!
