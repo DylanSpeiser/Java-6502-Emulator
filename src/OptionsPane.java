@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.FileDialog;
 import java.io.File;
 import java.nio.file.*;
 import java.io.FileOutputStream;
@@ -24,7 +25,7 @@ public class OptionsPane extends JFrame implements ActionListener {
 
     //Swing Stuff
     ArrayList<JComponent> SwingComponentsList = new ArrayList<JComponent>();
-    JFileChooser fc = new JFileChooser();
+	FileDialog fc = new java.awt.FileDialog((java.awt.Frame) null);
     JButton openOptionsFileButton = new JButton("Open File");
     JTextField openOptionsFileText = new JTextField(data.defaultSaveDirectory+"options.pref");
     JLabel openOptionsFileLabel = new JLabel("Load options from file");
@@ -51,13 +52,18 @@ public class OptionsPane extends JFrame implements ActionListener {
     JLabel GPUModeOptionLabel = new JLabel("GPU Mode");
     JTextField GPUModeOptionTextField = new JTextField(""+data.GPUMode);
 
+    JLabel GPUModeExplanationLabel = new JLabel("<html>GPU Mode 0 = Speiser Character Mode (customizable)<br>GPU Mode 1 = Eater Bitmap Mode (100x75, 64 colors, Buffer @ $2000)<br>GPU Mode 2 = Eater Bitmap Mode (customizable)</html>");
+
+    JLabel GPUBitmapPixelScaleLabel = new JLabel("GPU Bitmap Pixel Scale: ");
+    JTextField GPUBitmapPixelScaleTextField = new JTextField(""+data.GPUMode);
+
     JLabel ForegroundColorLabel = new JLabel("Foreground Color");
     JTextField ForegroundColorChooser = new JTextField("#"+Integer.toHexString(data.fgColor.getRGB()).substring(2));
 
     JLabel BackgroundColorLabel = new JLabel("Background Color");
     JTextField BackgroundColorChooser = new JTextField("#"+Integer.toHexString(data.bgColor.getRGB()).substring(2));
 
-    int VRAMSize = data.GPUCols*data.GPURows;
+    int VRAMSize;
     JLabel VRAMSizeLabel = new JLabel("("+VRAMSize+"bytes)");
     JLabel VRAMRangeLabel = new JLabel("VRAM Range: $"+Integer.toHexString(data.GPUBufferBegin)+"-$"+Integer.toHexString(data.GPUBufferBegin+VRAMSize-1));
 
@@ -82,8 +88,8 @@ public class OptionsPane extends JFrame implements ActionListener {
         readDataFromFile(optionsFile);
         writeDataToFile(optionsFile);
 
-		fc.setVisible(true);
-		fc.setCurrentDirectory(new File(data.defaultFileChooserDirectory));
+		fc.setVisible(false);
+		fc.setDirectory(data.defaultFileChooserDirectory);
 
         //Swing Components
         SwingComponentsList.add(openOptionsFileButton);
@@ -113,6 +119,9 @@ public class OptionsPane extends JFrame implements ActionListener {
         SwingComponentsList.add(BackgroundColorChooser);
         SwingComponentsList.add(VRAMRangeLabel);
         SwingComponentsList.add(VRAMSizeLabel);
+        SwingComponentsList.add(GPUModeExplanationLabel);
+        SwingComponentsList.add(GPUBitmapPixelScaleLabel);
+        SwingComponentsList.add(GPUBitmapPixelScaleTextField);
 
         this.setTitle("Options");
 		this.setContentPane(p);
@@ -156,8 +165,6 @@ public class OptionsPane extends JFrame implements ActionListener {
 			g.fillRect(0, 0, p.getWidth(), p.getHeight());
 
 			g.setColor(getForeground());
-
-			
 		}
 	}
 
@@ -190,35 +197,52 @@ public class OptionsPane extends JFrame implements ActionListener {
 
             GPUBufferAddressOptionHexLabel.setText("= $"+Integer.toHexString(VBStartAddr));
 
-            VRAMSizeLabel.setText("("+Integer.parseInt(GPUColsTextField.getText())*Integer.parseInt(GPURowsTextField.getText())+" bytes)");
+            //VRAM Size
+            if (data.GPUMode == 0) {
+                VRAMSize = data.GPUCols*data.GPURows;
+            } else if (data.GPUMode == 1 || data.GPUMode == 2) {
+                data.GPUWidth = 100;
+                data.GPUHeight = 75;
+                data.GPUBufferBegin = 8192;
+                VRAMSize = data.GPUWidth*data.GPUHeight;
+            } else {
+                VRAMSize = 0;
+            }
+
+            VRAMSizeLabel.setText("("+VRAMSize+" bytes)");
             VRAMRangeLabel.setText("VRAM Range: $"+Integer.toHexString(VBStartAddr)+" - $"+Integer.toHexString(VBStartAddr+VRAMSize-1));
 		}
 
         //Buttons
         if (arg0.getSource().equals(openOptionsFileButton)) {
-            fc.setCurrentDirectory(new File(openOptionsFileText.getText()));
-            fc.setSelectedFile(new File(""));
-			int returnVal = fc.showOpenDialog(this);
+            fc.setDirectory(openOptionsFileText.getText());
+            fc.setFile("");
+			
+            fc.setMode(FileDialog.LOAD);
+            fc.setVisible(true);
 
-	        if (returnVal == JFileChooser.APPROVE_OPTION) {
-                optionsFile = fc.getSelectedFile();
+	        if (fc.getFile() != null) {
+                optionsFile = new File(fc.getDirectory()+fc.getFile());
 	            openOptionsFileText.setText(optionsFile.getAbsolutePath());
             }
 
             readDataFromFile(optionsFile);
             applySwingValues();
+            updateSwingComponents();
         } else
         if (arg0.getSource().equals(applyOptionsButton)) {
             applySwingValues();
+            updateSwingComponents();
         } else
         if (arg0.getSource().equals(saveOptionsButton)) {
+            fc.setFile(openOptionsFileText.getText());
+			fc.setMode(FileDialog.SAVE);
+            fc.setDirectory(openOptionsFileText.getText());
             fc.setVisible(true);
-            fc.setSelectedFile(new File(openOptionsFileText.getText()));
-			int returnVal = fc.showSaveDialog(this);
             File newOptionsFile;
 
-	        if (returnVal == JFileChooser.APPROVE_OPTION) {
-                newOptionsFile = fc.getSelectedFile();
+	        if (fc.getFile() != null) {
+                newOptionsFile = new File(fc.getFile());
 
                 writeDataToFile(newOptionsFile);
             }
@@ -246,12 +270,26 @@ public class OptionsPane extends JFrame implements ActionListener {
     public void updateSwingComponents() {
         DefaultFileChooserPathOptionTextField.setText(data.defaultFileChooserDirectory);
         VIAAddressOptionTextField.setText(""+data.VIA_Address);
-        GPUWidthTextField.setText(""+data.GPUWidth);
-        GPUHeightTextField.setText(""+data.GPUHeight);
+
+        GPUWidthTextField.setEditable(!(data.GPUMode == 1));
+        GPUHeightTextField.setEditable(!(data.GPUMode == 1));
+        GPUBufferAddressOptionTextField.setEditable(!(data.GPUMode == 1));
+
+        if (data.GPUMode == 1) {
+            GPUWidthTextField.setText(""+100);
+            GPUHeightTextField.setText(""+75);
+            GPUBufferAddressOptionTextField.setText(""+8192);
+        } else {
+            GPUWidthTextField.setText(""+data.GPUWidth);
+            GPUHeightTextField.setText(""+data.GPUHeight);
+            GPUBufferAddressOptionTextField.setText(""+data.GPUBufferBegin);
+        }
+        
         GPUColsTextField.setText(""+data.GPUCols);
         GPURowsTextField.setText(""+data.GPURows);
-        GPUBufferAddressOptionTextField.setText(""+data.GPUBufferBegin);
+
         GPUModeOptionTextField.setText(""+data.GPUMode);
+        GPUBitmapPixelScaleTextField.setText(""+data.GPUBitmapPixelScale);
         ForegroundColorChooser.setText("#"+Integer.toHexString(data.fgColor.getRGB()).substring(2));
         BackgroundColorChooser.setText("#"+Integer.toHexString(data.bgColor.getRGB()).substring(2));
     }
@@ -280,23 +318,30 @@ public class OptionsPane extends JFrame implements ActionListener {
         data.GPUMode = Integer.parseInt(GPUModeOptionTextField.getText());
         data.fgColor = Color.decode(ForegroundColorChooser.getText());
         data.bgColor = Color.decode(BackgroundColorChooser.getText());
+        data.GPUBitmapPixelScale = Integer.parseInt(GPUBitmapPixelScaleTextField.getText());
 
         Bus.VIA_ADDRESS = data.VIA_Address;
+        boolean gpuWasVisible = EaterEmulator.gpu.isVisible();
         EaterEmulator.gpu.dispose();
-        GPU.width = data.GPUWidth;
-        GPU.height = data.GPUHeight;
+
+        data.GPUWidth = GPU.width = (data.GPUMode == 1) ? 100 : data.GPUWidth;
+        data.GPUHeight = GPU.height = (data.GPUMode == 1) ? 75 : data.GPUHeight;
+        data.GPUBufferBegin = GPU.VRAM_START_ADDRESS = (data.GPUMode == 1) ? 8192 : data.GPUBufferBegin;
+
         GPU.n_cols = data.GPUCols;
         GPU.n_rows = data.GPURows;
-        GPU.VRAM_START_ADDRESS = data.GPUBufferBegin;
-        EaterEmulator.gpu = new GPU(EaterEmulator.gpu.vram);
+        GPU.gpuMode = data.GPUMode;
+        GPU.GPUPixelScale = data.GPUBitmapPixelScale;
+
+        EaterEmulator.gpu = new GPU(EaterEmulator.gpu.vram,gpuWasVisible);
 
         DisplayPanel.fgColor = data.fgColor;
         DisplayPanel.bgColor = data.bgColor;
 
         EaterEmulator.GraphicsPanel.resetGraphics();
 
-        EaterEmulator.fc.setCurrentDirectory(new File(data.defaultFileChooserDirectory));
-        fc.setCurrentDirectory(new File(data.defaultFileChooserDirectory));
+        EaterEmulator.fc.setDirectory(data.defaultFileChooserDirectory);
+        fc.setDirectory(data.defaultFileChooserDirectory);
     }
 
     private void resetSwingPositions() {
@@ -318,22 +363,27 @@ public class OptionsPane extends JFrame implements ActionListener {
         GPUCharGridOptionLabel.setBounds(150,160,150,25);
         GPUColsTextField.setBounds(300,160,50,25);
         GPURowsTextField.setBounds(350,160,50,25);
-        VRAMSizeLabel.setBounds(400,160,100,25);
+        VRAMSizeLabel.setBounds(400,(data.GPUMode == 1 || data.GPUMode == 2) ? 120 : 160,100,25);
 
-        GPUBufferAddressOptionLabel.setBounds(75,200,300,25);
+        GPUBufferAddressOptionLabel.setBounds(75,200,225,25);
         GPUBufferAddressOptionTextField.setBounds(300,200,100,25);
         GPUBufferAddressOptionHexLabel.setBounds(400,200,100,25);
 
         GPUModeOptionLabel.setBounds(225,240,75,25);
         GPUModeOptionTextField.setBounds(300,240,25,25);
 
-        ForegroundColorLabel.setBounds(175,400,125,25);
-        ForegroundColorChooser.setBounds(300,400,100,25);
+        GPUBitmapPixelScaleLabel.setBounds(200,280,100,25);
+        GPUBitmapPixelScaleTextField.setBounds(300,280,25,25);
 
-        BackgroundColorLabel.setBounds(175,440,125,25);
-        BackgroundColorChooser.setBounds(300,440,100,25);
+        VRAMRangeLabel.setBounds(175,320,300,25);
 
-        VRAMRangeLabel.setBounds(175,480,300,25);
+        GPUModeExplanationLabel.setBounds(175,340,500,100);
+
+        ForegroundColorLabel.setBounds(175,440,125,25);
+        ForegroundColorChooser.setBounds(300,440,100,25);
+
+        BackgroundColorLabel.setBounds(175,480,125,25);
+        BackgroundColorChooser.setBounds(300,480,100,25);
 
         applyOptionsButton.setBounds(200,625,150,25);
         saveOptionsButton.setBounds(350,625,150,25);

@@ -59,11 +59,11 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 		
         //Title
         g.setFont(new Font("Calibri Bold", 50, 50));
-        g.drawString("Ben Eater 6502 Emulator", 40, 50);
+        g.drawString("BE6502 Emulator", 40, 50);
         
         //Version
         g.setFont(courierNewBold);
-        g.drawString("v"+EaterEmulator.versionString, 7, 1033);
+        g.drawString("v"+EaterEmulator.versionString+" (c) Dylan Speiser", 7, 1033);
         
         //Clocks
         g.drawString("Clocks: "+EaterEmulator.clocks, 40, 80);
@@ -146,6 +146,9 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource().equals(t)) {
 			EaterEmulator.running = true;
+
+			EaterEmulator.cpu.cycles = 0;
+			
 			
 			ramPageString = EaterEmulator.ram.RAMString.substring(ramPage*960,(ramPage+1)*960);
 			EaterEmulator.ROMopenButton.setBounds(rightAlignHelper-150, 15, 125, 25);

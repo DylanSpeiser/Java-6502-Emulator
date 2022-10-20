@@ -8,14 +8,13 @@ import java.io.File;
 import javax.swing.*;
 
 public class EaterEmulator extends JFrame implements ActionListener {
-	public static EaterEmulator emu;
-	public static String versionString = "2.0";
+	public static String versionString = "2.1";
 	public static boolean debug = false;
 	
 	//Swing Things
 	JPanel p = new JPanel();
 	JPanel header = new JPanel();
-	public static JFileChooser fc = new JFileChooser();
+	public static FileDialog fc = new java.awt.FileDialog((java.awt.Frame) null);
 	public static JButton ROMopenButton = new JButton("Open ROM File");
 	public static JButton RAMopenButton = new JButton("Open RAM File");
 
@@ -30,27 +29,29 @@ public class EaterEmulator extends JFrame implements ActionListener {
 	public static int clocks = 0;
 	public static boolean haltFlag = true;
 	public static boolean slowerClock = false;
+	public static boolean running = false;
 	
 	//Emulator Things
+	public static EaterEmulator emu;
 	public static RAM ram = new RAM();
 	public static ROM rom = new ROM();
 	public static LCD lcd = new LCD();
 	public static VIA via = new VIA();
 	public static Bus bus = new Bus();
 	public static CPU cpu = new CPU();
-	public static GPU gpu = new GPU(ram);
-
+	public static GPU gpu = new GPU(ram,false);
 	public static DisplayPanel GraphicsPanel = new DisplayPanel();
-
-	//Options
 	public static OptionsPane options = new OptionsPane();
-
-	public static boolean running = false;
 	
 	public EaterEmulator() {
 		//Swing Stuff:
 		System.setProperty("sun.java2d.opengl", "true");
 		this.setSize(1920,1080);
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}catch(Exception ex) {
+			ex.printStackTrace();
+		}
 		
 		//Open .bin file button
 		ROMopenButton.setVisible(true);
@@ -86,8 +87,8 @@ public class EaterEmulator extends JFrame implements ActionListener {
 		GraphicsPanel.add(optionsButton);
 		
 		//file chooser
-		fc.setVisible(true);
-		fc.setCurrentDirectory(new File(options.data.defaultFileChooserDirectory));
+		fc.setDirectory(options.data.defaultFileChooserDirectory);
+		fc.setVisible(false);
 
 		//Clock thread setup
 		clockThread = new Thread(() -> {
@@ -121,22 +122,24 @@ public class EaterEmulator extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource().equals(ROMopenButton)) {
-			fc.setSelectedFile(new File(""));
-	        int returnVal = fc.showOpenDialog(this);
+			fc.setFile("");
+			fc.setMode(FileDialog.LOAD);
+	        fc.setVisible(true);
 
-	        if (returnVal == JFileChooser.APPROVE_OPTION) {
-	            rom.setROMArray(ROMLoader.readROM(fc.getSelectedFile()));
-	        }
+			if (fc.getFile() != null)
+	        	rom.setROMArray(ROMLoader.readROM(new File(fc.getDirectory()+fc.getFile())));
+	        
 	        GraphicsPanel.requestFocus();
 	        GraphicsPanel.romPageString = EaterEmulator.rom.ROMString.substring(GraphicsPanel.romPage*960,(GraphicsPanel.romPage+1)*960);
 	        cpu.reset();
 		} else if (e.getSource().equals(RAMopenButton)) {
-			fc.setSelectedFile(new File(""));
-			int returnVal = fc.showOpenDialog(this);
+			fc.setFile("");
+			fc.setMode(FileDialog.LOAD);
+	        fc.setVisible(true);
 
-	        if (returnVal == JFileChooser.APPROVE_OPTION) {
-	            ram.setRAMArray(ROMLoader.readROM(fc.getSelectedFile()));
-	        }
+			if (fc.getFile() != null)
+	        	ram.setRAMArray(ROMLoader.readROM(new File(fc.getDirectory()+fc.getFile())));
+
 	        GraphicsPanel.requestFocus();
 	        GraphicsPanel.ramPageString = EaterEmulator.ram.RAMString.substring(GraphicsPanel.ramPage*960,(GraphicsPanel.ramPage+1)*960);
 			cpu.reset();

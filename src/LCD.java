@@ -53,12 +53,13 @@ public class LCD extends JFrame implements ActionListener {
 		this.setTitle("LCD");
 		this.setContentPane(p);
 		this.setAlwaysOnTop(true);
-		this.setVisible(true);
+		this.setVisible(false);
 		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
 	}
 	
 	public static void main(String[] args) {
 		LCD lcd = new LCD();
+		lcd.setVisible(true);
 		
 		@SuppressWarnings("resource")
 		Scanner scan = new Scanner(System.in);

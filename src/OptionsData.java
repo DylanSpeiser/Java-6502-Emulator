@@ -13,8 +13,9 @@ public class OptionsData implements Serializable {
     int GPUHeight = GPU.height;
     int GPUCols = GPU.n_cols;
     int GPURows = GPU.n_rows;
-    int GPUBufferBegin = 0x4000;
-    int GPUMode = 0;                            //GPU Modes (planned): 0=Character, 1=Bitmap Mono, 2=Character w/ Color, 3=Bitmap w/ Color
+    int GPUBufferBegin = 0x2000;
+    int GPUMode = GPU.gpuMode;
+    int GPUBitmapPixelScale = GPU.GPUPixelScale;
     Color bgColor = Color.blue;
 	Color fgColor = Color.white;
     
@@ -27,6 +28,7 @@ public class OptionsData implements Serializable {
         "GPU Buffer Address: 0x"+Integer.toHexString(GPUBufferBegin)+"\n"+
         "GPU Character Dimentsions: "+GPUCols+"x"+GPURows+"\n"+
         "GPU Mode: "+GPUMode+"\n"+
+        "GPU Bitmap Pixel Scale: "+GPUBitmapPixelScale+"\n"+
         "Background Color: "+bgColor.toString()+"\n"+
         "Foreground Color: "+fgColor.toString()+"\n";
     }

@@ -1,18 +1,17 @@
 # Java 6502 Emulator
  
 
-## Update: v2.0 is here!
-Whoa! Almost a year after the last update it's back and better than ever! The emulator now includes a character-driven GPU (bitmap modes in development) and SO MUCH customizability!
+## Update: v2.1 is here!
+Whoa! Almost a year after the last update it's back and better than ever! The emulator now includes a GPU (with Ben's bitmap and a custom character mode) and SO MUCH customizability!
 You can now hide and show the LCD and GPU windows with the buttons at the top right!
 You can now customize the address ranges of the VIA and GPU!
 The GPU's resolution and array size is _whatever you want it to be_!
 The fonts actually work now!
+The file choosers aren't the old Java ones!
 And **COLORS!!**
 
 Store the configs in our fancy new .pref files!
 These configuration settings are stored in your AppData or Application Support folder on Windows/Mac respectively. It generates a defaults.pref file on startup every time if you want to go back to the default settings. (options.pref is loaded on startup.)
-
-(The GPU Mode setting doesn't do anything yet, but that will allow me to implement more fun modes in the future.)
 
 Enjoy the new features!
 -Dylan
@@ -48,3 +47,4 @@ You can load ```.bin``` files into RAM or ROM using the File Pickers in the top 
 ![Screenshot 0](screenshots/screenshot0.png?raw=true)
 ![Screenshot 1](screenshots/screenshot1.png?raw=true)
 ![Screenshot 2](screenshots/screenshot2.png?raw=true)
+![Screenshot 3](screenshots/screenshot3.png?raw=true)

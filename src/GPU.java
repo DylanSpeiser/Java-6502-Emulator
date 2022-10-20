@@ -6,7 +6,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URISyntaxException;
-
 import javax.imageio.ImageIO;
 import java.nio.file.*;
 import java.util.Scanner;
@@ -15,16 +14,22 @@ import javax.swing.*;
 
 public class GPU extends JFrame implements ActionListener {
 	GPUPanel p = new GPUPanel();
+
 	Timer t;
 	Scanner s;
+
+    boolean scanned = false;
 
     public static int VRAM_START_ADDRESS = 0x6000;
 	
 	public static int n_cols = 80;
     public static int n_rows = 60;
 
-    public static int width = 640;
-    public static int height = 480;
+    public static int width = 100;
+    public static int height = 75;
+
+    public static int gpuMode = 1;
+    public static int GPUPixelScale = 8;
 
     int charWidth;
     int charHeight;
@@ -39,8 +44,9 @@ public class GPU extends JFrame implements ActionListener {
 
     RAM vram;
 	
-	public GPU(RAM vram) {
-		this.setSize(width,height);
+	public GPU(RAM vram,boolean isVisible) {
+        this.setSize(GPUPixelScale*width,GPUPixelScale*height);
+		
 		t = new Timer(16,this);
 		t.start();
 
@@ -107,18 +113,18 @@ public class GPU extends JFrame implements ActionListener {
 		this.setTitle("GPU");
 		this.setContentPane(p);
 		this.setAlwaysOnTop(true);
-		this.setVisible(false);
+		this.setVisible(isVisible);
 		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
         this.setResizable(false);
 	}
 
-    public GPU() {
-        this(new RAM());
+    public GPU(boolean isVisible) {
+        this(new RAM(),isVisible);
     }
 	
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
-		GPU gpu = new GPU();
+		GPU gpu = new GPU(true);
         gpu.setVisible(true);
 		
 		@SuppressWarnings("resource")
@@ -144,11 +150,13 @@ public class GPU extends JFrame implements ActionListener {
 
             System.out.println("Read "+newData.length+" bytes.");
 
-            System.arraycopy(newData, 0, newRAMArray, GPU.VRAM_START_ADDRESS, Math.min(newData.length,newRAMArray.length));
+            System.arraycopy(newData, 0, newRAMArray, (gpuMode == 1 | gpuMode == 2) ? 0 : (GPU.VRAM_START_ADDRESS), Math.min(newData.length,newRAMArray.length));
 
             gpu.vram.setRAMArray(newRAMArray);
 
-            //System.out.println(ROMLoader.ROMString(gpu.vram.getRAMArray(),40,false));
+            gpu.scanned = true;
+            // System.out.println(ROMLoader.ROMString(gpu.vram.getRAMArray(),40,false));
+            // System.exit(0);
 		}
 	}
 	
@@ -162,22 +170,66 @@ public class GPU extends JFrame implements ActionListener {
 		}
 		
 		public void paintComponent(Graphics g) {
-			g.setColor(Color.BLACK);
-			g.fillRect(0, 0, p.getWidth(), p.getHeight());
+            if (this.isVisible()) {
+    			g.setColor(Color.BLACK);
+    			g.fillRect(0, 0, p.getWidth(), p.getHeight());
 
-			g.setColor(Color.white);
+    			g.setColor(Color.white);
 
-			for (int i = 0; i<n_rows; i++) {
-				for (int j = 0; j<n_cols; j++) {
-                    int index = i*n_cols + j;
-                    int character = Byte.toUnsignedInt(vram.read((short)(VRAM_START_ADDRESS+index)));
+                if (gpuMode == 0) {
+                    //Speiser Character Mode
+        			for (int i = 0; i<n_rows; i++) {
+        				for (int j = 0; j<n_cols; j++) {
+                            int index = i*n_cols + j;
+                            int character = Byte.toUnsignedInt(vram.read((short)(VRAM_START_ADDRESS+index)));
 
-					g.drawImage(charImages[character],j*effectiveCharWidth,i*effectiveCharHeight,effectiveCharWidth,effectiveCharHeight,this);
-                    if (debug) {
-                        System.out.println("Painted Char #"+character+" @ index "+index+" ("+j*charWidth+","+i*charHeight+")");
+        					g.drawImage(charImages[character],j*effectiveCharWidth,i*effectiveCharHeight,effectiveCharWidth,effectiveCharHeight,this);
+                            if (debug) {
+                                System.out.println("Painted Char #"+character+" @ index "+index+" ("+j*charWidth+","+i*charHeight+")");
+                            }
+        				}
+        			}
+                } else if (gpuMode == 1 || gpuMode == 2) {
+                    //Eater Bitmap Mode
+                    int nextPowerOf2 = (int)Math.pow(2,((int)Math.ceil(Math.log(width)/Math.log(2))));
+                    for (int i = 0; i<height; i++) {
+                        for (int j = 0; j<width; j++) {
+                            int index = j+nextPowerOf2*i;
+
+                            /*
+                            System.out.println(" i: "+Integer.toBinaryString(i)+
+                                               " j: "+Integer.toBinaryString(j)+
+                                               " i (shifted): "+Integer.toBinaryString((i >> 3))+
+                                               " j (shifted): "+Integer.toBinaryString((j >> 1))+
+                                               " index: "+Integer.toBinaryString(index));
+                            */
+
+                            byte pixelData = vram.read( (short) Math.min((((gpuMode == 1 || gpuMode == 2) && debug == true) ? 0 : VRAM_START_ADDRESS)+index,vram.getRAMArray().length-1) );
+                            //pixelData = 0b001010;
+
+                            byte red = (byte)((pixelData & 0b00110000) >> 4);
+                            byte green = (byte)((pixelData & 0b00001100) >> 2);
+                            byte blue = (byte)((pixelData & 0b00000011) >> 0);
+
+                            Color c = Color.decode("#"+
+                                Integer.toHexString(red*5)+Integer.toHexString(red*5)+
+                                Integer.toHexString(green*5)+Integer.toHexString(green*5)+
+                                Integer.toHexString(blue*5)+Integer.toHexString(blue*5)
+                            );
+
+                            if (scanned) {
+                                System.out.println("PixelData: "+ROMLoader.byteToHexString(pixelData)+" Color "+c.toString()+" @ ("+i+","+j+"), Index "+Integer.toHexString(index));
+                                System.out.println("PixelData "+Integer.toBinaryString(pixelData)+" R:"+Integer.toBinaryString(red)+" G:"+Integer.toBinaryString(green)+" B:"+Integer.toBinaryString(blue));
+                                System.out.println("NextPowerOf2: "+nextPowerOf2);
+                            }
+
+                            g.setColor(c);
+
+                            g.fillRect(GPUPixelScale*j, GPUPixelScale*i, GPUPixelScale, GPUPixelScale);
+                        }
                     }
-				}
-			}
+                }
+            }
 		}
 	}
 

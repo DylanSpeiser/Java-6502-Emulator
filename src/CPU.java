@@ -352,6 +352,7 @@ public class CPU {
 			ClocksPerSecond = EaterEmulator.clocks/((System.currentTimeMillis()-startTime)/1000);
 		
 		EaterEmulator.clocks++;
+		
 		cycles--;
 	}
 	

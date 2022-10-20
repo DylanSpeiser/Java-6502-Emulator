@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch LCD",
+            "request": "launch",
+            "mainClass": "LCD",
+            "projectName": "Java-6502-Emulator_cdf032ed"
+        },
+        {
+            "type": "java",
             "name": "Launch GPU",
             "request": "launch",
             "mainClass": "GPU",
