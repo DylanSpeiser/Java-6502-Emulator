@@ -1,5 +1,18 @@
 # Java 6502 Emulator
- 
+
+## Update: v2.5: Keyboards are _SO_ hot right now.
+Look at that another update so quickly! This update has a bunch of bug fixes like actually being able to save preference files and more accurate clock speed calculations. It also comes with a very simple keyboard interface, detailed below:
+
+- The "Keyboard mode" button, activated with the mouse, toggles the keyboard between controlling the emulator and sending keystrokes to the CPU.
+- When in typing mode, pressing a key on your computer's keyboard will write the <ins>**ASCII CODE**</ins> of that key to the memory location specified in the options menu (default is $3fff).
+- Each key will also trigger <ins>**ONE (1)**</ins> interrupt to CA1.
+
+I have chosen to implement the keyboard in this way for simplicity. Maybe one day I will implement a more realistic emulation of a PS/2 interface like the one from Ben's videos but this works pretty well for now. I was able to make a very simple shell/text editor using it.
+
+Enjoy, and see you soon!
+-Dylan
+
+Note: when upgrading to a new version, your saved preferences from a previous version will not work anymore. Delete them and start anew.
 
 ## Update: v2.1 is here!
 Whoa! Almost a year after the last update it's back and better than ever! The emulator now includes a GPU (with Ben's bitmap and a custom character mode) and SO MUCH customizability!
