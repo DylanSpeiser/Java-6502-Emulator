@@ -8,7 +8,7 @@ import java.io.File;
 import javax.swing.*;
 
 public class EaterEmulator extends JFrame implements ActionListener {
-	public static String versionString = "2.1";
+	public static String versionString = "2.5";
 	public static boolean debug = false;
 	
 	//Swing Things
@@ -22,7 +22,8 @@ public class EaterEmulator extends JFrame implements ActionListener {
 	public static JButton ShowGPUButton = new JButton("Show GPU");
 
 	public static JButton optionsButton = new JButton("Options");
-	
+	public static JButton keyboardButton= new JButton("Keyboard Mode");
+
 	//Clock Stuff
 	public static Thread clockThread;
 	public static boolean clockState = false;
@@ -30,6 +31,7 @@ public class EaterEmulator extends JFrame implements ActionListener {
 	public static boolean haltFlag = true;
 	public static boolean slowerClock = false;
 	public static boolean running = false;
+	public static boolean keyboardMode = false;			//False = controls (default), True = keyboard
 	
 	//Emulator Things
 	public static EaterEmulator emu;
@@ -82,9 +84,16 @@ public class EaterEmulator extends JFrame implements ActionListener {
 		//Options Button
 		optionsButton.setVisible(true);
 		optionsButton.addActionListener(this);
-		optionsButton.setBounds(getWidth()-450, 15, 125, 55);
+		optionsButton.setBounds(getWidth()-450, 15, 125, 25);
 		optionsButton.setBackground(Color.white);
 		GraphicsPanel.add(optionsButton);
+
+		//Keyboard Mode Button
+		keyboardButton.setVisible(true);
+		keyboardButton.addActionListener(this);
+		keyboardButton.setBounds(getWidth()-450, 45, 125, 25);
+		keyboardButton.setBackground(Color.white);
+		GraphicsPanel.add(keyboardButton);
 		
 		//file chooser
 		fc.setDirectory(options.data.defaultFileChooserDirectory);
@@ -107,7 +116,7 @@ public class EaterEmulator extends JFrame implements ActionListener {
 		
 		//Final Setup
 		GraphicsPanel.setVisible(true);
-		GraphicsPanel.t.addActionListener(this);
+		GraphicsPanel.frameTimer.addActionListener(this);
 		options.setVisible(false);
 
 		this.setTitle("6502 Emulator");
@@ -149,7 +158,7 @@ public class EaterEmulator extends JFrame implements ActionListener {
 			gpu.setVisible(!gpu.isVisible());
 		} else if (e.getSource().equals(optionsButton)) {
 			options.setVisible(!options.isVisible());
-		} else if (e.getSource().equals(GraphicsPanel.t)) {
+		} else if (e.getSource().equals(GraphicsPanel.frameTimer)) {
 			if (!gpu.isVisible()) {
 				ShowGPUButton.setText("Show GPU");
 			} else {
@@ -161,6 +170,8 @@ public class EaterEmulator extends JFrame implements ActionListener {
 			} else {
 				ShowLCDButton.setText("Hide LCD");
 			}
+		} else if (e.getSource().equals(keyboardButton)) {
+			keyboardMode = !keyboardMode;
 		}
 
 		

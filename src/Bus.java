@@ -19,5 +19,6 @@ public class Bus {
 		} else {
 			EaterEmulator.ram.write(address, data);
 		}
+		//System.out.println("Wrote "+data+" at "+address);
 	}
 }

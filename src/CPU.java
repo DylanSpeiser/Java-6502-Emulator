@@ -19,7 +19,12 @@ public class CPU {
 	public int cycles = 0;
 	
 	public double ClocksPerSecond = 0;
+	public int clockDelta = 1;
+	public int lastClocks = 0;
+
 	public long startTime = 0;
+	public long timeDelta = 1;
+	public long lastTime = System.nanoTime();
 	
 	public int additionalCycles = 0;
 	
@@ -348,12 +353,13 @@ public class CPU {
 			}
 		}
 		
-		if (((System.currentTimeMillis()-startTime)/1000) > 0)
-			ClocksPerSecond = EaterEmulator.clocks/((System.currentTimeMillis()-startTime)/1000);
-		
 		EaterEmulator.clocks++;
 		
 		cycles--;
+
+		if (cycles < 0) {
+			cycles = 0;
+		}
 	}
 	
 	//Input Signal Handlers
@@ -386,6 +392,9 @@ public class CPU {
 	
 	void irq() {
 		if (!getFlag('I')) {
+			if (debug)
+				System.out.println("Interrupted!");
+
 			Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)(programCounter>>8));
 			stackPointer--;
 			Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)(programCounter));
@@ -403,8 +412,8 @@ public class CPU {
 			programCounter = (short)(Byte.toUnsignedInt(lo)+256*Byte.toUnsignedInt(hi));
 			
 			cycles = 7;
-			interruptRequested = false;
 		}
+		interruptRequested = false;
 	}
 	
 	void nmi() {

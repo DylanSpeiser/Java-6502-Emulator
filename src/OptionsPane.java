@@ -57,6 +57,10 @@ public class OptionsPane extends JFrame implements ActionListener {
     JLabel GPUBitmapPixelScaleLabel = new JLabel("GPU Bitmap Pixel Scale: ");
     JTextField GPUBitmapPixelScaleTextField = new JTextField(""+data.GPUMode);
 
+    JLabel KeyboardLocationLabel = new JLabel("Keyboard Memory Location: ");
+    JTextField KeyboardLocationTextField = new JTextField(""+data.keyboardLocation);
+    JLabel KeyboardLocationHexLabel = new JLabel(Integer.toHexString(data.GPUBufferBegin));
+
     JLabel ForegroundColorLabel = new JLabel("Foreground Color");
     JTextField ForegroundColorChooser = new JTextField("#"+Integer.toHexString(data.fgColor.getRGB()).substring(2));
 
@@ -122,6 +126,9 @@ public class OptionsPane extends JFrame implements ActionListener {
         SwingComponentsList.add(GPUModeExplanationLabel);
         SwingComponentsList.add(GPUBitmapPixelScaleLabel);
         SwingComponentsList.add(GPUBitmapPixelScaleTextField);
+        SwingComponentsList.add(KeyboardLocationLabel);
+        SwingComponentsList.add(KeyboardLocationTextField);
+        SwingComponentsList.add(KeyboardLocationHexLabel);
 
         this.setTitle("Options");
 		this.setContentPane(p);
@@ -197,6 +204,17 @@ public class OptionsPane extends JFrame implements ActionListener {
 
             GPUBufferAddressOptionHexLabel.setText("= $"+Integer.toHexString(VBStartAddr));
 
+            //Keyboard Address Hex Decoding
+            int KBAddr = 0;
+
+            try {
+                KBAddr = Integer.parseInt(KeyboardLocationTextField.getText().equals("") ? "0" : KeyboardLocationTextField.getText());
+            } catch (Exception e) {
+                e.printStackTrace();
+            };
+
+            KeyboardLocationHexLabel.setText("= $"+Integer.toHexString(KBAddr));
+
             //VRAM Size
             if (data.GPUMode == 0) {
                 VRAMSize = data.GPUCols*data.GPURows;
@@ -235,15 +253,18 @@ public class OptionsPane extends JFrame implements ActionListener {
             updateSwingComponents();
         } else
         if (arg0.getSource().equals(saveOptionsButton)) {
-            fc.setFile(openOptionsFileText.getText());
+            File saveFile = new File(openOptionsFileText.getText());
+
+            fc.setDirectory(saveFile.getParent());
+            fc.setFile(saveFile.getName());
+
 			fc.setMode(FileDialog.SAVE);
-            fc.setDirectory(openOptionsFileText.getText());
+
             fc.setVisible(true);
             File newOptionsFile;
 
 	        if (fc.getFile() != null) {
-                newOptionsFile = new File(fc.getFile());
-
+                newOptionsFile = saveFile;
                 writeDataToFile(newOptionsFile);
             }
         }
@@ -319,6 +340,7 @@ public class OptionsPane extends JFrame implements ActionListener {
         data.fgColor = Color.decode(ForegroundColorChooser.getText());
         data.bgColor = Color.decode(BackgroundColorChooser.getText());
         data.GPUBitmapPixelScale = Integer.parseInt(GPUBitmapPixelScaleTextField.getText());
+        data.keyboardLocation = Integer.parseInt(KeyboardLocationTextField.getText());
 
         Bus.VIA_ADDRESS = data.VIA_Address;
         boolean gpuWasVisible = EaterEmulator.gpu.isVisible();
@@ -379,11 +401,15 @@ public class OptionsPane extends JFrame implements ActionListener {
 
         GPUModeExplanationLabel.setBounds(175,340,500,100);
 
-        ForegroundColorLabel.setBounds(175,440,125,25);
-        ForegroundColorChooser.setBounds(300,440,100,25);
+        KeyboardLocationLabel.setBounds(125,440,175,25);
+        KeyboardLocationTextField.setBounds(300,440,100,25);
+        KeyboardLocationHexLabel.setBounds(400,440,100,25);
 
-        BackgroundColorLabel.setBounds(175,480,125,25);
-        BackgroundColorChooser.setBounds(300,480,100,25);
+        ForegroundColorLabel.setBounds(175,480,125,25);
+        ForegroundColorChooser.setBounds(300,480,100,25);
+
+        BackgroundColorLabel.setBounds(175,520,125,25);
+        BackgroundColorChooser.setBounds(300,520,100,25);
 
         applyOptionsButton.setBounds(200,625,150,25);
         saveOptionsButton.setBounds(350,625,150,25);

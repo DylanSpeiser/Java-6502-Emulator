@@ -6,7 +6,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class DisplayPanel extends JPanel implements ActionListener, KeyListener {
-	Timer t;
+	Timer frameTimer = new javax.swing.Timer(16, this);;
+	Timer clocksPerSecondCheckTimer = new Timer(150,this);
 	int ramPage = 0;
 	int romPage = 0;
 	
@@ -23,8 +24,8 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 	public DisplayPanel() {
 		super(null);
 		
-		t = new javax.swing.Timer(16, this);
-		t.start();
+		clocksPerSecondCheckTimer.start();
+		frameTimer.start();
 		setBackground(bgColor);
 		setPreferredSize(new Dimension(1936, 966));
 
@@ -123,12 +124,19 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
         g.drawString("   IER: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.via.IER)), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.via.IER)+")", 35, 700);
         
         //Controls
-        g.drawString("Controls:", 50, 750);
-        g.drawString("C - Toggle Clock", 35, 780);
-        g.drawString("Space - Pulse Clock", 35, 810);
-        g.drawString("R - Reset", 35, 840);
-        g.drawString("S - Toggle Slower Clock", 35, 870);
-        g.drawString("I - Trigger VIA CA1", 35, 900);
+
+		if (!EaterEmulator.keyboardMode) {
+	        g.drawString("Controls:", 50, 750);
+	        g.drawString("C - Toggle Clock", 35, 780);
+	        g.drawString("Space - Pulse Clock", 35, 810);
+	        g.drawString("R - Reset", 35, 840);
+	        g.drawString("S - Toggle Slower Clock", 35, 870);
+	        g.drawString("I - Trigger VIA CA1", 35, 900);
+		} else {
+			g.drawString("Keyboard Mode Controls:", 50, 750);
+			g.drawString("Typing a key will write that key code to the memory location "+EaterEmulator.options.KeyboardLocationHexLabel.getText().substring(3), 35, 780);
+			g.drawString(" and trigger an interrupt.", 35, 810);
+		}
 	}
 	
 	public static void drawString(Graphics g, String text, int x, int y) {
@@ -144,22 +152,29 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource().equals(t)) {
-			EaterEmulator.running = true;
+		if (e.getSource().equals(frameTimer)) {
 
-			EaterEmulator.cpu.cycles = 0;
-			
+			EaterEmulator.running = true;
 			
 			ramPageString = EaterEmulator.ram.RAMString.substring(ramPage*960,(ramPage+1)*960);
 			EaterEmulator.ROMopenButton.setBounds(rightAlignHelper-150, 15, 125, 25);
 			EaterEmulator.RAMopenButton.setBounds(rightAlignHelper-150, 45, 125, 25);
 			EaterEmulator.ShowLCDButton.setBounds(rightAlignHelper-300, 15, 125, 25);
 			EaterEmulator.ShowGPUButton.setBounds(rightAlignHelper-300, 45, 125, 25);
-			EaterEmulator.optionsButton.setBounds(rightAlignHelper-450, 15, 125, 55);
+			EaterEmulator.optionsButton.setBounds(rightAlignHelper-450, 15, 125, 25);
+			EaterEmulator.keyboardButton.setBounds(rightAlignHelper-450, 45, 125, 25);
 			this.repaint();
 
 			if (!EaterEmulator.options.isVisible())
 				this.requestFocus();
+		} else if (e.getSource().equals(clocksPerSecondCheckTimer)) {
+			EaterEmulator.cpu.timeDelta = System.nanoTime()-EaterEmulator.cpu.lastTime;
+            EaterEmulator.cpu.lastTime = System.nanoTime();
+
+            EaterEmulator.cpu.clockDelta = EaterEmulator.clocks - EaterEmulator.cpu.lastClocks;
+            EaterEmulator.cpu.lastClocks = EaterEmulator.clocks;
+
+            EaterEmulator.cpu.ClocksPerSecond = Math.round(EaterEmulator.cpu.clockDelta/((double)EaterEmulator.cpu.timeDelta/1000000000.0));
 		}
 	}
 
@@ -175,54 +190,70 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 
 	@Override
 	public void keyTyped(KeyEvent arg0) {
-		switch (arg0.getKeyChar()) {
-			case 'l':
-				if (romPage < 0x80) {
-					romPage+=1;
-					romPageString = EaterEmulator.rom.ROMString.substring(romPage*960,(romPage+1)*960);
-				}
-				break;
-			case 'k':
-				if (romPage > 0) {
-					romPage-=1;
-					romPageString = EaterEmulator.rom.ROMString.substring(romPage*960,(romPage+1)*960);
-				}
-				break;
-			case 'j':
-				if (ramPage < 0x80) {
-					ramPage+=1;
+		if (!EaterEmulator.keyboardMode) {
+			//Control Keyboard Mode
+			switch (arg0.getKeyChar()) {
+				case 'l':
+					if (romPage < 0x7f) {
+						romPage+=1;
+						romPageString = EaterEmulator.rom.ROMString.substring(romPage*960,(romPage+1)*960);
+					} else {
+						if (romPage > 0x7f) {
+							romPage = 0x7f;
+							romPageString = EaterEmulator.rom.ROMString.substring(romPage*960,(romPage+1)*960);
+						}
+					}
+					break;
+				case 'k':
+					if (romPage > 0) {
+						romPage-=1;
+						romPageString = EaterEmulator.rom.ROMString.substring(romPage*960,(romPage+1)*960);
+					}
+					break;
+				case 'j':
+					if (ramPage < 0x7f) {
+						ramPage+=1;
+						ramPageString = EaterEmulator.ram.RAMString.substring(ramPage*960,(ramPage+1)*960);
+						if (ramPage > 0x7f) {
+							ramPage = 0x7f;
+							ramPageString = EaterEmulator.ram.RAMString.substring(ramPage*960,(ramPage+1)*960);
+						}
+					}
+					break;
+				case 'h':
+					if (ramPage > 0) {
+						ramPage-=1;
+						ramPageString = EaterEmulator.ram.RAMString.substring(ramPage*960,(ramPage+1)*960);
+					}
+					break;
+				case 'r':
+					EaterEmulator.cpu.reset();
+					EaterEmulator.lcd.reset();
+					EaterEmulator.via = new VIA();
+					EaterEmulator.ram = new RAM();
+					EaterEmulator.gpu.setRAM(EaterEmulator.ram);
 					ramPageString = EaterEmulator.ram.RAMString.substring(ramPage*960,(ramPage+1)*960);
-				}
-				break;
-			case 'h':
-				if (ramPage > 0) {
-					ramPage-=1;
-					ramPageString = EaterEmulator.ram.RAMString.substring(ramPage*960,(ramPage+1)*960);
-				}
-				break;
-			case 'r':
-				EaterEmulator.cpu.reset();
-				EaterEmulator.lcd.reset();
-				EaterEmulator.via = new VIA();
-				EaterEmulator.ram = new RAM();
-				EaterEmulator.gpu.setRAM(EaterEmulator.ram);
-				ramPageString = EaterEmulator.ram.RAMString.substring(ramPage*960,(ramPage+1)*960);
 
-				if (EaterEmulator.debug)
-					System.out.println("Size: "+this.getWidth()+" x "+this.getHeight());
-				break;
-			case ' ':
-				EaterEmulator.cpu.clock();
-				break;
-			case 'c':
-				EaterEmulator.clockState = !EaterEmulator.clockState;
-				break;
-			case 's':
-				EaterEmulator.slowerClock = !EaterEmulator.slowerClock;
-				break;
-			case 'i':
-				EaterEmulator.via.CA1();
-				break;
+					if (EaterEmulator.debug)
+						System.out.println("Size: "+this.getWidth()+" x "+this.getHeight());
+					break;
+				case ' ':
+					EaterEmulator.cpu.clock();
+					break;
+				case 'c':
+					EaterEmulator.clockState = !EaterEmulator.clockState;
+					break;
+				case 's':
+					EaterEmulator.slowerClock = !EaterEmulator.slowerClock;
+					break;
+				case 'i':
+					EaterEmulator.via.CA1();
+					break;
+			}
+		} else {
+			//Typing Keyboard Mode
+			Bus.write((short)EaterEmulator.options.data.keyboardLocation, (byte)arg0.getKeyChar());
+			EaterEmulator.via.CA1();
 		}
 	}
 }

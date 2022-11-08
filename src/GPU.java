@@ -45,7 +45,7 @@ public class GPU extends JFrame implements ActionListener {
     RAM vram;
 	
 	public GPU(RAM vram,boolean isVisible) {
-        this.setSize(GPUPixelScale*width,GPUPixelScale*height);
+        this.setSize(GPUPixelScale*width,(GPUPixelScale*height)+30); //+30 for title bar
 		
 		t = new Timer(16,this);
 		t.start();
