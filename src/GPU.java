@@ -5,8 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.InputStream;
-import java.net.URISyntaxException;
-import javax.imageio.ImageIO;
 import java.nio.file.*;
 import java.util.Scanner;
 
@@ -122,7 +120,6 @@ public class GPU extends JFrame implements ActionListener {
         this(new RAM(),isVisible);
     }
 	
-	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		GPU gpu = new GPU(true);
         gpu.setVisible(true);

@@ -319,10 +319,16 @@ public class CPU {
 				
 				cycles = lookup[Byte.toUnsignedInt(opcode)].cycles;
 
-				try {
-					this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].addressMode).invoke(this);
-					this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].opcode).invoke(this);
-				} catch (Exception e) {e.printStackTrace();}
+				//Execute the functions corresponding to the addressing mode and opcode
+					
+					//this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].addressMode).invoke(this);
+					//this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].opcode).invoke(this);
+
+				Instruction currentInstruction = lookup[Byte.toUnsignedInt(opcode)];
+				
+				executeAddressModeFunction(currentInstruction.addressMode);
+				executeOpcodeFunction(currentInstruction.opcode);
+
 			} else {
 				if (interruptRequested)
 					irq();
@@ -359,6 +365,226 @@ public class CPU {
 
 		if (cycles < 0) {
 			cycles = 0;
+		}
+	}
+
+	void executeAddressModeFunction(String addressMode) {
+		switch (addressMode) {
+			case "IMP":
+				IMP();
+			break;
+			case "IMM":
+				IMM();
+			break;
+			case "ZPP":
+				ZPP();
+			break;
+			case "ZPX":
+				ZPX();
+			break;
+			case "ZPY":
+				ZPY();
+			break;
+			case "REL":
+				REL();
+			break;
+			case "ABS":
+				ABS();
+			break;
+			case "ABX":
+				ABX();
+			break;
+			case "ABY":
+				ABY();
+			break;
+			case "IND":
+				IND();
+			break;
+			case "IZX":
+				IZX();
+			break;
+			case "IZY":
+				IZY();
+			break;
+			default:
+				System.out.println("Something has gone seriously wrong! AddressMode: "+addressMode);
+			break;
+		}
+	}
+
+	void executeOpcodeFunction(String opcode) {
+		switch (opcode) {
+			case "ADC":
+				ADC();
+			break;
+			case "AND":
+				AND();
+			break;
+			case "ASL":
+				ASL();
+			break;
+			case "BCC":
+				BCC();
+			break;
+			case "BCS":
+				BCS();
+			break;
+			case "BEQ":
+				BEQ();
+			break;
+			case "BIT":
+				BIT();
+			break;
+			case "BMI":
+				BMI();
+			break;
+			case "BNE":
+				BNE();
+			break;
+			case "BPL":
+				BPL();
+			break;
+			case "BRK":
+				BRK();
+			break;
+			case "BVC":
+				BVC();
+			break;
+			case "BVS":
+				BVS();
+			break;
+			case "CLC":
+				CLC();
+			break;
+			case "CLD":
+				CLD();
+			break;
+			case "CLI":
+				CLI();
+			break;
+			case "CLV":
+				CLV();
+			break;
+			case "CMP":
+				CMP();
+			break;
+			case "CPX":
+				CPX();
+			break;
+			case "CPY":
+				CPY();
+			break;
+			case "DEC":
+				DEC();
+			break;
+			case "DEX":
+				DEX();
+			break;
+			case "DEY":
+				DEY();
+			break;
+			case "EOR":
+				EOR();
+			break;
+			case "INC":
+				INC();
+			break;
+			case "INX":
+				INX();
+			break;
+			case "INY":
+				INY();
+			break;
+			case "JMP":
+				JMP();
+			break;
+			case "JSR":
+				JSR();
+			break;
+			case "LDA":
+				LDA();
+			break;
+			case "LDX":
+				LDX();
+			break;
+			case "LDY":
+				LDY();
+			break;
+			case "LSR":
+				LSR();
+			break;
+			case "NOP":
+				NOP();
+			break;
+			case "ORA":
+				ORA();
+			break;
+			case "PHA":
+				PHA();
+			break;
+			case "PHP":
+				PHP();
+			break;
+			case "PLA":
+				PLA();
+			break;
+			case "PLP":
+				PLP();
+			break;
+			case "ROL":
+				ROL();
+			break;
+			case "ROR":
+				ROR();
+			break;
+			case "RTI":
+				RTI();
+			break;
+			case "RTS":
+				RTS();
+			break;
+			case "SBC":
+				SBC();
+			break;
+			case "SEC":
+				SEC();
+			break;
+			case "SED":
+				SED();
+			break;
+			case "SEI":
+				SEI();
+			break;
+			case "STA":
+				STA();
+			break;
+			case "STX":
+				STX();
+			break;
+			case "STY":
+				STY();
+			break;
+			case "TAX":
+				TAX();
+			break;
+			case "TAY":
+				TAY();
+			break;
+			case "TSX":
+				TSX();
+			break;
+			case "TXA":
+				TXA();
+			break;
+			case "TXS":
+				TXS();
+			break;
+			case "TYA":
+				TYA();
+			break;
+			case "XXX":
+				XXX();
+            break;
 		}
 	}
 	

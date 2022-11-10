@@ -2,7 +2,6 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.JPanel;
 import javax.swing.Timer;
-import java.io.File;
 import java.io.IOException;
 
 public class DisplayPanel extends JPanel implements ActionListener, KeyListener {
