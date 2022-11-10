@@ -217,7 +217,7 @@ public class GPU extends JFrame implements ActionListener {
                                 Integer.toHexString(blue*5)+Integer.toHexString(blue*5)
                             );
 
-                            if (scanned) {
+                            if (scanned && debug) {
                                 System.out.println("PixelData: "+ROMLoader.byteToHexString(pixelData)+" Color "+c.toString()+" @ ("+i+","+j+"), Index "+Integer.toHexString(index));
                                 System.out.println("PixelData "+Integer.toBinaryString(pixelData)+" R:"+Integer.toBinaryString(red)+" G:"+Integer.toBinaryString(green)+" B:"+Integer.toBinaryString(blue));
                                 System.out.println("NextPowerOf2: "+nextPowerOf2);
