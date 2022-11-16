@@ -57,6 +57,11 @@ public class OptionsPane extends JFrame implements ActionListener {
     JLabel GPUBitmapPixelScaleLabel = new JLabel("GPU Bitmap Pixel Scale: ");
     JTextField GPUBitmapPixelScaleTextField = new JTextField(""+data.GPUMode);
 
+    JLabel LCDModeLabel = new JLabel("LCD Mode: ");
+    ButtonGroup lcdModeButtonGroup = new ButtonGroup();
+    JRadioButton LCDModeRadioSmall = new JRadioButton("16x2");
+    JRadioButton LCDModeRadioLarge = new JRadioButton("20x4");
+
     JLabel KeyboardLocationLabel = new JLabel("Keyboard Memory Location: ");
     JTextField KeyboardLocationTextField = new JTextField(""+data.keyboardLocation);
     JLabel KeyboardLocationHexLabel = new JLabel(Integer.toHexString(data.GPUBufferBegin));
@@ -129,6 +134,9 @@ public class OptionsPane extends JFrame implements ActionListener {
         SwingComponentsList.add(KeyboardLocationLabel);
         SwingComponentsList.add(KeyboardLocationTextField);
         SwingComponentsList.add(KeyboardLocationHexLabel);
+        SwingComponentsList.add(LCDModeLabel);
+        SwingComponentsList.add(LCDModeRadioLarge);
+        SwingComponentsList.add(LCDModeRadioSmall);
 
         this.setTitle("Options");
 		this.setContentPane(p);
@@ -147,6 +155,9 @@ public class OptionsPane extends JFrame implements ActionListener {
             }
             p.add(component);
         }
+
+        lcdModeButtonGroup.add(LCDModeRadioSmall);
+        lcdModeButtonGroup.add(LCDModeRadioLarge);
 
         //Swing Positioning
         resetSwingPositions();
@@ -313,6 +324,9 @@ public class OptionsPane extends JFrame implements ActionListener {
         GPUBitmapPixelScaleTextField.setText(""+data.GPUBitmapPixelScale);
         ForegroundColorChooser.setText("#"+Integer.toHexString(data.fgColor.getRGB()).substring(2));
         BackgroundColorChooser.setText("#"+Integer.toHexString(data.bgColor.getRGB()).substring(2));
+
+        LCDModeRadioSmall.setSelected(!data.lcdBigMode);
+        LCDModeRadioLarge.setSelected(data.lcdBigMode);
     }
 
     private void writeDataToFile(File f) {
@@ -364,6 +378,10 @@ public class OptionsPane extends JFrame implements ActionListener {
 
         EaterEmulator.fc.setDirectory(data.defaultFileChooserDirectory);
         fc.setDirectory(data.defaultFileChooserDirectory);
+
+        data.lcdBigMode = LCDModeRadioLarge.isSelected();
+        EaterEmulator.lcd.bigMode = data.lcdBigMode;
+        EaterEmulator.lcd.updateMode();
     }
 
     private void resetSwingPositions() {
@@ -394,7 +412,7 @@ public class OptionsPane extends JFrame implements ActionListener {
         GPUModeOptionLabel.setBounds(225,240,75,25);
         GPUModeOptionTextField.setBounds(300,240,25,25);
 
-        GPUBitmapPixelScaleLabel.setBounds(200,280,100,25);
+        GPUBitmapPixelScaleLabel.setBounds(150,280,150,25);
         GPUBitmapPixelScaleTextField.setBounds(300,280,25,25);
 
         VRAMRangeLabel.setBounds(175,320,300,25);
@@ -405,11 +423,15 @@ public class OptionsPane extends JFrame implements ActionListener {
         KeyboardLocationTextField.setBounds(300,440,100,25);
         KeyboardLocationHexLabel.setBounds(400,440,100,25);
 
-        ForegroundColorLabel.setBounds(175,480,125,25);
-        ForegroundColorChooser.setBounds(300,480,100,25);
+        LCDModeLabel.setBounds(225,480,75,25);
+        LCDModeRadioSmall.setBounds(300,480,100,25);
+        LCDModeRadioLarge.setBounds(400,480,100,25);
 
-        BackgroundColorLabel.setBounds(175,520,125,25);
-        BackgroundColorChooser.setBounds(300,520,100,25);
+        ForegroundColorLabel.setBounds(175,520,125,25);
+        ForegroundColorChooser.setBounds(300,520,100,25);
+
+        BackgroundColorLabel.setBounds(175,560,125,25);
+        BackgroundColorChooser.setBounds(300,560,100,25);
 
         applyOptionsButton.setBounds(200,625,150,25);
         saveOptionsButton.setBounds(350,625,150,25);

@@ -19,8 +19,12 @@ public class LCD extends JFrame implements ActionListener {
 	Scanner s;
 	
 	boolean graphicalCursorBlinkFlag = false;
+	boolean bigMode = false;
 	
 	boolean debug = false;
+
+	int cols = 16;
+	int rows = 2;
 	
 	//Internal flags
 	int cursorPos = 0;
@@ -30,7 +34,7 @@ public class LCD extends JFrame implements ActionListener {
 	boolean cursorBlink = false;
 	boolean fourBitMode = false;
 	
-	char[] text = new char[0x50];
+	char[] text = new char[80];
 	
 	public LCD() {
 		this.setSize(565,185);
@@ -41,7 +45,7 @@ public class LCD extends JFrame implements ActionListener {
 		
 		String s = "";
 		
-		for (int i = 0; i < 0x50; i++) {
+		for (int i = 0; i < 80; i++) {
 			if (i<s.length()) {
 				text[i] = s.charAt(i);
 			} else {
@@ -79,7 +83,7 @@ public class LCD extends JFrame implements ActionListener {
 	public void reset() {
 		String s = "";
 		
-		for (int i = 0; i < 0x50; i++) {
+		for (int i = 0; i < 80; i++) {
 			if (i<s.length()) {
 				text[i] = s.charAt(i);
 			} else {
@@ -174,8 +178,8 @@ public class LCD extends JFrame implements ActionListener {
 			} else if (data == 0b00000001) {
 				//CLEAR
 				cursorPos = 0;
-				text = new char[0x50];
-				for (int i = 0; i < 0x50; i++) {
+				text = new char[80];
+				for (int i = 0; i < 80; i++) {
 					text[i] = ' ';
 				}
 				if (debug)
@@ -186,6 +190,11 @@ public class LCD extends JFrame implements ActionListener {
 			text[cursorPos] = (char)data;
 			int prevCursorPos = cursorPos;
 			cursorPos += increment ? 1 : -1;
+			if (cursorPos == text.length) {
+				cursorPos = 0;
+			} else if (cursorPos < 0) {
+				cursorPos = 0;
+			}
 			if (debug)
 				System.out.println("Data: Wrote "+(char)data+" at "+prevCursorPos);
 		}
@@ -212,18 +221,22 @@ public class LCD extends JFrame implements ActionListener {
 			g.setColor(Color.getHSBColor(0.62f, 0.83f, 1f));
 			g.fillRect(0, 0, p.getWidth(), p.getHeight());
 			g.setColor(Color.getHSBColor(0.62f, 0.87f, 0.78f));
-			for (int i = 0; i<16; i++) {
-				for (int j = 0; j<2; j++) {
+			for (int i = 0; i<rows; i++) {
+				for (int j = 0; j<cols; j++) {
 					g.fillRect(12+33*i, 25+50*j, 30, 47);
 				}
 			}
+
+			int[] rowRemap = {0,2,1,3};
+
 			if (displayPower) {
 				g.setColor(Color.white);
 				g.setFont(lcdFont);
-				for (int i = 0; i<16; i++) {
-					for (int j = 0; j<2; j++) {
-						g.drawString(String.valueOf(text[i+j*40]), 12+33*i, 70+50*j);
-						if (i+j*40 == cursorPos) {
+				for (int i = 0; i<rows; i++) {
+					for (int j = 0; j<cols; j++) {
+						g.drawString(String.valueOf(text[rowRemap[j]*rows + i]), 12+33*i, 70+50*j);
+
+						if (rowRemap[j]*rows + i == cursorPos) {
 							if (graphicalCursorBlinkFlag)
 								g.fillRect(12+33*i, 66+50*j, 30, 5);
 						}
@@ -248,6 +261,18 @@ public class LCD extends JFrame implements ActionListener {
 			} else {
 				graphicalCursorBlinkFlag = false;
 			}
+		}
+	}
+
+	public void updateMode() {
+		if (!bigMode) {
+			this.rows = 16;
+			this.cols = 2;
+			this.setSize(565,185);
+		} else {
+			this.rows = 20;
+			this.cols = 4;
+			this.setSize(685,275);
 		}
 	}
 }

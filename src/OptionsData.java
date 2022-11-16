@@ -17,6 +17,7 @@ public class OptionsData implements Serializable {
     int GPUMode = GPU.gpuMode;
     int GPUBitmapPixelScale = GPU.GPUPixelScale;
     int keyboardLocation = 0x3fff;
+    boolean lcdBigMode = false;
     Color bgColor = Color.blue;
 	Color fgColor = Color.white;
     
@@ -31,6 +32,7 @@ public class OptionsData implements Serializable {
         "GPU Mode: "+GPUMode+"\n"+
         "GPU Bitmap Pixel Scale: "+GPUBitmapPixelScale+"\n"+
         "Keyboard Memory Location: "+keyboardLocation+"\n"+
+        "LCD Mode: "+(lcdBigMode ? "20x4" : "16x2")+"\n"+
         "Background Color: "+bgColor.toString()+"\n"+
         "Foreground Color: "+fgColor.toString()+"\n";
     }
