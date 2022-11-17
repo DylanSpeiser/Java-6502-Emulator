@@ -11,7 +11,8 @@ public class VIA {
 		switch (Short.toUnsignedInt(address)-Bus.VIA_ADDRESS) {
 			case 0x000:
 				IFR &= (byte)(0b01100111);
-				return 0;
+				PORTB = EaterEmulator.lcd.read((PORTA & 0x20) != 0);
+				return PORTB;
 			case 0x001:
 				IFR &= (byte)(0b01111100);
 				return 0;
@@ -33,10 +34,13 @@ public class VIA {
 		switch (Short.toUnsignedInt(address)-Bus.VIA_ADDRESS) {
 			case 0x000:
 				PORTB = data;
+				if ((PORTA&0x80)==0x80 && (PORTA&0x40)==0x00) {
+					EaterEmulator.lcd.write((PORTA&0x20)==0x20, (byte)(PORTB&DDRB));
+				}
 				break;
 			case 0x001:
 				PORTA = data;
-				if ((data&0x80)==0x80) {
+				if ((PORTA&0x80)==0x80 && (PORTA&0x40)==0x00) {
 					EaterEmulator.lcd.write((PORTA&0x20)==0x20, (byte)(PORTB&DDRB));
 				}
 				break;

@@ -58,6 +58,8 @@ public class LCD extends JFrame implements ActionListener {
 		this.setAlwaysOnTop(true);
 		this.setVisible(false);
 		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
+
+		updateMode();
 	}
 	
 	public static void main(String[] args) {
@@ -66,17 +68,30 @@ public class LCD extends JFrame implements ActionListener {
 		
 		@SuppressWarnings("resource")
 		Scanner scan = new Scanner(System.in);
-		System.out.println("[RS] [data]");
+		System.out.println("[R/W] [RS] [data]");
 		
 		while (true) {
 			String input = scan.nextLine();
 			
-			boolean rs = input.charAt(0) == '1' ? true : false;
-			byte data = Byte.parseByte(input.substring(2,10), 2);
+			char 	rw = input.charAt(0);
+			boolean rs = input.charAt(2) == '1' ? true : false;
 			
-			System.out.println(rs ? "Data" : "Instruction" + ": 0x" + ROMLoader.byteToHexString(data));
-			
-			lcd.write(rs, data);
+			if (Character.toUpperCase(rw) == 'W') {
+				//Write
+
+				try {
+				byte data = (byte)Integer.parseInt(input.substring(4,12), 2);
+				System.out.println((rs ? "Data" : "Instruction") + ": 0x" + ROMLoader.byteToHexString(data));
+				lcd.write(rs, data);
+				} catch (Exception e) {
+					System.out.println("Error!");
+				}
+
+			} else {
+				//Read
+				byte readData = lcd.read(rs);
+				System.out.println("Read byte 0x" + ROMLoader.byteToHexString(readData));
+			}
 		}
 	}
 	
@@ -105,7 +120,21 @@ public class LCD extends JFrame implements ActionListener {
 	public void write(boolean regSel, byte data) {
 		if (regSel == false) {
 			//INSTRUCTION
-			if ((data & 0b00100000) == 0b00100000) {
+			if ((data & 0b10000000) == 0b10000000) {
+				//Set DDRAM Address
+				int newPos = (data & 0b01111111);
+
+				if (newPos >= 0 && newPos < text.length) {
+					cursorPos = (data & 0b01111111);
+				} else {
+					cursorPos = 0;
+				}
+
+			} else if ((data & 0b01000000) == 0b01000000) {
+				//Set CGRAM Address
+				System.out.println("LCD: Tried to set CGRAM Address, that is unimplemented!");
+
+			} else if ((data & 0b00100000) == 0b00100000) {
 				//FUNCTION SET
 				if ((data & 0b00010000) == 0b00010000) {
 					fourBitMode = false;
@@ -184,13 +213,15 @@ public class LCD extends JFrame implements ActionListener {
 				}
 				if (debug)
 					System.out.println("Cleared!");
+			} else {
+				System.out.println("Tried to do invalid instruction "+ROMLoader.byteToHexString(data));
 			}
 		} else {
 			//DATA
 			text[cursorPos] = (char)data;
 			int prevCursorPos = cursorPos;
 			cursorPos += increment ? 1 : -1;
-			if (cursorPos == text.length) {
+			if (cursorPos >= text.length) {
 				cursorPos = 0;
 			} else if (cursorPos < 0) {
 				cursorPos = 0;
@@ -202,7 +233,20 @@ public class LCD extends JFrame implements ActionListener {
 	
 	//Read from LCD
 	public byte read(boolean regSel) {
-		return 0x0;
+		if (debug)
+			System.out.println("Reading from LCD with regSel"+(regSel ? '1':'0'));
+
+		byte retVal = 0;
+
+		if (regSel) {
+			//Read from RAM
+			retVal = (byte)(text[cursorPos]);
+		} else {
+			//Read busy flag and address
+			retVal = (byte)(127 & cursorPos);
+		}
+
+		return retVal;
 	}
 	
 	public class LCDPanel extends JPanel {
