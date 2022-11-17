@@ -1,5 +1,13 @@
 # Java 6502 Emulator
 
+## Update: v2.8: Bigger is better!
+Added support for:
+- 20x4 LCDs
+- Reading LCD DDRAM Address (cursor position)
+- Writing LCD DDRAM Address
+
+Remember to save new config files!
+
 ## Update: v2.5: Keyboards are _SO_ hot right now.
 Look at that another update so quickly! This update has a bunch of bug fixes like actually being able to save preference files and more accurate clock speed calculations. It also comes with a very simple keyboard interface, detailed below:
 
