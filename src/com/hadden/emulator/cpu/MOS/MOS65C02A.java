@@ -1,22 +1,35 @@
 package com.hadden.emulator.cpu.MOS;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Vector;
 
 import com.hadden.Instruction;
 
 import com.hadden.emu.Bus;
 import com.hadden.emu.CPU;
 import com.hadden.emulator.ClockLine;
+import com.hadden.emulator.DeviceDebugger;
 import com.hadden.emulator.util.Convert;
 
-
-public class MOS65C02A implements CPU, ClockLine
+public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 {
+	private static class InterruptLock
+	{
+		public InterruptLock()
+		{
+			
+		}
+	}
+	
+	public boolean debugger_irq_hold = false;
+	
 	public byte flags = 0x00;
 	// C,Z,I,D,B,U,V,N
 	// Carry, Zero, Interrupt Disable, Decimal, Break, Unused, Overflow, Negative
@@ -30,6 +43,9 @@ public class MOS65C02A implements CPU, ClockLine
 	public boolean debug = false;
 
 	public short addressAbsolute = 0x0000;
+	
+	public short addressAbsoluteBase = 0x0000;
+	
 	public short addressRelative = 0x0000;
 	public byte opcode = 0x00;
 	public int cycles = 0;
@@ -62,11 +78,49 @@ public class MOS65C02A implements CPU, ClockLine
 	private int irqCycles;
 	private int starveProtect = 5;
 
-
+	
+	
+	private InterruptLock irqLock = new InterruptLock();
+	
 	public String getName()
 	{
 		return "65C02A";
 	}
+	
+	static public class LimitedSizeQueue<K> extends ArrayList<K> {
+
+	    @Override
+		public synchronized int size()
+		{
+			// TODO Auto-generated method stub
+			return super.size();
+		}
+
+		private int maxSize;
+
+	    public LimitedSizeQueue(int size){
+	        this.maxSize = size;
+	    }
+
+	    public synchronized boolean add(K k){
+	        boolean r = super.add(k);
+	        if (size() > maxSize){
+	            removeRange(0, size() - maxSize);
+	        }
+	        return r;
+	    }
+
+	    public K getYoungest() {
+	        return get(size() - 1);
+	    }
+
+	    public K getOldest() {
+	        return get(0);
+	    }
+	}
+	
+	private List<String> history = new LimitedSizeQueue<String>(2000);
+	private boolean historyEnabled = true;
 	
 	public MOS65C02A(Bus bus)
 	{
@@ -384,36 +438,32 @@ public class MOS65C02A implements CPU, ClockLine
 	public void interrupt()
 	{
 		//debug = false;
-		if(true)
+		/*
+		if(true)			
 		{
-			//interruptRequested = true;
-			pendingIRQ.offer(this.clocks);
+			interruptRequested = true;
 		}
+		*/
+		synchronized(irqLock)
+		{
+			if(!interruptRequested)
+			{
+				interruptRequested = true;
+			}
+		
+		};
 	}		
 	
 	public void clock()
 	{
  		if (cycles == 0)
 		{
-			//if(pendingIRQ.size() > 0 && (starveProtect < 1))
-			if(pendingIRQ.size() > 0 && (starveProtect < 1))
-			{
-				//starveProtect  = 2;
-				//interruptsEnabled = false;
-				if (pendingIRQ.size() > 0)
-				{	
-					irq();
-					starveProtect = 4;
-				}	
-				if (NMinterruptRequested)
-					nmi();		
-				
-				//debug = false;
-			}
+			if(interruptRequested && !debugger_irq_hold)
+				irq();
+			else if (NMinterruptRequested)
+				nmi();		
 			else			
-			//if(!interruptRequested && !interruptsEnabled)
 			{
-  				starveProtect--;
 				additionalCycles = 0;
 				opcode = cpuBus.read(programCounter);
 				programCounter++;
@@ -430,26 +480,31 @@ public class MOS65C02A implements CPU, ClockLine
 					
 					//this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].addressMode).invoke(this);
 					//this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].opcode).invoke(this);
-					
+					Instruction instruction = lookup[Byte.toUnsignedInt(opcode)];
 					//
 					// added mode and op caching for simple increase in speed
 					//
-					
 					if(!addressModeCache.containsKey((int)opcode))
 					{
-						addressModeCache.put((int)opcode,this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].addressMode));
+						addressModeCache.put((int)opcode,this.getClass().getMethod(instruction.addressMode));
 					}
 					
 					if(!instructionCache.containsKey((int)opcode))
 					{
-						instructionCache.put((int)opcode,this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].opcode));
+						instructionCache.put((int)opcode,this.getClass().getMethod(instruction.opcode));
 					}
+					
+					//debugInstruction(instruction);
 					
 					cycles = cyclesCache.get((int)opcode);
 					addressModeCache.get((int)opcode).invoke(this);
 					instructionCache.get((int)opcode).invoke(this);
 					
-					interruptsEnabled = true;
+					debugInstruction(instruction);
+					
+					//if("RTI".equals(instruction.opcode))
+					//	historyEnabled = false;
+					//interruptsEnabled = true;
 					
 				} catch (Exception e)
 				{
@@ -457,72 +512,6 @@ public class MOS65C02A implements CPU, ClockLine
 					e.printStackTrace();
 				}
 			}
-			/*
-			else
-			{
-				if (interruptRequested)
-					irq();
-					
-				if (NMinterruptRequested)
-					nmi();
-			}
-			*/
-			if (debug)
-			{
-				System.out.print(Integer.toHexString(Short.toUnsignedInt(programCounter)) + "   "
-						+ lookup[Byte.toUnsignedInt(opcode)].opcode + " " + Convert.byteToHexString(opcode) + " ");
-				if (!(lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("IMP")
-						|| lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("REL")))
-				{
-					if (lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("IMM"))
-					{
-						System.out.print("#$" + Integer.toHexString(Byte.toUnsignedInt(fetched)));
-					}
-					else if (lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("REL"))
-					{
-						System.out.print("$" + Integer.toHexString(Byte.toUnsignedInt((byte) addressAbsolute)));
-					}
-					else
-					{
-						System.out.print("$" + Integer.toHexString(Short.toUnsignedInt(addressAbsolute)));
-					}
-				}
-				else if (!lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("IMP"))
-				{
-					System.out.print("$" + Integer.toHexString(Short.toUnsignedInt(addressRelative)));
-				}
-				if (lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("ABX")
-						|| lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("INX")
-						|| lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("ZPX"))
-				{
-					System.out.print(",X");
-				}
-				else if (lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("ABY")
-						|| lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("INY")
-						|| lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("ZPY"))
-				{
-					System.out.print(",Y");
-				}
-				System.out.print("  A:" + Integer.toHexString(Byte.toUnsignedInt(a)) + " X:"
-						+ Integer.toHexString(Byte.toUnsignedInt(x)) + " Y:"
-						+ Integer.toHexString(Byte.toUnsignedInt(y)) + " Flags:"
-						+ Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(flags)), 8));
-				System.out.println();
-			}
-			else
-			{
-			
-				try
-				{
-					Thread.sleep(0);
-				} 
-				catch (InterruptedException e)
-				{
-					e.printStackTrace();
-				}
-				
-			}
-		
 		}
 
 		if (((System.currentTimeMillis() - startTime) / 1000) > 0)
@@ -561,9 +550,111 @@ public class MOS65C02A implements CPU, ClockLine
 		telemetry.clocks = clocks;
 		telemetry.flags  = flags;	
 		telemetry.irqs = irqCount;
-		
+		telemetry.history = history;
 	}
 
+
+	private void debugInstruction(Instruction dbgOp)
+	{
+		if (true)
+		{
+			String debugLine = "";
+			
+			debugLine = (Convert.padStringWithZeroes(Integer.toHexString(Short.toUnsignedInt(programCounter)), 4) + ":" + 
+					     dbgOp.opcode + " " + 
+					     Convert.byteToHexString(opcode) + " ");
+			
+			//System.out.println("addressAbsolute[" + dbgOp.opcode + ":" + dbgOp.addressMode  + "]:" +  addressAbsolute);
+			System.out.println("addressAbsolute[" + dbgOp.opcode + ":" + dbgOp.addressMode  + "]:" +  Convert.toHex16String(addressAbsolute));
+			
+			
+			if (!(dbgOp.addressMode.equals("IMP") || 
+				  dbgOp.addressMode.equals("REL")))
+			{
+				if (dbgOp.addressMode.equals("IMM"))
+				{
+					System.out.println("addressAbsolute IMM:" + Convert.toHex8String(addressAbsolute));
+					//debugLine+=("#$" + Integer.toHexString(Byte.toUnsignedInt(fetched))); 
+					debugLine+=("#$" + Convert.toHex8String(addressAbsolute));
+				}
+				else if (dbgOp.addressMode.equals("REL"))
+				{
+					//System.out.println("addressAbsolute REL:" +  Convert.toHex16String(addressAbsolute));
+					//debugLine+=("$" + Integer.toHexString(Short.toUnsignedInt(addressAbsolute) & 0x0000FFFF));
+					debugLine+=("$" + Convert.toHex16String(addressAbsolute));
+				}
+
+				else if (dbgOp.addressMode.equals("ABS"))
+				{
+					//System.out.println("addressAbsolute ELSE:" +  Convert.toHex16String(addressAbsolute));
+					//debugLine+=("$" + Integer.toHexString(Short.toUnsignedInt(addressAbsolute)  & 0x0000FFFF));
+					debugLine+=("$" + Convert.toHex16String(addressAbsoluteBase));
+				}
+				else if (dbgOp.addressMode.equals("ABX"))
+				{
+					//System.out.println("addressAbsolute ELSE:" +  Convert.toHex16String(addressAbsolute));
+					//debugLine+=("$" + Integer.toHexString(Short.toUnsignedInt(addressAbsolute)  & 0x0000FFFF));
+					debugLine+=("$" + Convert.toHex16String(addressAbsoluteBase));
+				}
+				else if (dbgOp.addressMode.equals("ABY"))
+				{
+					//System.out.println("addressAbsolute ELSE:" +  Convert.toHex16String(addressAbsolute));
+					//debugLine+=("$" + Integer.toHexString(Short.toUnsignedInt(addressAbsolute)  & 0x0000FFFF));
+					debugLine+=("$" + Convert.toHex16String(addressAbsoluteBase));
+				}
+				
+				else
+				{
+					System.out.println("addressAbsolute ELSE:" +  Convert.toHex16String(addressAbsolute));
+					//debugLine+=("$" + Integer.toHexString(Short.toUnsignedInt(addressAbsolute)  & 0x0000FFFF));
+					debugLine+=("$" + Convert.toHex16String(addressAbsolute));
+				}
+			}
+			else if (!dbgOp.addressMode.equals("IMP"))
+			{
+				//debugLine+=("$" + Integer.toHexString(Short.toUnsignedInt(addressRelative)  & 0x00000FF));
+				debugLine+=("$" + Convert.toHex8String(addressRelative));
+			}
+			
+			if (dbgOp.addressMode.equals("ABX")	|| 
+			    dbgOp.addressMode.equals("INX") || 
+			    dbgOp.addressMode.equals("ZPX"))
+			{
+				//debugLine+=(",X ");
+				debugLine+=("," + Convert.toHex8String(x) + " ");
+			}
+			else if (dbgOp.addressMode.equals("ABY") || 
+					 dbgOp.addressMode.equals("INY") || 
+					 dbgOp.addressMode.equals("ZPY"))
+			{
+				debugLine+=(",Y ");
+			}
+			else
+			{
+				debugLine+=(" ");
+			}
+			
+//			debugLine+=("A:"  + Convert.toHex8String(a) +
+//					    " X:" + Convert.toHex8String(x) + 
+//					    " Y:" + Convert.toHex8String(y));
+
+			int pad = debugLine.length();
+			debugLine+=("                      ".substring(pad));
+	
+			debugLine+=("A:"  + Convert.toHex8String(a) +
+				    " X:" + Convert.toHex8String(x) + 
+				    " Y:" + Convert.toHex8String(y));
+			
+			debugLine+=(" F:"
+			            + Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(flags)), 8));
+
+			//System.out.println(debugLine);				
+			if(historyEnabled)
+				history.add(debugLine);
+		}
+	}
+
+	
 	public int rate(ClockRateUnit cru)
 	{
 		switch(cru)
@@ -618,13 +709,17 @@ public class MOS65C02A implements CPU, ClockLine
 		boolean fi = getFlag('I');
 		if(!fi)
 		{
-			pendingIRQ.poll();
+			//pendingIRQ.poll();
 			irqCount++;
 			this.interrupted = true;
 			if(debug)
 				System.out.println("irq()");
 			
 			pushCycles = cycles;
+			
+			//System.out.println("\nIRQ PC:" + Integer.toHexString(programCounter & 0xFFFF) );
+			if(historyEnabled)
+				history.add("IRQ PC:" + Integer.toHexString(programCounter & 0xFFFF));
 			
 			cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) (programCounter >> 8));
 			stackPointer--;
@@ -642,11 +737,12 @@ public class MOS65C02A implements CPU, ClockLine
 			byte hi = cpuBus.read((short) (addressAbsolute + 1));
 			
 			//if(debug)
-				System.out.println("IR:0x" + Integer.toHexString(hi & 0xFF) + ":" + Integer.toHexString(lo));
+			//	System.out.println("IR:0x" + Integer.toHexString(hi & 0xFF) + ":" + Integer.toHexString(lo));
 			
 			programCounter = (short) (Byte.toUnsignedInt(lo) + 256 * (Byte.toUnsignedInt(hi) & 0xFF));
 
-			System.out.println("IRQ PTR:" + Integer.toHexString(programCounter & 0xFFFF) );
+			//System.out.println("IRQ PTR:" + Integer.toHexString(programCounter & 0xFFFF) );
+			//System.out.println("*** IRQ ***");
 			
 			cycles = 7;
 			irqCycles = 7;
@@ -657,6 +753,13 @@ public class MOS65C02A implements CPU, ClockLine
 		{
 			cycles = 1;
 		}
+
+		synchronized(irqLock)
+		{
+			//pendingIRQ.offer(this.clocks);
+			interruptRequested = false;
+		};
+
 	}
 
 	void nmi()
@@ -738,6 +841,7 @@ public class MOS65C02A implements CPU, ClockLine
 		byte hi = cpuBus.read(programCounter);
 		programCounter++;
 
+		addressAbsoluteBase = (short) (Byte.toUnsignedInt(lo) + 256 * Byte.toUnsignedInt(hi)); 
 		addressAbsolute = (short) (Byte.toUnsignedInt(lo) + 256 * Byte.toUnsignedInt(hi));
 	}
 
@@ -748,6 +852,7 @@ public class MOS65C02A implements CPU, ClockLine
 		byte hi = cpuBus.read(programCounter);
 		programCounter++;
 
+		addressAbsoluteBase = (short) (Byte.toUnsignedInt(lo) + 256 * Byte.toUnsignedInt(hi));
 		addressAbsolute = (short) (Byte.toUnsignedInt(lo) + 256 * Byte.toUnsignedInt(hi) + Byte.toUnsignedInt(x));
 
 		if ((addressAbsolute & 0xFF00) != (hi << 8))
@@ -761,6 +866,7 @@ public class MOS65C02A implements CPU, ClockLine
 		byte hi = cpuBus.read(programCounter);
 		programCounter++;
 
+		addressAbsoluteBase = (short) (Byte.toUnsignedInt(lo) + 256 * Byte.toUnsignedInt(hi));
 		addressAbsolute = (short) (Byte.toUnsignedInt(lo) + 256 * Byte.toUnsignedInt(hi) + Byte.toUnsignedInt(y));
 
 		if ((addressAbsolute & 0xFF00) != (hi << 8))
@@ -1266,7 +1372,7 @@ public class MOS65C02A implements CPU, ClockLine
 
 	public void RTI()
 	{
-		System.out.println("**RTI**");		
+		//System.out.println("**RTI**");		
 		stackPointer++;
 		flags = cpuBus.read((short) (0x100 + Byte.toUnsignedInt(stackPointer)));
 		flags = (byte) (flags & (getFlag('B') ? 0b11101111 : 0));
@@ -1278,6 +1384,9 @@ public class MOS65C02A implements CPU, ClockLine
 		byte hi = cpuBus.read((short) (0x100 + Byte.toUnsignedInt(stackPointer)));
 		programCounter = (short) (Byte.toUnsignedInt(lo) + 256 * Byte.toUnsignedInt(hi));
 		
+		//System.out.println("RTI PC:" + Integer.toHexString(programCounter & 0xFFFF) );
+		history.add("RTI PC:" + Convert.toHex16String(programCounter & 0xFFFF));
+
 		cycles = pushCycles;
 	}
 
@@ -1324,6 +1433,8 @@ public class MOS65C02A implements CPU, ClockLine
 
 	public void STA()
 	{
+		System.out.println("STA:" +  addressAbsolute);
+		System.out.println("STA:" +  Integer.toHexString((int)addressAbsolute & 0x0000FFFF));
 		cpuBus.write(addressAbsolute, a);
 	}
 
@@ -1395,4 +1506,27 @@ public class MOS65C02A implements CPU, ClockLine
 	{
 		this.clock();		
 	}
+
+	@Override
+	public String[] getFeatures()
+	{
+		return new String[]{"interrupt-hold","cycles"};
+	}
+
+	@Override
+	public boolean isEnabled(String feature)
+	{
+		if("interrupt-hold".equals(feature))
+			return debugger_irq_hold;
+		
+		return false;
+	}
+
+	@Override
+	public void setEnabled(String feature, boolean state)
+	{
+		if("interrupt-hold".equals(feature))
+			debugger_irq_hold = state;		
+	}
+
 }

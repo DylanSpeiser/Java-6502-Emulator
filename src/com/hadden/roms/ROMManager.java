@@ -4,6 +4,8 @@ import java.awt.Font;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.net.URL;
 
 public class ROMManager
@@ -20,7 +22,15 @@ public class ROMManager
 		
 		try
 		{
-			BufferedInputStream bin = new BufferedInputStream(ROMManager.class.getResourceAsStream(romName));
+			InputStream rin; // = ROMManager.class.getResourceAsStream(romName);
+			
+
+			if(romName.startsWith("file://"))
+				rin = new FileInputStream(romName.replace("file://",""));
+			else
+				rin = ROMManager.class.getResourceAsStream(romName);
+			
+			BufferedInputStream bin = new BufferedInputStream(rin);
 			if(bin!=null)
 			{
 				try

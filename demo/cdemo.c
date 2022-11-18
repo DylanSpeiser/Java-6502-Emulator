@@ -2,12 +2,16 @@
 // cc65 --cpu 6502 cdemo.c
 // ca65 cdemo.s -D BASE=0x0000
 // cl65 cdemo.o --target none --start-addr 0x0000 -o cdemo.bin
+static char* p = (char *)(0xA000);
+
 void main(void)
 {
-	unsigned int i = 2;
-	char far *p = (char far *)(0xA000);
+	//unsigned int i = 2;
+	//char far *p = (char far *)(0xA000);
+	//char* p = (char *)(0xA000);
 	
-	((char far*)p)[0] = 'A';
+	((char*)p)[0] = 'A';
+	/*
 	*((char far*)0xA001) = 'B';
 	*((char far*)0xA002) = 'C';
 	*((char far*)0xA003) = 'D';
@@ -17,7 +21,7 @@ void main(void)
 	{
 		*((char far*)(0xA005 + i)) = 'X';
 	}
-
+	*/
 
 	while(1)
 	{

@@ -42,7 +42,7 @@ public class SystemClock implements Clock
 						{
 							try
 							{
-								Thread.sleep(1);
+								Thread.sleep(500);
 							}
 							catch (InterruptedException e)
 							{
@@ -110,4 +110,5 @@ public class SystemClock implements Clock
 			cl.pulse();
 		}	
 	}
+
 }

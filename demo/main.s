@@ -19,11 +19,11 @@
 
 ;.addr      _nmi_int    ; NMI vector
 ;.addr      _init       ; Reset vector
-.addr      _irq_int    ; IRQ/BRK vector    	
+.addr       _irq_int    ; IRQ/BRK vector    	
     	
 .segment  "CODE"
 
-; push fake return address
+; push return address 0x0000 minus 1 = 0xFFFF 
 	lda     #$FF
 	pha 
 	pha
@@ -41,6 +41,33 @@
 	dex
 	inx
 	inx
+
+; push data
+    lda     #$AA
+	pha	
+    lda     #$BB
+	pha	
+    lda     #$CC
+	pha	
+    lda     #$DD
+	pha	
+    lda     #$AA
+	pha	
+    lda     #$BB
+	pha	
+    lda     #$CC
+	pha	
+    lda     #$DD
+	pha	
+	
+	pla
+	pla
+	pla
+	pla
+	pla
+	pla
+	pla
+	pla
 
 ; move data
 	lda     #$AB
@@ -80,6 +107,8 @@ loop3:
 	inx
 	cpx 	#$0F
 	BNE loop3		
+
+
 	
 ; print to LCD
 	lda     #$00

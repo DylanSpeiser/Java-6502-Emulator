@@ -17,10 +17,12 @@ import com.hadden.emu.Bus;
 import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
 import com.hadden.emu.BusIRQ;
+import com.hadden.emu.BusListener;
 import com.hadden.emu.CPU;
 import com.hadden.emu.impl.DisplayDevice;
 import com.hadden.emu.impl.RAMDevice;
 import com.hadden.emu.impl.ROMDevice;
+import com.hadden.emu.impl.TimerDevice;
 import com.hadden.roms.ROMManager;
 import com.hadden.emulator.Clock;
 import com.hadden.emulator.ClockLine;
@@ -43,7 +45,7 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 
 	
 
-	public DisplayPanel graphicsPanel = null;
+	public EmulatorDisplay emulatorDisplay = null;
 
 	
 	private Clock clock = null;
@@ -61,8 +63,9 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 	{
 		init();
 		
-		graphicsPanel = new DisplayPanel(this);
-
+		emulatorDisplay = new EmulatorDisplay(this);
+		((AddressMap)this.getBus()).addBusListener(emulatorDisplay);
+		
 		// map.setBusListener(graphicsPanel);
 
 		// Open .bin file button
@@ -70,13 +73,13 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 		ROMopenButton.addActionListener(this);
 		ROMopenButton.setBounds(getWidth() - 150, 15, 125, 25);
 		ROMopenButton.setBackground(Color.white);
-		graphicsPanel.add(ROMopenButton);
+		emulatorDisplay.add(ROMopenButton);
 
 		RAMopenButton.setVisible(true);
 		RAMopenButton.addActionListener(this);
 		RAMopenButton.setBounds(getWidth() - 150, 45, 125, 25);
 		RAMopenButton.setBackground(Color.white);
-		graphicsPanel.add(RAMopenButton);
+		emulatorDisplay.add(RAMopenButton);
 
 		// file chooser
 		fc.setVisible(true);
@@ -100,10 +103,10 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 		
 		// Final Setup
 		
-		graphicsPanel.setVisible(true);
-		graphicsPanel.setSize(new Dimension(1920,1080));
+		emulatorDisplay.setVisible(true);
+		emulatorDisplay.setSize(new Dimension(1920,1080));
 		this.setTitle("System Emulator");
-		this.setContentPane(graphicsPanel);
+		this.setContentPane(emulatorDisplay);
 		this.setSize(new Dimension(1920,1080));
 		this.setVisible(true);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -126,14 +129,18 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 					}
 				});
 		
-
 		map.addBusDevice((BusDevice)ram)
 		   //.addBusDevice(new DisplayDevice(0x0000A000,40,10))
-		.addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("demo.rom")))   
-		.addBusDevice(new DisplayDevice(0x0000A000,80,25))
+		   //.addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("demo.rom")))   
+		   .addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\main.bin")))
+		   //.addBusDevice(new ROMDevice(0x00000200,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\multia-prg.bin")))
+		   //.addBusDevice(new ROMDevice(0x0000FFFA,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\multia-irq.bin")))
+		   //.addBusDevice(new ROMDevice(0x00000200,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\cdemo.bin")))
+		   //.addBusDevice(new ROMDevice(0x00000200,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\multia.bin")))
+		   .addBusDevice(new DisplayDevice(0x0000A000,80,25))
 		   //.addBusDevice(new LCDDevice(0x0000B000))
 		   //.addBusDevice(new TimerDevice(0x0000B003,60000))
-		   //.addBusDevice(new TimerDevice(0x0000B005,5000))
+		   .addBusDevice(new TimerDevice(0x0000B005,10))
 		   //.addBusDevice(new SerialDevice(0x00000200))
 		   ;
 		
@@ -145,6 +152,7 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 		
 		bus = (Bus)map;
 		cpu = new MOS65C02A(bus);
+		
 		// Swing Stuff:
 		System.setProperty("sun.java2d.opengl", "true");
 	}
@@ -278,7 +286,7 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 		}
 		
 		
-		this.graphicsPanel.repaint();
+		this.emulatorDisplay.repaint();
 	}
 
 	@Override

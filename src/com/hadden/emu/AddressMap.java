@@ -11,7 +11,7 @@ public interface AddressMap
 	public AddressMap addBusDevice(BusDevice bd);
 	public BusDevice getMemoryMappedDevice(int address);
 	public void printAddressMap();
-	public void setBusListener(BusListener listener);
+	public void addBusListener(BusListener listener);
 	public Collection<BusDevice> getDevices();
 	
 	static public String toHexAddress(int address, IOSize size)

@@ -1,0 +1,195 @@
+Modules list:
+-------------
+cdemo.o:
+    CODE              Offs=000000  Size=0000AE  Align=00001  Fill=0000
+/usr/share/cc65/lib/c64.lib(add.o):
+    CODE              Offs=0000AE  Size=00001C  Align=00001  Fill=0000
+/usr/share/cc65/lib/c64.lib(addysp.o):
+    CODE              Offs=0000CA  Size=00000E  Align=00001  Fill=0000
+/usr/share/cc65/lib/c64.lib(callmain.o):
+    CODE              Offs=0000D8  Size=000017  Align=00001  Fill=0000
+    DATA              Offs=000000  Size=000004  Align=00001  Fill=0000
+/usr/share/cc65/lib/c64.lib(condes.o):
+    CODE              Offs=0000EF  Size=00000C  Align=00001  Fill=0000
+    DATA              Offs=000004  Size=000025  Align=00001  Fill=0000
+    ONCE              Offs=000000  Size=00000C  Align=00001  Fill=0000
+/usr/share/cc65/lib/c64.lib(crt0.o):
+    STARTUP           Offs=000000  Size=000033  Align=00001  Fill=0000
+    ONCE              Offs=00000C  Size=00001A  Align=00001  Fill=0000
+    INIT              Offs=000000  Size=00001C  Align=00001  Fill=0000
+/usr/share/cc65/lib/c64.lib(exehdr.o):
+    EXEHDR            Offs=000000  Size=00000C  Align=00001  Fill=0000
+/usr/share/cc65/lib/c64.lib(incax1.o):
+    CODE              Offs=0000FB  Size=000007  Align=00001  Fill=0000
+/usr/share/cc65/lib/c64.lib(incsp2.o):
+    CODE              Offs=000102  Size=000016  Align=00001  Fill=0000
+/usr/share/cc65/lib/c64.lib(incsp4.o):
+    CODE              Offs=000118  Size=000005  Align=00001  Fill=0000
+/usr/share/cc65/lib/c64.lib(kernal.o):
+/usr/share/cc65/lib/c64.lib(ldaxsp.o):
+    CODE              Offs=00011D  Size=000009  Align=00001  Fill=0000
+/usr/share/cc65/lib/c64.lib(loadaddr.o):
+    LOADADDR          Offs=000000  Size=000002  Align=00001  Fill=0000
+/usr/share/cc65/lib/c64.lib(makebool.o):
+    CODE              Offs=000126  Size=00002C  Align=00001  Fill=0000
+/usr/share/cc65/lib/c64.lib(pushax.o):
+    CODE              Offs=000152  Size=00001A  Align=00001  Fill=0000
+/usr/share/cc65/lib/c64.lib(staspidx.o):
+    CODE              Offs=00016C  Size=000016  Align=00001  Fill=0000
+/usr/share/cc65/lib/c64.lib(status.o):
+/usr/share/cc65/lib/c64.lib(staxsp.o):
+    CODE              Offs=000182  Size=00000B  Align=00001  Fill=0000
+/usr/share/cc65/lib/c64.lib(zerobss.o):
+    CODE              Offs=00018D  Size=000023  Align=00001  Fill=0000
+/usr/share/cc65/lib/c64.lib(zeropage.o):
+    ZEROPAGE          Offs=000000  Size=00001A  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+EXEHDR                000000  00000B  00000C  00001
+ZEROPAGE              000002  00001B  00001A  00001
+STARTUP               00000C  00003E  000033  00001
+CODE                  00003F  0001EE  0001B0  00001
+DATA                  0001EF  000217  000029  00001
+INIT                  000218  000233  00001C  00001
+ONCE                  000234  000259  000026  00001
+LOADADDR              FFFFFFFFFFFFFFFE  FFFFFFFFFFFFFFFF  000002  00001
+
+
+Exports list by name:
+---------------------
+BSOUT                     00FFD2 REA    ST                        000090 RLZ    
+__BSS_RUN__               000234 RLA    __BSS_SIZE__              000000 REA    
+__CONSTRUCTOR_COUNT__     000000 REA    __CONSTRUCTOR_TABLE__     00025A RLA    
+__DESTRUCTOR_COUNT__      000000 REA    __DESTRUCTOR_TABLE__      0001EF RLA    
+__EXEHDR__                000001 REA    __HEADER_LAST__           00000C RLA    
+__HIMEM__                 00D000 REA    __LOADADDR__              000001 REA    
+__MAIN_SIZE__             00CFF4 REA    __MAIN_START__            00000C RLA    
+__ONCE_RUN__              000234 RLA    __STACKSIZE__             000800 REA    
+__STARTUP__               000001 REA    _main                     00003F RLA    
+addysp                    00010A RLA    boolult                   000184 RLA    
+callmain                  000117 RLA    donelib                   00012E RLA    
+incax1                    00013A RLA    incsp2                    000149 RLA    
+incsp4                    000157 RLA    initlib                   000234 RLA    
+ldaxysp                   00015E RLA    ptr1                      00000A RLZ    
+pushax                    000195 RLA    regsave                   000006 RLZ    
+sp                        000002 RLZ    staspidx                  0001AB RLA    
+staxysp                   0001C3 RLA    tmp1                      000012 RLZ    
+tosaddax                  0000EF RLA    zerobss                   0001CC RLA    
+
+
+
+Exports list by value:
+----------------------
+__BSS_SIZE__              000000 REA    __CONSTRUCTOR_COUNT__     000000 REA    
+__DESTRUCTOR_COUNT__      000000 REA    __EXEHDR__                000001 REA    
+__LOADADDR__              000001 REA    __STARTUP__               000001 REA    
+sp                        000002 RLZ    regsave                   000006 RLZ    
+ptr1                      00000A RLZ    __HEADER_LAST__           00000C RLA    
+__MAIN_START__            00000C RLA    tmp1                      000012 RLZ    
+_main                     00003F RLA    ST                        000090 RLZ    
+tosaddax                  0000EF RLA    addysp                    00010A RLA    
+callmain                  000117 RLA    donelib                   00012E RLA    
+incax1                    00013A RLA    incsp2                    000149 RLA    
+incsp4                    000157 RLA    ldaxysp                   00015E RLA    
+boolult                   000184 RLA    pushax                    000195 RLA    
+staspidx                  0001AB RLA    staxysp                   0001C3 RLA    
+zerobss                   0001CC RLA    __DESTRUCTOR_TABLE__      0001EF RLA    
+__BSS_RUN__               000234 RLA    __ONCE_RUN__              000234 RLA    
+initlib                   000234 RLA    __CONSTRUCTOR_TABLE__     00025A RLA    
+__STACKSIZE__             000800 REA    __MAIN_SIZE__             00CFF4 REA    
+__HIMEM__                 00D000 REA    BSOUT                     00FFD2 REA    
+
+
+
+Imports list:
+-------------
+BSOUT (kernal.o):
+    crt0.o                    c64/crt0.s(10)
+ST (status.o):
+    crt0.o                    c64/crt0.s(13)
+__BSS_RUN__ ([linker generated]):
+    zerobss.o                 common/zerobss.s(8)
+__BSS_SIZE__ ([linker generated]):
+    zerobss.o                 common/zerobss.s(8)
+__CONSTRUCTOR_COUNT__ ([linker generated]):
+    condes.o                  runtime/condes.s(18)
+__CONSTRUCTOR_TABLE__ ([linker generated]):
+    condes.o                  runtime/condes.s(18)
+__DESTRUCTOR_COUNT__ ([linker generated]):
+    condes.o                  runtime/condes.s(19)
+__DESTRUCTOR_TABLE__ ([linker generated]):
+    condes.o                  runtime/condes.s(19)
+__EXEHDR__ (exehdr.o):
+    [linker generated]        /usr/share/cc65/cfg/c64.cfg(6)
+__HEADER_LAST__ ([linker generated]):
+    [linker generated]        /usr/share/cc65/cfg/c64.cfg(14)
+    [linker generated]        /usr/share/cc65/cfg/c64.cfg(14)
+__HIMEM__ ([linker generated]):
+    [linker generated]        /usr/share/cc65/cfg/c64.cfg(15)
+    [linker generated]        /usr/share/cc65/cfg/c64.cfg(14)
+__LOADADDR__ (loadaddr.o):
+    [linker generated]        /usr/share/cc65/cfg/c64.cfg(5)
+__MAIN_SIZE__ ([linker generated]):
+    crt0.o                    c64/crt0.s(11)
+__MAIN_START__ ([linker generated]):
+    crt0.o                    c64/crt0.s(11)
+__ONCE_RUN__ ([linker generated]):
+    [linker generated]        /usr/share/cc65/cfg/c64.cfg(15)
+    [linker generated]        /usr/share/cc65/cfg/c64.cfg(15)
+__STACKSIZE__ ([linker generated]):
+    [linker generated]        /usr/share/cc65/cfg/c64.cfg(15)
+__STARTUP__ (crt0.o):
+    cdemo.o                   cdemo.s(13)
+_main (cdemo.o):
+    callmain.o                runtime/callmain.s(11)
+addysp (addysp.o):
+    incsp4.o                  runtime/incsp4.s(8)
+boolult (makebool.o):
+    cdemo.o                   cdemo.s(99)
+callmain (callmain.o):
+    crt0.o                    c64/crt0.s(9)
+donelib (condes.o):
+    crt0.o                    c64/crt0.s(8)
+incax1 (incax1.o):
+    cdemo.o                   cdemo.s(99)
+incsp2 (incsp2.o):
+    staspidx.o                runtime/staspidx.s(8)
+incsp4 (incsp4.o):
+    cdemo.o                   cdemo.s(99)
+initlib (condes.o):
+    crt0.o                    c64/crt0.s(8)
+ldaxysp (ldaxsp.o):
+    cdemo.o                   cdemo.s(99)
+ptr1 (zeropage.o):
+    zerobss.o                 common/zerobss.s(9)
+    staspidx.o                runtime/staspidx.s(9)
+pushax (pushax.o):
+    callmain.o                runtime/callmain.s(11)
+    cdemo.o                   cdemo.s(99)
+regsave (zeropage.o):
+    cdemo.o                   cdemo.s(10)
+sp (zeropage.o):
+    incsp2.o                  runtime/incsp2.s(8)
+    addysp.o                  runtime/addysp.s(8)
+    staxsp.o                  runtime/staxsp.s(8)
+    staspidx.o                runtime/staspidx.s(9)
+    pushax.o                  runtime/pushax.s(8)
+    ldaxsp.o                  runtime/ldaxsp.s(8)
+    crt0.o                    /build/cc65-u5XJyk/cc65-2.16/asminc/zeropage.inc(11)
+    add.o                     runtime/add.s(12)
+staspidx (staspidx.o):
+    cdemo.o                   cdemo.s(99)
+staxysp (staxsp.o):
+    cdemo.o                   cdemo.s(99)
+tmp1 (zeropage.o):
+    staspidx.o                runtime/staspidx.s(9)
+    add.o                     runtime/add.s(12)
+tosaddax (add.o):
+    cdemo.o                   cdemo.s(99)
+zerobss (zerobss.o):
+    crt0.o                    c64/crt0.s(9)
+

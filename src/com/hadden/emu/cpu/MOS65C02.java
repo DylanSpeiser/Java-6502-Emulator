@@ -1358,4 +1358,6 @@ public class MOS65C02 implements CPU
 	{
 		return telemetry;
 	}
+
+
 }

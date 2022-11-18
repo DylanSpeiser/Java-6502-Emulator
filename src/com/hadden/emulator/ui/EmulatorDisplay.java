@@ -2,6 +2,8 @@ package com.hadden.emulator.ui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Collections;
+
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -11,10 +13,11 @@ import com.hadden.emu.CPU.ClockRateUnit;
 import com.hadden.emu.CPU.Telemetry;
 import com.hadden.emu.VIA;
 import com.hadden.emulator.Clock;
+import com.hadden.emulator.DeviceDebugger;
 import com.hadden.emulator.Emulator;
 import com.hadden.emulator.util.Convert;
 
-public class DisplayPanel extends JPanel implements ActionListener, KeyListener, BusListener
+public class EmulatorDisplay extends JPanel implements ActionListener, KeyListener, BusListener
 {
 	private boolean writeEvent = false;
 	private Timer t;
@@ -22,6 +25,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener,
 	public int romPage = 0;
 
 	int rightAlignHelper = Math.max(getWidth(), 1334);
+	int historyOffset    = 0;
 
 	public  String ramPageString = "";
 	public  String romPageString = "";
@@ -29,13 +33,13 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener,
 
 	private Emulator emulator;
 	
-	public DisplayPanel(Emulator emulator)
+	public EmulatorDisplay(Emulator emulator)
 	{
 		super(null);
 
 		this.emulator = emulator;
 		
-		this.title = emulator.getTitle() + " Emulator";	
+		this.title = ((Emulator)emulator).getTitle() + " Emulator";	
 		
 		t = new javax.swing.Timer(16, this);
 		t.start();
@@ -99,23 +103,32 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener,
 		g.drawString("(H) <-- " + Convert.byteToHexString((byte) ramPage) + " --> (J)", rightAlignHelper - 704,
 				Math.max(getHeight() - 91, 920));
 
-		// ROM
-		g.drawString("ROM", rightAlignHelper - 214, 130);
-		drawString(g, romPageString, rightAlignHelper - 379, 150);
+
 
 		// Stack Pointer Underline
 		if (ramPage == 1)
 		{
-			g.setColor(new Color(0.7f, 0f, 0f));
+			//g.setColor(new Color(0.7f, 0f, 0f));
+			g.setColor(Color.red);
 			g.fillRect(rightAlignHelper - 708 + 36 * (Byte.toUnsignedInt(t.stackPointer) % 8),
 					156 + 23 * ((int) Byte.toUnsignedInt(t.stackPointer) / 8), 25, 22);
 			g.setColor(Color.white);
 		}
 
+		// OPS
+		g.drawString("Instructions", rightAlignHelper - 1215, 130);
+		this.historyOffset = drawString(g, t.history, rightAlignHelper - 1365, 150, historyOffset);
+		
+		//g.drawLine(rightAlignHelper - 784, 150, rightAlignHelper - 784, 1000);
+		
 		// RAM
 		g.drawString("RAM", rightAlignHelper - 624, 130);
 		drawString(g, ramPageString, rightAlignHelper - 779, 150);
 
+		// ROM
+		g.drawString("ROM", rightAlignHelper - 214, 130);
+		drawString(g, romPageString, rightAlignHelper - 379, 150);		
+		
 		// CPU
 		g.drawString("CPU Registers:", 50, 140);
 		g.drawString("A: "
@@ -128,9 +141,8 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener,
 				+ Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.y)), 8)
 				+ " (" + Convert.byteToHexString(t.y) + ")", 35, 230);
 		g.drawString("Stack Pointer: "
-				+ Convert.padStringWithZeroes(
-						Integer.toBinaryString(Byte.toUnsignedInt(t.stackPointer)), 8)
-				+ " (" + Convert.byteToHexString(t.stackPointer) + ")", 35, 260);
+				+ Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.stackPointer)), 8)
+				+ " (" + Convert.byteToHexString(t.stackPointer) + ")[" + Integer.toHexString(((int)t.stackPointer & 0x000000FF) + 0x00000100).toUpperCase() + "]", 35, 260);
 		g.drawString(
 				"Program Counter: "
 						+ Convert.padStringWithZeroes(
@@ -202,8 +214,10 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener,
 		g.drawString("C - Toggle Clock", 35, 780);
 		g.drawString("Space - Pulse Clock", 35, 810);
 		g.drawString("R - Reset", 35, 840);
-		g.drawString("S - Toggle Slower Clock", 35, 870);
-		g.drawString("I - Trigger VIA CA1", 35, 900);
+		g.drawString("S - Toggle Slower " + (emulator.getClock().isSlow() ? "Disable" : "Enable"), 35, 870);
+		g.drawString("I - Toggle Interrupt " + (((DeviceDebugger)emulator.getCPU()).isEnabled("interrupt-hold") ? "Enable" : "Disable"), 35, 900);
+		if(!emulator.getClock().isEnabled())
+			g.drawString("Cursors - Scroll History", 35, 930);
 		
 	}
 
@@ -213,23 +227,65 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener,
 			g.drawString(line, x, y += g.getFontMetrics().getHeight());
 	}
 
+	public static int drawString(Graphics g, java.util.List<String> list, int x, int y, int offset)
+	{
+		int bound = 32;
+		int size = 0;
+		if(list!=null)
+		{
+			size = list.size();
+			if(size > 0)
+			{
+				if(offset < 0)
+					offset = 0;
+				
+				if(bound > size)
+					bound = 0;
+				
+				int top = size - bound - offset;
+				if(top < 0)
+					top = 0;
+				
+				int bottom = size - offset;
+				if(bottom > size)
+					bottom = size;
+				
+				try
+				{
+					for(int i=top;i<bottom;i++)
+						g.drawString(list.get(i), x, y += g.getFontMetrics().getHeight());
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+		if(offset < 0)
+			return 0;
+		if(offset > size)
+			return size;
+		
+		
+		return offset;
+
+		//for (String line : text.split("\n"))
+		//	g.drawString(line, x, y += g.getFontMetrics().getHeight());
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		/*
 		if (e.getSource().equals(t))
 		{
 			if(this.writeEvent)
 			{
-				ramPageString = SystemEmulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
-				SystemEmulator.ROMopenButton.setBounds(rightAlignHelper - 150, 15, 125, 25);
-				SystemEmulator.RAMopenButton.setBounds(rightAlignHelper - 150, 45, 125, 25);				
+				// System.out.println("UPDATE PAGE:" + ramPage);
+				ramPageString = emulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
 				writeEvent = false;
 			}
 			this.repaint();
 		}
-		*/
-		this.repaint();
 	}
 
 
@@ -241,21 +297,39 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener,
 	@Override
 	public void writeListener(short address, byte data)
 	{
-		this.writeEvent = true;
+		int updatePage = ( (0x0000FFFF & (address - 1)) /0xFF);
+		//System.out.println("PAGE[" + Integer.toHexString(0x0000FFFF & address) + "]:" + updatePage);
+		if(ramPage == updatePage)
+			this.writeEvent = true;
 	}	
 	
-	@Override
-	public void keyPressed(KeyEvent arg0)
-	{
 
-	}
+	@Override
+	public void keyPressed(KeyEvent e) 
+	{
+	    int keyCode = e.getKeyCode();
+	    if (keyCode == KeyEvent.VK_DOWN) 
+	    {
+	    	this.historyOffset -= 1;
+	    	if(this.historyOffset < 0)
+	    		this.historyOffset = 0;
+	    	System.out.println("Offset:" + historyOffset);
+	    	//this.repaint();
+	    }
+	    else if (keyCode == KeyEvent.VK_UP) 
+	    {
+	    	this.historyOffset += 1;
+	    	//this.repaint();
+	    	System.out.println("Offset:" + historyOffset);
+	    }	
+	}	
 
 	@Override
 	public void keyReleased(KeyEvent arg0)
 	{
 
 	}
-
+	
 	@Override
 	public void keyTyped(KeyEvent arg0)
 	{
@@ -265,9 +339,19 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener,
 		{
 		case 'c':
 			c.setEnabled(!c.isEnabled());
+			this.historyOffset = 0;
 			break;
 		case ' ':
 			c.pulse();
+			break;
+		case 's':
+			c.setSlow(!c.isSlow());
+			break;
+		case 'i':
+			if(emulator.getCPU() instanceof DeviceDebugger)
+			{
+				((DeviceDebugger)emulator.getCPU()).setEnabled("interrupt-hold",!((DeviceDebugger)emulator.getCPU()).isEnabled("interrupt-hold"));
+			}
 			break;
 		case 'r':
 			emulator.reset();
@@ -290,6 +374,9 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener,
 				//ramPageString = SystemEmulator.ram.getRAMString().substring(ramPage * 960, (ramPage + 1) * 960);
 				ramPageString = emulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
 			}
+			break;
+		default:
+			System.out.println("Key:" + arg0.getKeyCode() + ":" + arg0.getKeyChar());
 			break;
 		
 		

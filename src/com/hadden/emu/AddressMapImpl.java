@@ -3,8 +3,10 @@ package com.hadden.emu;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.Vector;
 
 import com.hadden.ROMLoader;
 import com.hadden.SystemEmulator;
@@ -29,7 +31,7 @@ public class AddressMapImpl implements Bus, AddressMap
 	private BusDevice defaultSpace = null;
 	private BusIRQ birq = null;
 
-	private BusListener busListener = null;
+	private List<BusListener> busListeners = new Vector<BusListener>();
 
 	public AddressMapImpl()
 	{
@@ -42,9 +44,9 @@ public class AddressMapImpl implements Bus, AddressMap
 		mappedAddressSpace.put(defaultSpace.getBusAddressRange().getHighAddress() + 1,defaultSpace);
 	}
 
-	public void setBusListener(BusListener bl)
+	public void addBusListener(BusListener bl)
 	{
-		this.busListener  = bl;
+		this.busListeners.add(bl);
 	}
 	
 	public void setIRQHandler(BusIRQ busIRQ)
@@ -217,8 +219,9 @@ public class AddressMapImpl implements Bus, AddressMap
 		}
 		byte v =  (byte) getMemoryMappedDevice(laddr).readAddressUnsigned(laddr, IOSize.IO8Bit);
 		
-		if(busListener!=null)
-			busListener.readListener(address);
+		if(busListeners!=null && busListeners.size() > 0)
+			for(BusListener b : busListeners)
+				b.readListener(address);
 		
 		return v;
 	}
@@ -238,9 +241,9 @@ public class AddressMapImpl implements Bus, AddressMap
 		
 		getMemoryMappedDevice(laddr).writeAddress(laddr, data,IOSize.IO8Bit);		
 
-		if(busListener!=null)
-			busListener.writeListener(address, data);
-
+		if(busListeners!=null && busListeners.size() > 0)
+			for(BusListener b : busListeners)
+				b.writeListener(address, data);
 	}
 
 

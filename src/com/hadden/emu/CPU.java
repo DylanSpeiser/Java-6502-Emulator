@@ -1,5 +1,7 @@
 package com.hadden.emu;
 
+import java.util.List;
+
 public interface CPU
 {
 	public enum ClockRateUnit
@@ -25,6 +27,7 @@ public interface CPU
 		public int      clocks;
 		public byte     flags;
 		public long     irqs;
+		public List<String> history;
 	};
 	
 	public String getName();
@@ -32,4 +35,5 @@ public interface CPU
 	public void reset();
 	public void clock();
 	public Telemetry getTelemetry();
+
 }

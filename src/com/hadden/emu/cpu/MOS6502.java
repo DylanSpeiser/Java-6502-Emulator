@@ -1252,4 +1252,5 @@ public class MOS6502 implements CPU
 	{
 		return telemetry;
 	}
+
 }
