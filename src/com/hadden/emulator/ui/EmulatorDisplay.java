@@ -8,10 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 import com.hadden.emu.BusListener;
-import com.hadden.emu.CPU;
-import com.hadden.emu.CPU.ClockRateUnit;
 import com.hadden.emu.CPU.Telemetry;
-import com.hadden.emu.VIA;
 import com.hadden.emulator.Clock;
 import com.hadden.emulator.DeviceDebugger;
 import com.hadden.emulator.Emulator;
