@@ -132,7 +132,7 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 		map.addBusDevice((BusDevice)ram)
 		   //.addBusDevice(new DisplayDevice(0x0000A000,40,10))
 		   //.addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("demo.rom")))   
-		   .addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\main.bin")))
+		   .addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("file://C:\\devprojects\\git\\Java-System-Emulator\\demo\\main.bin")))
 		   //.addBusDevice(new ROMDevice(0x00000200,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\multia-prg.bin")))
 		   //.addBusDevice(new ROMDevice(0x0000FFFA,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\multia-irq.bin")))
 		   //.addBusDevice(new ROMDevice(0x00000200,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\cdemo.bin")))
@@ -293,6 +293,12 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 	public Bus getBus()
 	{
 		return bus;
+	}
+
+	@Override
+	public String getMainTitle()
+	{
+		return this.getCPU().getName();
 	}
 	
 }

@@ -6,7 +6,7 @@ import com.hadden.emu.CPU;
 public interface Emulator
 {
 	String getSystemVersion();
-	String getTitle();
+	String getMainTitle();
 	Clock  getClock();
 	CPU    getCPU();
 	void   reset();

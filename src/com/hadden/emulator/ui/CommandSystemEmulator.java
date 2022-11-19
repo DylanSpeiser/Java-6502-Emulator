@@ -75,9 +75,9 @@ public class CommandSystemEmulator implements Emulator
 	};
 
 	@Override
-	public String getTitle()
+	public String getMainTitle()
 	{
-		return "Command Line Emulator";
+		return "Command Line";
 	}
 
 	private static boolean running = true;
@@ -137,5 +137,6 @@ public class CommandSystemEmulator implements Emulator
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 
 }
