@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.Collections;
 
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -38,6 +39,13 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 
 		this.title = ((Emulator) emulator).getMainTitle() + " Emulator";
 
+		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	    String[] fonts = env.getAvailableFontFamilyNames();
+		for(int i=0;i<fonts.length;i++)
+		{
+			System.out.println(fonts[i]);
+		}
+		
 		t = new javax.swing.Timer(16, this);
 		t.start();
 		setBackground(Color.blue);
@@ -56,18 +64,7 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 
 	public void mouseWheelMoved(MouseWheelEvent e) 
 	{
-		String newline = "\n";
-		String message;
-		int notches = e.getWheelRotation();
-		if (notches < 0)
-		{
-			message = "Mouse wheel moved UP " + -notches + " notch(es)" + newline;
-		}
-		else
-		{
-			message = "Mouse wheel moved DOWN " + notches + " notch(es)" + newline;
-		}
-		
+		int notches = e.getWheelRotation();		
 		if (notches < 0)
 	    {
 		    	this.historyOffset -= 1;
@@ -80,19 +77,7 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 		    	this.historyOffset += 1;
 		    	System.out.println("Offset:" + historyOffset);
 	    }
-	/*
-	 * if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) { message +=
-	 * "    Scroll type: WHEEL_UNIT_SCROLL" + newline; message +=
-	 * "    Scroll amount: " + e.getScrollAmount() + " unit increments per notch" +
-	 * newline; message += "    Units to scroll: " + e.getUnitsToScroll() +
-	 * " unit increments" + newline; //message += "    Vertical unit increment: " +
-	 * this.getVerticalScrollBar().getUnitIncrement(1) // + " pixels" + newline; }
-	 * else { // scroll type == MouseWheelEvent.WHEEL_BLOCK_SCROLL message +=
-	 * "    Scroll type: WHEEL_BLOCK_SCROLL" + newline; //message +=
-	 * "    Vertical block increment: " +
-	 * scrollPane.getVerticalScrollBar().getBlockIncrement(1) // + " pixels" +
-	 * newline; } System.out.println(message); }
-	 */
+
 	}
 	
 	public void paintComponent(Graphics g)
@@ -115,7 +100,9 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 		g.drawString(title, 40, 50);
 
 		// Version
-		g.setFont(new Font("Courier New Bold", 20, 20));
+		//g.setFont(new Font("Courier New Bold", 20, 20));
+		g.setFont(new Font("Monospaced", 20, 20));
+		
 		g.drawString("v" + emulator.getSystemVersion(), 7, 1033);
 
 		Telemetry t = emulator.getCPU().getTelemetry();

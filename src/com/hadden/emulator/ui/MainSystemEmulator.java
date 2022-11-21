@@ -104,18 +104,22 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 		// Final Setup
 		
 		emulatorDisplay.setVisible(true);
+		
 		emulatorDisplay.setSize(new Dimension(1920,1080));
+		this.setUndecorated(false);
 		this.setTitle("System Emulator");
 		this.setContentPane(emulatorDisplay);
 		this.setSize(new Dimension(1920,1080));
 		this.setVisible(true);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.setResizable(true);
+	
 	}
 
 	private void init()
 	{
 		ram = new RAMDevice(0x00000000,64*1024);
-		rom = new ROMDevice(0x00008000,ROMManager.loadROM("demo.rom"));
+		//rom = new ROMDevice(0x00008000,ROMManager.loadROM("demo.rom"));
 		
 		AddressMap map =  new AddressMapImpl((BusDevice)ram,
 	            new BusIRQ() 
@@ -132,7 +136,7 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 		map.addBusDevice((BusDevice)ram)
 		   //.addBusDevice(new DisplayDevice(0x0000A000,40,10))
 		   //.addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("demo.rom")))   
-		   .addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("file://C:\\devprojects\\git\\Java-System-Emulator\\demo\\main.bin")))
+		   .addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("file://./demo/main.bin")))
 		   //.addBusDevice(new ROMDevice(0x00000200,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\multia-prg.bin")))
 		   //.addBusDevice(new ROMDevice(0x0000FFFA,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\multia-irq.bin")))
 		   //.addBusDevice(new ROMDevice(0x00000200,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\cdemo.bin")))
