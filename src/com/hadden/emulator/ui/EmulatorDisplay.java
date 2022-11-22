@@ -237,10 +237,10 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 		g.drawString("Space - Pulse Clock", 35, 810);
 		g.drawString("R - Reset", 35, 840);
 		g.drawString("S - Toggle Slower " + (emulator.getClock().isSlow() ? "Disable" : "Enable"), 35, 870);
-		g.drawString(
-				"I - Toggle Interrupt "
-						+ (((DeviceDebugger) emulator.getCPU()).isEnabled("interrupt-hold") ? "Enable" : "Disable"),
-				35, 900);
+		g.drawString("I - Toggle Interrupt "+ 
+		             (((DeviceDebugger) emulator.getCPU()).isEnabled("interrupt-hold") ? "Enable" : "Disable"),
+				     35, 900);
+		
 		if (!emulator.getClock().isEnabled())
 			g.drawString("Cursors(Wheel) - Scroll History", 35, 930);
 		else
