@@ -34,7 +34,8 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 	
 	private String title = "";
 
-	private int defaultResetAddress = 0; 
+	private int defaultResetAddress = 0;
+	private int defaultResetVector = 0xFFFC; 
 	
 	private Emulator emulator;
 
@@ -211,6 +212,8 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 
 		g.drawString("Reset JMP: ", 35, 500);
 		g.drawString("0x" + Convert.toHex16String(defaultResetAddress), 160, 500);
+		g.drawString("Reset Vector: ", 35, 530);
+		g.drawString("0x" + Convert.toHex16String(defaultResetVector), 200, 530);
 		
 		int counter = 0;
 		String flagsString = "NVUBDIZC";
@@ -454,12 +457,43 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 			{
 				defaultResetAddress = 0x0000FFFF;
 			}
+			
+			emulator.getBus().write((short)defaultResetVector,  (byte)((defaultResetAddress) & 0x000000FF));
+			emulator.getBus().write((short)(defaultResetVector+1),  (byte)((defaultResetAddress >> 8) & 0x000000FF));
+			
+			System.out.print("0x" + Convert.toHex8String(emulator.getBus().read((short)(defaultResetVector+1))));
+			System.out.println(Convert.toHex8String(emulator.getBus().read((short)defaultResetVector)));
+			
 			break;
 		case '>':
 			defaultResetAddress++;
 			if (defaultResetAddress > 0x0000FFFF)
 			{
 				defaultResetAddress = 0x00000000;
+			}
+
+			emulator.getBus().write((short)defaultResetVector,  (byte)((defaultResetAddress) & 0x000000FF));
+			emulator.getBus().write((short)(defaultResetVector+1),  (byte)((defaultResetAddress >> 8) & 0x000000FF));
+			
+			
+			System.out.print("0x" + Convert.toHex8String(emulator.getBus().read((short)(defaultResetVector+1))));
+			System.out.println(Convert.toHex8String(emulator.getBus().read((short)defaultResetVector)));
+			
+			break;
+		case ',':
+			defaultResetVector--;
+			if (defaultResetVector < 0)
+			{
+				defaultResetVector = 0x0000FFFF;
+			}
+			
+			
+			break;
+		case '.':
+			defaultResetVector++;
+			if (defaultResetVector > 0x0000FFFF)
+			{
+				defaultResetVector = 0x00000000;
 			}
 			break;
 
