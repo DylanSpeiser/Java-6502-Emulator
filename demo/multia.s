@@ -15,10 +15,11 @@
 ;[0000:AFA0] TEXT-PALETTEPORT
 .segment  "VECTORS"
 
+# 6502 Vectors
 .addr      _nmi_int    ; NMI vector
 .addr      _init       ; Reset vector
 .addr      _irq_int    ; IRQ/BRK vector
-;.addr      _break    ; IRQ/BRK vector
+
     	
 .segment  "CODE"
 
