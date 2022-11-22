@@ -2,10 +2,14 @@ package com.hadden.emulator.ui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.Collections;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerListModel;
 import javax.swing.Timer;
 
 import com.hadden.emu.BusListener;
@@ -27,8 +31,11 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 
 	public String ramPageString = "";
 	public String romPageString = "";
+	
 	private String title = "";
 
+	private int defaultResetAddress = 0; 
+	
 	private Emulator emulator;
 
 	public EmulatorDisplay(Emulator emulator)
@@ -37,6 +44,18 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 
 		this.emulator = emulator;
 
+		
+		if(System.getProperty("emulator.resetJMP") != null)
+		{
+			String dra = System.getProperty("emulator.resetJMP");
+			if(dra.startsWith("0x"))
+			{
+				dra = dra.replace("0x", "");
+				defaultResetAddress = Integer.parseInt(dra,16);
+			}
+			else
+				defaultResetAddress = Integer.parseInt(dra);
+		}
 		this.title = ((Emulator) emulator).getMainTitle() + " Emulator";
 
 		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -190,6 +209,9 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 		g.drawString("Cycles: " + t.cycles, 35, 440);
 		g.drawString("IRQs  : " + t.irqs, 35, 470);
 
+		g.drawString("Reset JMP: ", 35, 500);
+		g.drawString("0x" + Convert.toHex16String(defaultResetAddress), 160, 500);
+		
 		int counter = 0;
 		String flagsString = "NVUBDIZC";
 		for (char c : Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.flags)), 8).toCharArray())
@@ -245,6 +267,8 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 			g.drawString("Cursors(Wheel) - Scroll History", 35, 930);
 		else
 			g.drawString("Cursors(Wheel) - Scroll History Disabled", 35, 930);
+		
+		g.drawString("< & > - Default Reset Address", 35, 960);
 	}
 
 	public static void drawString(Graphics g, String text, int x, int y)
@@ -423,6 +447,22 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 				ramPageString = emulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
 			}
 			break;
+
+		case '<':
+			defaultResetAddress--;
+			if (defaultResetAddress < 0)
+			{
+				defaultResetAddress = 0x0000FFFF;
+			}
+			break;
+		case '>':
+			defaultResetAddress++;
+			if (defaultResetAddress > 0x0000FFFF)
+			{
+				defaultResetAddress = 0x00000000;
+			}
+			break;
+
 		default:
 			System.out.println("Key:" + arg0.getKeyCode() + ":" + arg0.getKeyChar());
 			break;
