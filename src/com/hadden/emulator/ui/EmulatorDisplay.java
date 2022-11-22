@@ -100,8 +100,10 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 		g.drawString(title, 40, 50);
 
 		// Version
-		//g.setFont(new Font("Courier New Bold", 20, 20));
-		g.setFont(new Font("Monospaced", 20, 20));
+		if(System.getProperty("os.name").toLowerCase().contains("windows"))
+			g.setFont(new Font("Courier New Bold", Font.BOLD, 20));
+		else
+			g.setFont(new Font("Monospaced", Font.BOLD, 20));
 		
 		g.drawString("v" + emulator.getSystemVersion(), 7, 1033);
 
@@ -240,8 +242,9 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 						+ (((DeviceDebugger) emulator.getCPU()).isEnabled("interrupt-hold") ? "Enable" : "Disable"),
 				35, 900);
 		if (!emulator.getClock().isEnabled())
-			g.drawString("Cursors - Scroll History", 35, 930);
-
+			g.drawString("Cursors(Wheel) - Scroll History", 35, 930);
+		else
+			g.drawString("Cursors(Wheel) - Scroll History Disabled", 35, 930);
 	}
 
 	public static void drawString(Graphics g, String text, int x, int y)

@@ -565,7 +565,7 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 					     Convert.byteToHexString(opcode) + " ");
 			
 			//System.out.println("addressAbsolute[" + dbgOp.opcode + ":" + dbgOp.addressMode  + "]:" +  addressAbsolute);
-			System.out.println("addressAbsolute[" + dbgOp.opcode + ":" + dbgOp.addressMode  + "]:" +  Convert.toHex16String(addressAbsolute));
+			//System.out.println("addressAbsolute[" + dbgOp.opcode + ":" + dbgOp.addressMode  + "]:" +  Convert.toHex16String(addressAbsolute));
 			
 			
 			if (!(dbgOp.addressMode.equals("IMP") || 
@@ -573,7 +573,7 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 			{
 				if (dbgOp.addressMode.equals("IMM"))
 				{
-					System.out.println("addressAbsolute IMM:" + Convert.toHex8String(addressAbsolute));
+					//System.out.println("addressAbsolute IMM:" + Convert.toHex8String(addressAbsolute));
 					//debugLine+=("#$" + Integer.toHexString(Byte.toUnsignedInt(fetched))); 
 					debugLine+=("#$" + Convert.toHex8String(addressAbsolute));
 				}
@@ -605,7 +605,7 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 				
 				else
 				{
-					System.out.println("addressAbsolute ELSE:" +  Convert.toHex16String(addressAbsolute));
+					//System.out.println("addressAbsolute ELSE:" +  Convert.toHex16String(addressAbsolute));
 					//debugLine+=("$" + Integer.toHexString(Short.toUnsignedInt(addressAbsolute)  & 0x0000FFFF));
 					debugLine+=("$" + Convert.toHex16String(addressAbsolute));
 				}
@@ -700,6 +700,23 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 		opcode = cpuBus.read(programCounter);
 	}
 
+	private byte pushStack(byte value)
+	{
+		cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), value);
+		stackPointer--;
+		
+		return stackPointer;
+	}
+
+	private byte popStack()
+	{
+		stackPointer++;
+		byte value = cpuBus.read((short) (0x0100 + Byte.toUnsignedInt(stackPointer)));
+		
+		return value;
+	}
+
+	
 	void irq()
 	{
 
@@ -721,15 +738,18 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 			if(historyEnabled)
 				history.add("IRQ PC:" + Integer.toHexString(programCounter & 0xFFFF));
 			
-			cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) (programCounter >> 8));
-			stackPointer--;
-			cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) (programCounter));
-			stackPointer--;
-
+			//cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) (programCounter >> 8));
+			//stackPointer--;
+			pushStack((byte) (programCounter >> 8));
+			//cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) (programCounter));
+			//stackPointer--;
+			pushStack((byte)programCounter);
+			
 			setFlag('B', false);
 			setFlag('U', false);
-			cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), flags);
-			stackPointer--;
+			//cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), flags);
+			//stackPointer--;
+			pushStack(flags);
 			setFlag('I', true);
 
 			addressAbsolute = (short) (0xFFFE);
@@ -764,15 +784,18 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 
 	void nmi()
 	{
-		cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) (programCounter >> 8));
-		stackPointer--;
-		cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) (programCounter));
-		stackPointer--;
-
+		//cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) (programCounter >> 8));
+		//stackPointer--;
+		pushStack((byte) (programCounter >> 8));
+		//cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) (programCounter));
+		//stackPointer--;
+		pushStack((byte) (programCounter));
+		
 		setFlag('B', false);
 		setFlag('U', false);
-		cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), flags);
-		stackPointer--;
+		//cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), flags);
+		//stackPointer--;
+		pushStack((byte) (flags));
 		setFlag('I', true);
 
 		addressAbsolute = (short) (0xFFFA);
@@ -1050,15 +1073,18 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 	{
 		programCounter++;
 
-		cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) (programCounter >> 8));
-		stackPointer--;
-		cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) (programCounter));
-		stackPointer--;
-
+		//cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) (programCounter >> 8));
+		//stackPointer--;
+		pushStack((byte) (programCounter >> 8));
+		//cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) (programCounter));
+		//stackPointer--;
+		pushStack((byte) (programCounter));
+		
 		setFlag('B', true);
 		setFlag('U', true);
-		cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), flags);
-		stackPointer--;
+		//cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), flags);
+		//stackPointer--;
+		pushStack((byte) flags);
 		setFlag('I', true);
 
 		addressAbsolute = (short) 0xFFFE;
@@ -1211,11 +1237,13 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 	{
 		programCounter--;
 
-		cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) ((programCounter >> 8) & 0x00FF));
-		stackPointer--;
-		cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) (programCounter & 0x00FF));
-		stackPointer--;
-
+		//cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) ((programCounter >> 8) & 0x00FF));
+		//stackPointer--;
+		pushStack((byte)  ((programCounter >> 8) & 0x00FF));
+		//cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) (programCounter & 0x00FF));
+		//stackPointer--;
+		pushStack((byte)  (programCounter & 0x00FF));
+		
 		programCounter = addressAbsolute;
 	}
 
@@ -1280,59 +1308,67 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 
 	public void PHA()
 	{
-		cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), a);
-		stackPointer--;
+		//cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), a);
+		//stackPointer--;
+		pushStack(a);
 	}
 
 	public void PHX()
 	{
-		cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), x);
-		stackPointer--;
+		//cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), x);
+		//stackPointer--;
+		pushStack(x);
 	}
 
 	public void PHY()
 	{
-		cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), y);
-		stackPointer--;
+		//cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), y);
+		//stackPointer--;
+		pushStack(y);
 	}
 
 	
 	public void PHP()
 	{
 		cpuBus.write((short) (0x0100 + Byte.toUnsignedInt(stackPointer)), (byte) (flags | 0b00110000));
+		stackPointer--;
+		pushStack((byte) (flags | 0b00110000));
 		setFlag('B', false);
 		setFlag('U', false);
-		stackPointer--;
 	}
 
 	public void PLA()
 	{
-		stackPointer++;
-		a = cpuBus.read((short) (0x0100 + Byte.toUnsignedInt(stackPointer)));
+		//stackPointer++;
+		//a = cpuBus.read((short) (0x0100 + Byte.toUnsignedInt(stackPointer)));
+		a = popStack();
 		setFlag('Z', a == 0);
 		setFlag('N', (a & 0x80) == 0x80);
 	}
 
 	public void PLX()
 	{
-		stackPointer++;
-		x = cpuBus.read((short) (0x0100 + Byte.toUnsignedInt(stackPointer)));
+		//stackPointer++;
+		//x = cpuBus.read((short) (0x0100 + Byte.toUnsignedInt(stackPointer)));
+		x = popStack();
 		setFlag('Z', a == 0);
 		setFlag('N', (a & 0x80) == 0x80);
 	}	
 	
 	public void PLY()
 	{
-		stackPointer++;
-		y = cpuBus.read((short) (0x0100 + Byte.toUnsignedInt(stackPointer)));
+		//stackPointer++;
+		//y = cpuBus.read((short) (0x0100 + Byte.toUnsignedInt(stackPointer)));
+		y = popStack();
 		setFlag('Z', a == 0);
 		setFlag('N', (a & 0x80) == 0x80);
 	}
 	
 	public void PLP()
 	{
-		stackPointer++;
-		flags = cpuBus.read((short) (0x0100 + Byte.toUnsignedInt(stackPointer)));
+		//stackPointer++;
+		//flags = cpuBus.read((short) (0x0100 + Byte.toUnsignedInt(stackPointer)));
+		flags = popStack();
 		setFlag('U', true);
 	}
 
@@ -1373,15 +1409,18 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 	public void RTI()
 	{
 		//System.out.println("**RTI**");		
-		stackPointer++;
-		flags = cpuBus.read((short) (0x100 + Byte.toUnsignedInt(stackPointer)));
+		//stackPointer++;
+		//flags = cpuBus.read((short) (0x100 + Byte.toUnsignedInt(stackPointer)));
+		flags = popStack();
 		flags = (byte) (flags & (getFlag('B') ? 0b11101111 : 0));
 		flags = (byte) (flags & (getFlag('U') ? 0b11011111 : 0));
 
-		stackPointer++;
-		byte lo = cpuBus.read((short) (0x100 + Byte.toUnsignedInt(stackPointer)));
-		stackPointer++;
-		byte hi = cpuBus.read((short) (0x100 + Byte.toUnsignedInt(stackPointer)));
+		//stackPointer++;
+		//byte lo = cpuBus.read((short) (0x100 + Byte.toUnsignedInt(stackPointer)));
+		byte lo = popStack();
+		//stackPointer++;
+		//byte hi = cpuBus.read((short) (0x100 + Byte.toUnsignedInt(stackPointer)));
+		byte hi = popStack();
 		programCounter = (short) (Byte.toUnsignedInt(lo) + 256 * Byte.toUnsignedInt(hi));
 		
 		//System.out.println("RTI PC:" + Integer.toHexString(programCounter & 0xFFFF) );
@@ -1392,12 +1431,15 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 
 	public void RTS()
 	{
-		stackPointer++;
-		byte lo = cpuBus.read((short) (0x100 + Byte.toUnsignedInt(stackPointer)));
-		stackPointer++;
-		byte hi = cpuBus.read((short) (0x100 + Byte.toUnsignedInt(stackPointer)));
+		//stackPointer++;
+		//byte lo = cpuBus.read((short) (0x100 + Byte.toUnsignedInt(stackPointer)));
+		byte lo = popStack();
+		//stackPointer++;
+		//byte hi = cpuBus.read((short) (0x100 + Byte.toUnsignedInt(stackPointer)));
+		byte hi = popStack();
 		programCounter = (short) (Byte.toUnsignedInt(lo) + 256 * Byte.toUnsignedInt(hi));
-
+		
+		
 		programCounter++;
 	}
 
@@ -1433,8 +1475,8 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 
 	public void STA()
 	{
-		System.out.println("STA:" +  addressAbsolute);
-		System.out.println("STA:" +  Integer.toHexString((int)addressAbsolute & 0x0000FFFF));
+		//System.out.println("STA:" +  addressAbsolute);
+		//System.out.println("STA:" +  Integer.toHexString((int)addressAbsolute & 0x0000FFFF));
 		cpuBus.write(addressAbsolute, a);
 	}
 
