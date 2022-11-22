@@ -77,6 +77,8 @@ public class CPU {
 		lookup[0xD0] = new Instruction("BNE","REL",2);
 		
 		lookup[0x10] = new Instruction("BPL","REL",2);
+
+		lookup[0x80] = new Instruction("BRA","REL",2);
 		
 		lookup[0x00] = new Instruction("BRK","IMP",2);
 		
@@ -182,10 +184,18 @@ public class CPU {
 		lookup[0x48] = new Instruction("PHA","IMP",3);
 		
 		lookup[0x08] = new Instruction("PHP","IMP",3);
+
+		lookup[0xDA] = new Instruction("PHX","IMP",3);
+
+		lookup[0x5A] = new Instruction("PHY","IMP",3);
 		
 		lookup[0x68] = new Instruction("PLA","IMP",4);
 		
 		lookup[0x28] = new Instruction("PLP","IMP",4);
+
+		lookup[0xFA] = new Instruction("PLX", "IMP",4);
+
+		lookup[0x7A] = new Instruction("PLY","IMP",4);
 		
 		lookup[0x2A] = new Instruction("ROL","IMP",2);
 		lookup[0x26] = new Instruction("ROL","ZPP",5);
@@ -233,6 +243,11 @@ public class CPU {
 		lookup[0x84] = new Instruction("STY","ZPP",3);
 		lookup[0x94] = new Instruction("STY","ZPX",4);
 		lookup[0x8C] = new Instruction("STY","ABS",4);
+
+		lookup[0x64] = new Instruction("STZ","ZPP",3);
+		lookup[0x74] = new Instruction("STZ","ZPX",4);
+		lookup[0x9C] = new Instruction("STZ","ABS",4);
+		lookup[0x9E] = new Instruction("STZ","ABX",4);
 		
 		lookup[0xAA] = new Instruction("TAX","IMP",2);
 		
@@ -444,6 +459,9 @@ public class CPU {
 			case "BPL":
 				BPL();
 			break;
+			case "BRA":
+				BRA();
+			break;
 			case "BRK":
 				BRK();
 			break;
@@ -525,11 +543,23 @@ public class CPU {
 			case "PHP":
 				PHP();
 			break;
+			case "PHX":
+				PHX();
+			break;
+			case "PHY":
+				PHY();
+			break;
 			case "PLA":
 				PLA();
 			break;
 			case "PLP":
 				PLP();
+			break;
+			case "PLX":
+				PLX();
+			break;
+			case "PLY":
+				PLY();
 			break;
 			case "ROL":
 				ROL();
@@ -563,6 +593,9 @@ public class CPU {
 			break;
 			case "STY":
 				STY();
+			break;
+			case "STZ":
+				STZ();
 			break;
 			case "TAX":
 				TAX();
@@ -887,6 +920,16 @@ public class CPU {
 		}
 	}
 		
+	public void BRA() {
+		cycles++;
+		addressAbsolute = (short)(programCounter+addressRelative);
+		
+		if ((addressAbsolute&0xFF00) != (programCounter & 0xFF00))
+			cycles++;
+			
+		programCounter = addressAbsolute;
+	}
+		
 	public void BRK() {
 		programCounter++;
 		
@@ -1098,6 +1141,16 @@ public class CPU {
 		setFlag('U',false);
 		stackPointer--;
 	}
+
+	public void PHX() {
+		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), x);
+		stackPointer--;
+	}
+		
+	public void PHY() {
+		Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), y);
+		stackPointer--;
+	}
 		
 	public void PLA() {
 		stackPointer++;
@@ -1110,6 +1163,20 @@ public class CPU {
 		stackPointer++;
 		flags = Bus.read((short)(0x0100+Byte.toUnsignedInt(stackPointer)));
 		setFlag('U', true);
+	}
+		
+	public void PLX() {
+		stackPointer++;
+		x = Bus.read((short)(0x0100+Byte.toUnsignedInt(stackPointer)));
+		setFlag('Z', x == 0);
+		setFlag('N', (x & 0x80) == 0x80);
+	}
+		
+	public void PLY() {
+		stackPointer++;
+		y = Bus.read((short)(0x0100+Byte.toUnsignedInt(stackPointer)));
+		setFlag('Z', y == 0);
+		setFlag('N', (y & 0x80) == 0x80);
 	}
 		
 	public void ROL() {
@@ -1195,6 +1262,10 @@ public class CPU {
 		
 	public void STY() {
 		Bus.write(addressAbsolute, y);
+	}
+
+	public void STZ() {
+		Bus.write(addressAbsolute, (byte)0);
 	}
 		
 	public void TAX() {
