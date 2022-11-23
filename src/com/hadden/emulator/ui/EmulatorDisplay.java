@@ -38,6 +38,7 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 	private int defaultResetVector = 0xFFFC; 
 	
 	private Emulator emulator;
+	private JFrame editorFrame;
 
 	public EmulatorDisplay(Emulator emulator)
 	{
@@ -409,6 +410,24 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 
 		switch (arg0.getKeyChar())
 		{
+		case 'e':
+			
+			if(editorFrame == null)
+			{
+				editorFrame = SystemCodeEditor.createAndShowGUI();
+				
+				editorFrame.addWindowListener(new WindowAdapter()
+				{
+				    @Override
+				    public void windowClosing(WindowEvent e)
+				    {
+				      System.out.println("Code Window Closed");
+				      e.getWindow().dispose();
+				      editorFrame = null;
+				    }
+				});
+			}
+			break;
 		case 'c':
 			c.setEnabled(!c.isEnabled());
 			this.historyOffset = 0;
