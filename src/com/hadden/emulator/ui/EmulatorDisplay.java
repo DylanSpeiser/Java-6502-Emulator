@@ -260,18 +260,19 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 		g.drawString("Controls:", 50, 750);
 		g.drawString("C - Toggle Clock", 35, 780);
 		g.drawString("Space - Pulse Clock", 35, 810);
-		g.drawString("R - Reset", 35, 840);
-		g.drawString("S - Toggle Slower " + (emulator.getClock().isSlow() ? "Disable" : "Enable"), 35, 870);
+		g.drawString("R - Reset System", 35, 840);
+		g.drawString("P - Reset CPU", 35, 870);
+		g.drawString("S - Toggle Slower " + (emulator.getClock().isSlow() ? "Disable" : "Enable"), 35, 900);
 		g.drawString("I - Toggle Interrupt "+ 
 		             (((DeviceDebugger) emulator.getCPU()).isEnabled("interrupt-hold") ? "Enable" : "Disable"),
-				     35, 900);
+				     35, 930);
 		
 		if (!emulator.getClock().isEnabled())
-			g.drawString("Cursors(Wheel) - Scroll History", 35, 930);
+			g.drawString("Cursors(Wheel) - Scroll History", 35, 960);
 		else
-			g.drawString("Cursors(Wheel) - Scroll History Disabled", 35, 930);
+			g.drawString("Cursors(Wheel) - Scroll History Disabled", 35, 960);
 		
-		g.drawString("< & > - Default Reset Address", 35, 960);
+		g.drawString("< & > - Default Reset Address", 35, 990);
 	}
 
 	public static void drawString(Graphics g, String text, int x, int y)
@@ -431,6 +432,9 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 			// * 960, (ramPage + 1) * 960);
 
 			System.out.println("Size: " + this.getWidth() + " x " + this.getHeight());
+			break;
+		case 'p':
+			emulator.getCPU().reset();
 			break;
 		case 'j':
 			if (ramPage < 0xFF)
