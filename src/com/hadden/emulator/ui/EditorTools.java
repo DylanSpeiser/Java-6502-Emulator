@@ -86,9 +86,9 @@ public class EditorTools extends JPanel implements ActionListener
 	protected JButton makeNavigationButton(String imageName, String actionCommand, String toolTipText, String altText)
 	{
 //Look for the image.
-		String imgLocation = "images/" + imageName + ".gif";
-		URL imageURL = EditorTools.class.getResource(imgLocation);
-
+		String imgLocation = "/resources/images/" + imageName + ".gif";
+		//URL imageURL = EditorTools.class.getResource(imgLocation);
+		URL imageURL = this.getClass().getResource(imgLocation);
 //Create and initialize the button.
 		JButton button = new JButton();
 		button.setActionCommand(actionCommand);
