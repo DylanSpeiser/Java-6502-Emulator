@@ -59,8 +59,10 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 	private MOS65C02A cpu;
 	
 	
-	public MainSystemEmulator()
+	public MainSystemEmulator(String projectDir)
 	{
+		System.out.println("MainSystemEmulator::PROJECT:" + projectDir);	
+		
 		init();
 		
 		emulatorDisplay = new EmulatorDisplay(this);
@@ -150,7 +152,7 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 		
 
 		map.printAddressMap();
-		System.out.println(  ((Bus)map).dumpBytesAsString());
+		//System.out.println(  ((Bus)map).dumpBytesAsString());
 		
 		//SystemEmulator.enableDebug(true);
 		
@@ -243,7 +245,21 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 	*/
 	public static void main(String[] args)
 	{
-		emu = new MainSystemEmulator();		
+		String projectDir = null;
+		
+		if(args.length > 0)
+		{
+			for(int i=0;i<args.length;i++)
+			{
+				System.out.println("Args:" + args[i]);
+				if("--project".equals(args[i]))
+				{
+					i++;
+					projectDir = args[i];				
+				}
+			}
+		}
+		emu = new MainSystemEmulator(projectDir);		
 	}
 
 	@Override
