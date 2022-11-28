@@ -20,7 +20,6 @@
 
 .segment  "CODE"
 
-
 _init:
 	CLI
 _init2:

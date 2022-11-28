@@ -28,6 +28,9 @@ import com.hadden.emulator.Clock;
 import com.hadden.emulator.ClockLine;
 import com.hadden.emulator.Emulator;
 import com.hadden.emulator.cpu.MOS.MOS65C02A;
+import com.hadden.emulator.project.CC65ProjectImpl;
+import com.hadden.emulator.project.Project;
+import com.hadden.emulator.project.ProjectImpl;
 
 @SuppressWarnings("serial")
 public class MainSystemEmulator extends JFrame implements ActionListener, Emulator
@@ -59,10 +62,8 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 	private MOS65C02A cpu;
 	
 	
-	public MainSystemEmulator(String projectDir)
+	public MainSystemEmulator()
 	{
-		System.out.println("MainSystemEmulator::PROJECT:" + projectDir);	
-		
 		init();
 		
 		emulatorDisplay = new EmulatorDisplay(this);
@@ -243,25 +244,6 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 			System.out.println(message);
 	}
 	*/
-	public static void main(String[] args)
-	{
-		String projectDir = null;
-		
-		if(args.length > 0)
-		{
-			for(int i=0;i<args.length;i++)
-			{
-				System.out.println("Args:" + args[i]);
-				if("--project".equals(args[i]))
-				{
-					i++;
-					projectDir = args[i];				
-				}
-			}
-		}
-		emu = new MainSystemEmulator(projectDir);		
-	}
-
 	@Override
 	public Clock getClock()
 	{
@@ -320,5 +302,34 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 	{
 		return this.getCPU().getName();
 	}
+
+	public static void main(String[] args)
+	{
+		String projectDir = null;
+		
+		if(args.length > 0)
+		{
+			for(int i=0;i<args.length;i++)
+			{
+				//System.out.println("Args:" + args[i]);
+				if("--project".equals(args[i]))
+				{
+					i++;
+					if(i < args.length)
+					{
+						projectDir = args[i];
+						Project p = new CC65ProjectImpl(projectDir);
+						
+						p.getFiles();
+						p.compile();
+						
+					}
+				}
+			}
+		}
+		
+		emu = new MainSystemEmulator();		
+	}
+	
 	
 }

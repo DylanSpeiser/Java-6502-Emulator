@@ -60,13 +60,14 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 		}
 		this.title = ((Emulator) emulator).getMainTitle() + " Emulator";
 
+		/*
 		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	    String[] fonts = env.getAvailableFontFamilyNames();
 		for(int i=0;i<fonts.length;i++)
 		{
 			System.out.println(fonts[i]);
 		}
-		
+		*/
 		t = new javax.swing.Timer(16, this);
 		t.start();
 		setBackground(Color.blue);
