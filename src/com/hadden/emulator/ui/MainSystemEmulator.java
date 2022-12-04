@@ -46,6 +46,8 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 	public static JButton ROMopenButton = new JButton("Open ROM File");
 	public static JButton RAMopenButton = new JButton("Open RAM File");
 
+	private static String platform;
+
 	
 
 	public EmulatorDisplay emulatorDisplay = null;
@@ -306,6 +308,14 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 	public static void main(String[] args)
 	{
 		String projectDir = null;
+		
+		MainSystemEmulator.platform = System.getProperty("os.name").toLowerCase();
+		
+		if(!MainSystemEmulator.platform.contains("windows"))
+		{
+			JDialog.setDefaultLookAndFeelDecorated(true);
+			JFrame.setDefaultLookAndFeelDecorated(true);		
+		}
 		
 		if(args.length > 0)
 		{

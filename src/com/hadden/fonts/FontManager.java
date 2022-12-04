@@ -63,8 +63,9 @@ public class FontManager
 		
 		try
 		{
-			URL url = FontManager.class.getResource(fontName);			
-			font = Font.createFont(Font.TRUETYPE_FONT, url.openStream()).deriveFont(scale);
+			URL url = FontManager.class.getResource(fontName);	
+			System.out.println("FontManager:URL:" + url);
+			font = Font.createFont(Font.TRUETYPE_FONT | Font., url.openStream()).deriveFont(scale);
 		} 
 		catch (Exception e)
 		{

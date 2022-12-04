@@ -54,12 +54,16 @@ public class CC65ProjectImpl implements Project
 				if(src.length() >0)
 					src+=" ";
 				src+=(s);
-				commandline.add(s);
+				commandline.add(projectDir + File.separator + s);
+				commandline.add("-o");
+				commandline.add(projectDir + File.separator + s.replace(".s",".o"));
 			}
 		}
 		System.out.println("SRC:" + src);
 		
 		//commandline.add(cfg);
+		
+		
 		
 		for(String s : commandline)
 			System.out.println("commandline:" + s);
@@ -108,7 +112,16 @@ public class CC65ProjectImpl implements Project
 		
 		for(String s : commandline)
 			System.out.println("commandline:" + s);
-		//Runtime.getRuntime().exec("cc65 " + src );
+		
+		try
+		{
+			Runtime.getRuntime().exec(commandline.toArray(new String[commandline.size()]));
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return 0;
 
 	}
