@@ -1,4 +1,4 @@
 project.name="multitasking"
 
-project.tool.dir=C:\\devtools\\cc65
-project.tool.bin=C:\\devtools\\cc65\\bin
+#project.tool.dir=C:\\devtools\\cc65
+#project.tool.bin=C:\\devtools\\cc65\\bin

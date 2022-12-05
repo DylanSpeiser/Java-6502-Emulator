@@ -170,8 +170,11 @@ public class CC65ProjectImpl implements Project
 		
 		List<String> commandline = new Vector<String>();
 		
+		if(project.getProperty("project.tool.bin")!=null)
+			commandline.add(project.getProperty("project.tool.bin") + File.separator + "ca65");
+		else
+			commandline.add("ca65");
 		
-		commandline.add(project.getProperty("project.tool.bin") + File.separator + "ca65");
 		commandline.add("--debug");
 		for(File s : files)
 		{
@@ -231,7 +234,12 @@ public class CC65ProjectImpl implements Project
 		String cfg = "";
 
 		List<String> commandline = new Vector<String>();
-		commandline.add(project.getProperty("project.tool.bin") + File.separator + "cl65");
+		
+		if(project.getProperty("project.tool.bin")!=null)
+			commandline.add(project.getProperty("project.tool.bin") + File.separator + "cl65");
+		else
+			commandline.add("cl65");
+		
 		commandline.add("--verbose");
 		
 		for(File s : files)
