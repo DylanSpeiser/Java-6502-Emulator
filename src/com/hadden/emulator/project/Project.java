@@ -1,8 +1,10 @@
 package com.hadden.emulator.project;
 
+import java.io.File;
+
 public interface Project
 {
-	String[] getFiles();
+	File[] getFiles();
 	int compile();
 	int link();
 }

@@ -21,7 +21,7 @@ public class ProjectImpl implements Project
 	}
 
 	@Override
-	public String[] getFiles()
+	public File[] getFiles()
 	{
 		// TODO Auto-generated method stub
 		return null;

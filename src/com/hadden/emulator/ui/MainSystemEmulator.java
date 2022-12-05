@@ -332,6 +332,7 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 						
 						p.getFiles();
 						p.compile();
+						p.link();
 						
 					}
 				}
