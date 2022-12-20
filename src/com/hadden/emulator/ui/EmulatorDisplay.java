@@ -40,6 +40,15 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 	private Emulator emulator;
 	private JFrame editorFrame;
 
+	
+	public interface ApplicationEvent 
+	{
+	}
+
+	public interface ApplicationEventHandler 
+	{
+	}
+	
 	public EmulatorDisplay(Emulator emulator)
 	{
 		super(null);
@@ -169,7 +178,7 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 		drawString(g, ramPageString, rightAlignHelper - 779, 150);
 
 		// ROM
-		g.drawString("ROM", rightAlignHelper - 214, 130);
+		g.drawString("DEBUG", rightAlignHelper - 214, 130);
 		drawString(g, romPageString, rightAlignHelper - 379, 150);
 
 		// CPU
@@ -396,6 +405,8 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 			// this.repaint();
 			System.out.println("Offset:" + historyOffset);
 		}
+
+		
 	}
 
 	@Override
@@ -522,7 +533,13 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 			break;
 
 		default:
-			System.out.println("Key:" + arg0.getKeyCode() + ":" + arg0.getKeyChar());
+			switch( (int)arg0.getKeyChar() )
+			{
+			case 10:
+				System.out.println("CTL-M");
+				break;
+			}
+			System.out.println("Key:" + arg0.getKeyCode() + ":" + arg0.getKeyChar() + "(" + (int)arg0.getKeyChar() + ") " + arg0.getModifiers());
 			break;
 
 		}
