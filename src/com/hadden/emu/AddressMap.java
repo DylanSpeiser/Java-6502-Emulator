@@ -13,6 +13,7 @@ public interface AddressMap
 	public void printAddressMap();
 	public void addBusListener(BusListener listener);
 	public Collection<BusDevice> getDevices();
+	public void removeDevices();
 	
 	static public String toHexAddress(int address, IOSize size)
 	{
