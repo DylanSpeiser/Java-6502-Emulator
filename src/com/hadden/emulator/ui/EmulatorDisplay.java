@@ -531,6 +531,7 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 
 			}
 		}		
+
 		
 	}
 
