@@ -8,9 +8,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.*;
 
+import com.dst.util.system.io.FileMonitor;
 import com.hadden.emu.AddressMap;
 import com.hadden.emu.AddressMapImpl;
 import com.hadden.emu.Bus;
@@ -19,6 +22,7 @@ import com.hadden.emu.BusDevice;
 import com.hadden.emu.BusIRQ;
 import com.hadden.emu.BusListener;
 import com.hadden.emu.CPU;
+import com.hadden.emu.BusDevice.IOSize;
 import com.hadden.emu.impl.DisplayDevice;
 import com.hadden.emu.impl.RAMDevice;
 import com.hadden.emu.impl.ROMDevice;
@@ -62,12 +66,20 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 	private Bus bus;
 
 	private MOS65C02A cpu;
+
+	private FileMonitor monitoredBinary;
 	
 	
 	public MainSystemEmulator()
 	{
 		init();
 		
+		initDisplay();
+	
+	}
+
+	private void initDisplay() 
+	{
 		emulatorDisplay = new EmulatorDisplay(this);
 		((AddressMap)this.getBus()).addBusListener(emulatorDisplay);
 		
@@ -118,9 +130,9 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 		this.setVisible(true);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setResizable(true);
-	
 	}
 
+	@SuppressWarnings("deprecation")
 	private void init()
 	{
 		ram = new RAMDevice(0x00000000,64*1024);
@@ -156,11 +168,72 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 
 		map.printAddressMap();
 		//System.out.println(  ((Bus)map).dumpBytesAsString());
-		
-		//SystemEmulator.enableDebug(true);
+
 		
 		bus = (Bus)map;
 		cpu = new MOS65C02A(bus);
+
+		((AddressMap)bus).addBusListener(new BusListener()
+		{
+
+			@Override
+			public void readListener(short address) 
+			{
+			}
+
+			@Override
+			public void writeListener(short address, byte data) 
+			{
+				if((address & 0x0000FFFF) == 0xA012)
+				{
+					System.out.println("DEBUG ADDRESS changed:" + AddressMap.toHexAddress(data, IOSize.IO8Bit));
+				}
+			}
+			
+		});
+		
+		
+		monitoredBinary = new FileMonitor(new File("./demo/projectB/main.bin"));
+		monitoredBinary.addObserver(new Observer() 
+		{
+			@Override
+			public void update(Observable o, Object arg) 
+			{
+				System.out.println("monitoredBinary changed!");
+				
+				clock.setEnabled(false);
+				
+				((AddressMap)bus).removeDevices();
+				
+				ram = new RAMDevice(0x00000000,64*1024);
+				AddressMap map =  new AddressMapImpl((BusDevice)ram,
+			            new BusIRQ() 
+						{
+							@Override
+							public void raise(int source)
+							{
+								if(cpu!=null)
+									cpu.interrupt();
+							}
+						});				
+				map.addBusDevice((BusDevice)ram)
+				   .addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("file://./demo/projectB/main.bin")))
+				   .addBusDevice(new DisplayDevice(0x0000A000,80,25))
+				   .addBusDevice(new TimerDevice(0x0000B005,10))
+				   ;
+				map.printAddressMap();
+				bus = (Bus)map;
+				if(emulatorDisplay!=null)
+				{
+					((AddressMap)getBus()).addBusListener(emulatorDisplay);
+					emulatorDisplay.refreshBus();
+				}
+				cpu.setBus(bus);
+				MainSystemEmulator.this.repaint();
+			}
+			
+		});
+		//SystemEmulator.enableDebug(true);
 		
 		// Swing Stuff:
 		System.setProperty("sun.java2d.opengl", "true");
@@ -259,6 +332,10 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 		{
 			//System.out.println("MainSystemEmulator::ClockLine");
 			cpu.clock();
+			
+			
+			//if(cpu.getTelemetry().programCounter == 0x0075)
+		//		clock.setEnabled(false);
 		}
 	};
 

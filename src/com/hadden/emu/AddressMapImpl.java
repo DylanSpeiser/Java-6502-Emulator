@@ -144,13 +144,19 @@ public class AddressMapImpl implements Bus, AddressMap
 		   .addBusDevice(new SerialDevice(0x00000200))
 		   ;
 		*/
+		/*
 		map.addBusDevice(new CIADevice(0x0000DC00))
 		   .addBusDevice(new ScreenDevice(0x00000400,40,25))
 		   .addBusDevice(new BASICDevice(0x0000A000))
 		   .addBusDevice(new CharacterDevice(0x0000D000))
 		   .addBusDevice(new KernalDevice(0x0000E000))
 		   ;
+		*/
 
+		map.addBusDevice(new ROMDevice(0x00008000))
+		   .addBusDevice(new DisplayDevice(0x0000A000,40,10));
+
+		   
 		int t = 0;
 		for(int i=0;i<1024;i++)
 		{
@@ -354,6 +360,17 @@ public class AddressMapImpl implements Bus, AddressMap
 	public Collection<BusDevice> getDevices()
 	{
 		return this.mappedAddressSpace.values();
+	}
+
+	@Override
+	public void removeDevices() 
+	{
+		System.out.println("removeDevices");
+		for(BusDevice bd : mappedAddressSpace.values())
+			if(bd instanceof Detachable)
+				((Detachable)bd).detach();
+		
+		mappedAddressSpace.clear();		
 	}	
 	
 }

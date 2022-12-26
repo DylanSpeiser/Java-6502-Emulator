@@ -24,7 +24,12 @@
 .segment  "CODE"
 
 ; push return address 0x0000 minus 1 = 0xFFFF 
+
+	;lda     #$AA
+	;lda     #$AA
+	;lda     #$AA
 	lda     #$FF
+
 	pha 
 	pha
 ; set IRQ

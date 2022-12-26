@@ -12,12 +12,11 @@ import javax.swing.*;
 
 import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
-
-
+import com.hadden.emu.Detachable;
 import com.hadden.emu.HasPorts;
 import com.hadden.fonts.FontManager;
 
-public class DisplayDevice extends JFrame implements BusDevice, HasPorts, ActionListener
+public class DisplayDevice extends JFrame implements BusDevice, HasPorts, ActionListener, Detachable
 {
 	private static final int CONST_COLORPAGE   = 0;
 	private static final int CONST_PALETTEPORT = 1;
@@ -344,6 +343,7 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 	@Override
 	public void writeAddress(int address, int value, IOSize size)
 	{
+		//System.out.println("Display:writeAddress:" + address);
 		if(ports[CONST_PALETTEPORT].bar.getLowAddress() == address)
 		{
 			palette[value] =  new Color(regsPalette[0], regsPalette[1], regsPalette[2]);
@@ -511,7 +511,15 @@ public class DisplayDevice extends JFrame implements BusDevice, HasPorts, Action
 	@Override
 	public void reset()
 	{
-		this.init(this.baseAddress, this.displayColumns, this.displayRows);
+		//this.init(this.baseAddress, this.displayColumns, this.displayRows);
+	}
+
+	@Override
+	public void detach() 
+	{
+		((JFrame)this).setTitle("DISPOSED");
+		((JFrame)this).setVisible(false);
+		((JFrame)this).dispose();		
 	}
 	
 }

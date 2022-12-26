@@ -696,7 +696,7 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 		cycles = 8;
 
 		startTime = System.currentTimeMillis();
-
+		
 		opcode = cpuBus.read(programCounter);
 	}
 
@@ -1405,7 +1405,7 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 			cpuBus.write(addressAbsolute, (byte) (temp & 0x00FF));
 		}
 	}
-
+	
 	public void RTI()
 	{
 		//System.out.println("**RTI**");		
@@ -1569,6 +1569,14 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 	{
 		if("interrupt-hold".equals(feature))
 			debugger_irq_hold = state;		
+	}
+
+
+	public void setBus(Bus bus) 
+	{
+		cpuBus = bus;	
+		this.history.clear();
+		this.reset();
 	}
 
 }
