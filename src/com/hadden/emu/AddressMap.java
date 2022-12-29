@@ -43,4 +43,12 @@ public interface AddressMap
 		return "0x" + hex.toUpperCase();
 	}
 	
+	public static byte toByte(char hi, char lo)
+	{
+		String s = "" + hi + lo;
+		short ss = Short.valueOf(s,16);
+		byte b = (byte) (ss & 0x000000FF );
+ 		return b;
+	}
+	
 }

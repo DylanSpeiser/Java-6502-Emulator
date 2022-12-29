@@ -12,6 +12,8 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerListModel;
 import javax.swing.Timer;
 
+import com.hadden.emu.AddressMap;
+import com.hadden.emu.BusDevice.IOSize;
 import com.hadden.emu.BusListener;
 import com.hadden.emu.CPU.Telemetry;
 import com.hadden.emulator.Clock;
@@ -34,6 +36,12 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 	
 	private int memX = 0;
 	private int memY = 0;
+	private char[] memHILO = new char[2];
+	private int memHILOIndex = 1;
+	private int  memAddress = 0;
+	private boolean bMemoryEdit = false;
+	private boolean bMemoryEnter = false;
+	private boolean bMemChange = false;
 	
 	private String title = "";
 
@@ -44,7 +52,7 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 	private JFrame editorFrame;
 
 	
-	private boolean bMemoryEdit = false;
+
 	private boolean bDebugMode = false;
 	
 	public interface ApplicationEvent 
@@ -59,6 +67,9 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 	{
 		super(null);
 
+		memHILO[0] = ' ';
+		memHILO[1] = ' ';
+		
 		this.emulator = emulator;
 
 		
@@ -73,7 +84,7 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 			else
 				defaultResetAddress = Integer.parseInt(dra);
 		}
-		this.title = ((Emulator) emulator).getMainTitle() + " Emulator";
+		this.title = ((Emulator) emulator).getMainTitle() + " Emulator v" + emulator.getSystemVersion();
 
 		/*
 		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -149,7 +160,7 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 		else
 			g.setFont(new Font("Monospaced", Font.BOLD, 20));
 		
-		g.drawString("v" + emulator.getSystemVersion(), 7, 1033);
+
 
 		Telemetry t = emulator.getCPU().getTelemetry();
 
@@ -295,22 +306,28 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 		 * 
 		 */
 		// Controls
-		g.drawString("Controls:", 50, 750);
-		g.drawString("C - Toggle Clock", 35, 780);
-		g.drawString("Space - Pulse Clock", 35, 810);
-		g.drawString("R - Reset System", 35, 840);
-		g.drawString("P - Reset CPU", 35, 870);
-		g.drawString("S - Toggle Slower " + (emulator.getClock().isSlow() ? "Disable" : "Enable"), 35, 900);
+		int ctop = 550;
+		g.drawString("Controls:", 35, ctop+=30);
+		g.drawString("C - Toggle Clock", 35, ctop+=30);
+		g.drawString("Space - Pulse Clock", 35, ctop+=30);
+		g.drawString("R - Reset System", 35, ctop+=30);
+		g.drawString("P - Reset CPU", 35, ctop+=30);
+		g.drawString("S - Toggle Slower " + (emulator.getClock().isSlow() ? "Disable" : "Enable"), 35, ctop+=30);
 		g.drawString("I - Toggle Interrupt "+ 
 		             (((DeviceDebugger) emulator.getCPU()).isEnabled("interrupt-hold") ? "Enable" : "Disable"),
-				     35, 930);
+				     35, ctop+=30);
+		g.drawString("Arrows Navigate", 35, ctop+=30);
+		g.drawString("CTL-E - Edit Mode (Enter Select/Accept)", 35, ctop+=30);
+		g.drawString("CTL-D - Debug Mode", 35, ctop+=30);
 		
+		ctop+=30;
 		if (!emulator.getClock().isEnabled())
-			g.drawString("Cursors(Wheel) - Scroll History", 35, 960);
+			g.drawString("Cursors(Wheel) - Scroll History", 35, ctop);
 		else
-			g.drawString("Cursors(Wheel) - Scroll History Disabled", 35, 960);
+			g.drawString("Cursors(Wheel) - Scroll History Disabled", 35, ctop);
 		
-		g.drawString("< & > - Default Reset Address", 35, 990);
+		g.drawString("< & > - Default Reset Address", 35, ctop+=30);
+		//g.drawString("v" + emulator.getSystemVersion(), 7, ctop+=30);
 	}
 
 	public void drawString(Graphics g, String text, int x, int y)
@@ -336,6 +353,10 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 					if(bMemoryEdit && (cLine == memY))
 					{						
 						g.setColor(Color.GRAY);
+						
+						memAddress = (ramPage * 0x00000100) + (memY * 0x00000008) + memX;
+						//System.out.println("EDIT ADDRESS:" + AddressMap.toHexAddress(editAddress,IOSize.IO16Bit));
+						
 						g.fillRect(x + g.getFontMetrics().charWidth('0') * 6 + (g.getFontMetrics().charWidth('0') * 3 *memX),
 								   y + g.getFontMetrics().getDescent(),
 								   g.getFontMetrics().getWidths()[32] * 2,  
@@ -344,11 +365,21 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 					y += g.getFontMetrics().getHeight();
 					
 					g.setColor(c);
-					g.drawString(part[1], 
+					
+					StringBuffer ptext = new StringBuffer(part[1]);
+					
+					if(bMemoryEnter && (cLine == memY))
+					{
+						ptext.setCharAt(3*memX + 1, memHILO[1]);
+						ptext.setCharAt(3*memX + 2, memHILO[0]);
+					}
+					
+					g.drawString(ptext.toString(), 
 							     x + g.getFontMetrics().charWidth('0') * 5,
 							     //y += g.getFontMetrics().getHeight()
 							     y
 							     );
+					
 				} catch (Exception e)
 				{
 					// TODO Auto-generated catch block
@@ -439,18 +470,67 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 		int keyCode = e.getKeyCode();
 		if (keyCode == KeyEvent.VK_DOWN)
 		{
-			this.historyOffset -= 1;
-			if (this.historyOffset < 0)
-				this.historyOffset = 0;
-			System.out.println("Offset:" + historyOffset);
-			// this.repaint();
+			if(bMemoryEdit)
+			{
+				this.memY++;
+				if(this.memY > 31)
+					this.memY = 31;
+				System.out.println(memX + ":" +memY);
+			}
+			else
+			{
+				this.historyOffset -= 1;
+				if (this.historyOffset < 0)
+					this.historyOffset = 0;
+				System.out.println("Offset:" + historyOffset);
+				// this.repaint();
+			}
 		}
 		else if (keyCode == KeyEvent.VK_UP)
 		{
-			this.historyOffset += 1;
-			// this.repaint();
-			System.out.println("Offset:" + historyOffset);
+			if(bMemoryEdit)
+			{
+				this.memY--;
+				if(this.memY < 0)
+					this.memY = 0;
+				System.out.println(memX + ":" +memY);
+				
+			}
+			else
+			{
+				this.historyOffset += 1;
+				// this.repaint();
+				System.out.println("Offset:" + historyOffset);
+			}
 		}
+		else if (keyCode == KeyEvent.VK_RIGHT)
+		{
+			if(bMemoryEdit)
+			{
+				this.memX++;
+				if(this.memX > 7)
+					this.memX = 7;
+				System.out.println(memX + ":" +memY);
+			}
+			else
+			{
+
+			}
+		}
+		else if (keyCode == KeyEvent.VK_LEFT)
+		{
+			if(bMemoryEdit)
+			{
+				this.memX--;
+				if(this.memX < 0)
+					this.memX = 0;
+				System.out.println(memX + ":" +memY);
+			}
+			else
+			{
+
+			}
+		}		
 
 		
 	}
@@ -468,6 +548,67 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 
 		
 		System.out.println("Key:" + arg0.getKeyCode() + ":" + arg0.getKeyChar() + "(" + (int)arg0.getKeyChar() + ") " + arg0.getModifiers());
+		
+		if(bMemoryEnter)
+		{
+			switch( arg0.getKeyChar() )
+			{
+			case 10:
+				if(bMemoryEdit)
+				{					
+					bMemoryEnter = false;
+					if(this.memHILO[0]!=' ' && this.memHILO[1]!=' ')
+					{
+						byte b = (byte) AddressMap.toByte(this.memHILO[1],this.memHILO[0]);
+						emulator.getBus().write((short)memAddress, b);
+						this.memHILO[1] = ' ';
+						this.memHILO[0] = ' ';
+					}
+					System.out.println("bMemoryEnter:" + bMemoryEnter);
+				}
+				break;
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+			case 'A':
+			case 'a':
+			case 'B':
+			case 'b':
+			case 'C':
+			case 'c':
+			case 'D':
+			case 'd':
+			case 'E':
+			case 'e':
+			case 'F':
+			case 'f':
+				char u = Character.toUpperCase(arg0.getKeyChar());
+
+				if(memHILOIndex < 0)
+				{	
+					memHILOIndex = 1;
+					memHILO[1] = u;
+					memHILO[0] = ' ';
+				}
+				else
+				{
+					memHILO[memHILOIndex] = u;					
+				}
+				memHILOIndex--;
+				System.out.println("bMemoryEnter VALUE[" + memHILOIndex + "]:" + arg0.getKeyChar());
+				
+				break;				
+			}			
+			
+			return;
+		}
 		
 		switch (arg0.getKeyChar())
 		{
@@ -616,6 +757,12 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 		default:
 			switch( (int)arg0.getKeyChar() )
 			{
+			case 10:
+				if(bMemoryEdit)
+				{
+					bMemoryEnter = true;
+				}
+				break;
 			case 4:
 				bDebugMode = !bDebugMode;
 				System.out.println("DebugMode:" + bDebugMode);
