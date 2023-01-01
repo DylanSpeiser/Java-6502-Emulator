@@ -1,4 +1,5 @@
 package com.hadden.emu;
+
 public interface Bus 
 {
 	byte read(short address); 	

@@ -35,5 +35,6 @@ public interface CPU
 	public void reset();
 	public void clock();
 	public Telemetry getTelemetry();
+	public void setBus(Bus bus);
 
 }

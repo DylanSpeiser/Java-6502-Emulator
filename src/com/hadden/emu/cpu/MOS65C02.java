@@ -1359,5 +1359,12 @@ public class MOS65C02 implements CPU
 		return telemetry;
 	}
 
+	@Override
+	public void setBus(Bus bus)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }

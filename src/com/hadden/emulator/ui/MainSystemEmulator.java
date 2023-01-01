@@ -32,6 +32,7 @@ import com.hadden.emulator.Clock;
 import com.hadden.emulator.ClockLine;
 import com.hadden.emulator.Emulator;
 import com.hadden.emulator.cpu.MOS.MOS65C02A;
+import com.hadden.emulator.cpu.Zilog.Z80;
 import com.hadden.emulator.project.CC65ProjectImpl;
 import com.hadden.emulator.project.Project;
 import com.hadden.emulator.project.ProjectImpl;
@@ -65,7 +66,7 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 
 	private Bus bus;
 
-	private MOS65C02A cpu;
+	private CPU cpu;
 
 	private FileMonitor monitoredBinary;
 	
@@ -150,6 +151,7 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 					}
 				});
 		
+		/*
 		map.addBusDevice((BusDevice)ram)
 		   //.addBusDevice(new DisplayDevice(0x0000A000,40,10))
 		   //.addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("demo.rom")))   
@@ -173,6 +175,31 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 		bus = (Bus)map;
 		cpu = new MOS65C02A(bus);
 
+		*/
+		map.addBusDevice((BusDevice)ram)
+		   //.addBusDevice(new DisplayDevice(0x0000A000,40,10))
+		   //.addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("demo.rom")))   
+		   .addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("file://./demo/z80/memtest.bin")))
+		   //.addBusDevice(new ROMDevice(0x00000200,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\multia-prg.bin")))
+		   //.addBusDevice(new ROMDevice(0x0000FFFA,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\multia-irq.bin")))
+		   //.addBusDevice(new ROMDevice(0x00000200,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\cdemo.bin")))
+		   //.addBusDevice(new ROMDevice(0x00000200,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\multia.bin")))
+		   .addBusDevice(new DisplayDevice(0x0000A000,80,25))
+		   //.addBusDevice(new LCDDevice(0x0000B000))
+		   //.addBusDevice(new TimerDevice(0x0000B003,60000))
+		   //.addBusDevice(new TimerDevice(0x0000B005,10))
+		   //.addBusDevice(new SerialDevice(0x00000200))
+		   ;
+		
+
+		map.printAddressMap();
+		//System.out.println(  ((Bus)map).dumpBytesAsString());
+
+		
+		bus = (Bus)map;
+		cpu = new Z80(bus);
+		
+		
 		((AddressMap)bus).addBusListener(new BusListener()
 		{
 
