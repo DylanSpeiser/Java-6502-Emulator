@@ -16,6 +16,7 @@ import com.hadden.emu.AddressMap;
 import com.hadden.emu.BusDevice.IOSize;
 import com.hadden.emu.BusListener;
 import com.hadden.emu.CPU.Telemetry;
+import com.hadden.emu.CPU.TelemetryInfo;
 import com.hadden.emulator.Clock;
 import com.hadden.emulator.DeviceDebugger;
 import com.hadden.emulator.Emulator;
@@ -161,8 +162,12 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 			g.setFont(new Font("Monospaced", Font.BOLD, 20));
 		
 
-
+		TelemetryInfo ti = null;
 		Telemetry t = emulator.getCPU().getTelemetry();
+		if(t instanceof TelemetryInfo)
+		{
+			ti = (TelemetryInfo)t;
+		}
 
 		// Clocks
 		g.drawString("Clocks: " + t.clocks, 40, 80);
@@ -219,59 +224,127 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 		g.drawString("DEBUG", rightAlignHelper - 214, 130);
 		drawString(g, romPageString, rightAlignHelper - 379, 150);
 
+		int readoutOffset = 140;
 		// CPU
-		g.drawString("CPU Registers:", 50, 140);
-		g.drawString("A: " + Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.a)), 8) + " ("
-				+ Convert.byteToHexString(t.a) + ")", 35, 170);
-		g.drawString("X: " + Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.x)), 8) + " ("
-				+ Convert.byteToHexString(t.x) + ")", 35, 200);
-		g.drawString("Y: " + Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.y)), 8) + " ("
-				+ Convert.byteToHexString(t.y) + ")", 35, 230);
-		g.drawString(
-				"Stack Pointer: "
-						+ Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.stackPointer)), 8)
-						+ " (" + Convert.byteToHexString(t.stackPointer) + ")["
-						+ Integer.toHexString(((int) t.stackPointer & 0x000000FF) + 0x00000100).toUpperCase() + "]",
-				35, 260);
-		g.drawString(
-				"Program Counter: "
-						+ Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt(t.programCounter)), 16)
-						+ " ("
-						+ Convert.padStringWithZeroes(
-								Integer.toHexString(Short.toUnsignedInt(t.programCounter)).toUpperCase(), 4)
-						+ ")",
-				35, 290);
-		g.drawString("Flags:             (" + Convert.byteToHexString(t.flags) + ")", 35, 320);
-
-		g.drawString(
-				"Absolute Address: "
-						+ Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt(t.addressAbsolute)),
-								16)
-						+ " (" + Convert.byteToHexString((byte) ((short) t.addressAbsolute / 0xFF))
-						+ Convert.byteToHexString((byte) t.addressAbsolute) + ")",
-				35, 350);
-		g.drawString("Relative Address: "
-				+ Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt((short) t.addressRelative)),
-						16)
-				+ " (" + Convert.byteToHexString((byte) ((short) t.addressRelative / 0xFF))
-				+ Convert.byteToHexString((byte) t.addressRelative) + ")", 35, 380);
-		g.drawString("Opcode: " + t.opcodeName + " (" + Convert.byteToHexString(t.opcode) + ")", 35, 410);
-		g.drawString("Cycles: " + t.cycles, 35, 440);
-		g.drawString("IRQs  : " + t.irqs, 35, 470);
-
-		g.drawString("Reset JMP: ", 35, 500);
-		g.drawString("0x" + Convert.toHex16String(defaultResetAddress), 160, 500);
-		g.drawString("Reset Vector: ", 35, 530);
-		g.drawString("0x" + Convert.toHex16String(defaultResetVector), 200, 530);
-		
-		int counter = 0;
-		String flagsString = "NVUBDIZC";
-		for (char c : Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.flags)), 8).toCharArray())
+		g.drawString("CPU Registers:", 35, readoutOffset);
+		if(ti!=null)
 		{
-			g.setColor((c == '1') ? Color.green : Color.red);
-			g.drawString(String.valueOf(flagsString.charAt(counter)), 120 + 16 * counter, 320);
-			counter++;
+			int xoffset = 35;
+
+			readoutOffset+=30;
+			
+			int col = 0;
+			for(String r : ti.registerInfo.keySet())
+			{				
+				Integer tiv = ti.registerInfo.get(r);
+				g.drawString(r + ": " + Convert.padStringWithZeroes(Integer.toBinaryString(tiv & 0xFF), 8) + " ("
+						+ Convert.byteToHexString((byte)(tiv & 0xFF)) + ")", xoffset + (220 * col), readoutOffset);
+				col++;
+				if(col > 1)
+				{
+					col = 0;
+					readoutOffset+=30;
+				}
+			}
+			
+			g.drawString("Flags:             (" + Convert.byteToHexString(t.flags) + ")", 35, readoutOffset);
+			for(String f : ti.flagInfo.keySet())
+			{
+				Integer fiv = ti.flagInfo.get(f);
+				int counter = 0;
+				String flagsString = f;
+				for (char c : Convert.padStringWithZeroes(Integer.toBinaryString(fiv & 0xFF), 8).toCharArray())
+				{
+					g.setColor((c == '1') ? Color.green : Color.red);
+					g.drawString(String.valueOf(flagsString.charAt(counter)), 120 + 16 * counter, readoutOffset);
+					counter++;
+				}			
+			}			
+			g.setColor(Color.white);
+			
+			g.drawString(
+					"Stack Pointer: "
+							+ Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.stackPointer)), 8)
+							+ " (" + Convert.byteToHexString(t.stackPointer) + ")["
+							+ Integer.toHexString(((int) t.stackPointer & 0x0000FFFF)).toUpperCase() + "]",
+					35, readoutOffset+=30);
+			g.drawString(
+					"Program Counter: "
+							+ Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt(t.programCounter)), 8)
+							+ " ("
+							+ Convert.padStringWithZeroes(
+									Integer.toHexString(Short.toUnsignedInt(t.programCounter)).toUpperCase(), 4)
+							+ ")",
+					35, readoutOffset+=30);			
+			
+			if(ti.addressInfo.size() > 0)
+			{
+				for(String ad : ti.addressInfo.keySet())
+				{				
+					Integer adv = ti.registerInfo.get(ad);
+					g.drawString(ad + ": " + Convert.padStringWithZeroes(Integer.toBinaryString(adv & 0xFFFF), 8) + " ("
+							+ Convert.byteToHexString((byte)(adv & 0xFFFF)) + ")", xoffset + (220 * col), readoutOffset+=30);
+				}				
+			}
 		}
+		else
+		{
+			
+			g.drawString("A: " + Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.a)), 8) + " ("
+					+ Convert.byteToHexString(t.a) + ")", 35, readoutOffset+=30);
+			g.drawString("X: " + Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.x)), 8) + " ("
+					+ Convert.byteToHexString(t.x) + ")", 35, readoutOffset+=30);
+			g.drawString("Y: " + Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.y)), 8) + " ("
+					+ Convert.byteToHexString(t.y) + ")", 35, readoutOffset+=30);
+			g.drawString(
+					"Stack Pointer: "
+							+ Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.stackPointer)), 8)
+							+ " (" + Convert.byteToHexString(t.stackPointer) + ")["
+							+ Integer.toHexString(((int) t.stackPointer & 0x000000FF) + 0x00000100).toUpperCase() + "]",
+					35, readoutOffset+=30);
+			g.drawString(
+					"Program Counter: "
+							+ Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt(t.programCounter)), 16)
+							+ " ("
+							+ Convert.padStringWithZeroes(
+									Integer.toHexString(Short.toUnsignedInt(t.programCounter)).toUpperCase(), 4)
+							+ ")",
+					35, readoutOffset+=30);
+			g.drawString("Flags:             (" + Convert.byteToHexString(t.flags) + ")", 35, readoutOffset+=30);
+			int counter = 0;
+			String flagsString = "NVUBDIZC";
+			for (char c : Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.flags)), 8).toCharArray())
+			{
+				g.setColor((c == '1') ? Color.green : Color.red);
+				g.drawString(String.valueOf(flagsString.charAt(counter)), 120 + 16 * counter, 320);
+				counter++;
+			}		
+			g.setColor(Color.white);
+			
+			g.drawString(
+					"Absolute Address: "
+							+ Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt(t.addressAbsolute)),
+									16)
+							+ " (" + Convert.byteToHexString((byte) ((short) t.addressAbsolute / 0xFF))
+							+ Convert.byteToHexString((byte) t.addressAbsolute) + ")",
+					35, readoutOffset+=30);
+			g.drawString("Relative Address: "
+					+ Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt((short) t.addressRelative)),
+							16)
+					+ " (" + Convert.byteToHexString((byte) ((short) t.addressRelative / 0xFF))
+					+ Convert.byteToHexString((byte) t.addressRelative) + ")", 35, readoutOffset+=30);
+		}
+		g.drawString("Opcode: " + t.opcodeName + " (" + Convert.byteToHexString(t.opcode) + ")", 35, readoutOffset+=30);
+		g.drawString("Cycles: " + t.cycles, 35, readoutOffset+=30);
+		g.drawString("IRQs  : " + t.irqs, 35, readoutOffset+=30);
+
+		
+		g.drawString("Reset JMP: ", 35, readoutOffset+=30);
+		g.drawString("0x" + Convert.toHex16String(defaultResetAddress), 160, readoutOffset);
+		g.drawString("Reset Vector: ", 35, readoutOffset+=30);
+		g.drawString("0x" + Convert.toHex16String(defaultResetVector), 200, readoutOffset);
+		readoutOffset+=30;
+
 
 		g.setColor(Color.white);
 		/*
@@ -306,7 +379,7 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 		 * 
 		 */
 		// Controls
-		int ctop = 550;
+		int ctop = readoutOffset;
 		g.drawString("Controls:", 35, ctop+=30);
 		g.drawString("C - Toggle Clock", 35, ctop+=30);
 		g.drawString("Space - Pulse Clock", 35, ctop+=30);

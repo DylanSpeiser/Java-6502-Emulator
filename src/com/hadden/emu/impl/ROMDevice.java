@@ -27,6 +27,11 @@ public class ROMDevice implements BusDevice, ROM
 		this(new BusAddressRange(bankAddress, romImage.length - 1, 1), romImage);
 	}
 
+	public ROMDevice(int bankAddress, String filePath)
+	{
+		this(bankAddress,ROMManager.loadROM(filePath));
+	}
+
 	public ROMDevice(int bankAddress)
 	{
 		this(new BusAddressRange(bankAddress, 1024, 1), new byte[1024]);

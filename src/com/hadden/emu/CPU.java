@@ -1,6 +1,7 @@
 package com.hadden.emu;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CPU
 {
@@ -28,6 +29,14 @@ public interface CPU
 		public byte     flags;
 		public long     irqs;
 		public List<String> history;
+	};
+	
+	public class TelemetryInfo extends Telemetry
+	{
+		public Map<String,Integer> registerInfo;
+		public Map<String,Integer> flagInfo;
+		public Map<String,Integer> pointerInfo;
+		public Map<String,Integer> addressInfo;
 	};
 	
 	public String getName();

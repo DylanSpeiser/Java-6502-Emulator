@@ -66,7 +66,12 @@ public class AddressMapImpl implements Bus, AddressMap
 		mappedAddressSpace.put(bd.getBusAddressRange().getHighAddress() + 1, defaultSpace);
 		
 		if(bd instanceof RaisesIRQ)
-			((RaisesIRQ)(bd)).attach(this.birq);
+		{
+			if(birq!=null)
+			{
+				((RaisesIRQ)(bd)).attach(this.birq);
+			}
+		}
 		
 		if(bd instanceof HasPorts)
 		{

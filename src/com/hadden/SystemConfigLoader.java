@@ -263,18 +263,18 @@ public class SystemConfigLoader
 								String key   = parsed[0]; 
 								String value = parsed[1];
 								
-								System.out.println("[" + key + "][" + value + "]");
+								//System.out.println("[" + key + "][" + value + "]");
 								
 								if("device".equalsIgnoreCase(key))
 								{
 									String[] attrs = value.split(",");
 									if(attrs.length > 1)
 									{
-										System.out.print("DEVICE ATTR:");
-										for(String attr : attrs)
-											System.out.print("[" + attr + "]");
-										System.out.println();
-										//devices.put(attrs[0], Class.forName(attrs[1]));
+										//System.out.print("DEVICE ATTR:");
+										//for(String attr : attrs)
+										//	System.out.print("[" + attr + "]");
+										//System.out.println();
+
 										
 										sc.addDevice(attrs[0], Class.forName(attrs[1]));
 										
@@ -285,11 +285,10 @@ public class SystemConfigLoader
 									String[] attrs = value.split(",");
 									if(attrs.length > 1)
 									{
-										System.out.print("BUS ATTR:");
-										for(String attr : attrs)
-											System.out.print("[" + attr + "]");
-										System.out.println();
-										//bus.put(attrs[0], attrs);
+										//System.out.print("BUS ATTR:");
+										//for(String attr : attrs)
+										//	System.out.print("[" + attr + "]");
+										//System.out.println();
 										sc.addMapping(attrs[0], attrs);
 										
 									}
@@ -445,7 +444,6 @@ public class SystemConfigLoader
 	}
 	
 	
-	
 	public static void main(String[] args)
 	{
 		if(args.length > 1)
@@ -466,6 +464,7 @@ public class SystemConfigLoader
 							for(String dname : sc.getMapped().keySet())
 							{
 								//BusDevice bd = sc.initBusDevice(dname);
+								System.out.println("DEVICE:" + dname);
 							}
 						}
 					}
@@ -475,7 +474,7 @@ public class SystemConfigLoader
 		}
 		else
 		{
-			String configPathName = System.getenv("SEMU_CFG_DIR") + File.separator + "system.cfg";
+			String configPathName = System.getenv("SEMU_CFG_DIR") + File.separator + "default.system";
 			loadSystem(configPathName);
 		}
 		

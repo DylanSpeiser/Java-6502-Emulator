@@ -14,6 +14,8 @@ import java.util.Observer;
 import javax.swing.*;
 
 import com.dst.util.system.io.FileMonitor;
+import com.hadden.SystemConfig;
+import com.hadden.SystemConfigLoader;
 import com.hadden.emu.AddressMap;
 import com.hadden.emu.AddressMapImpl;
 import com.hadden.emu.Bus;
@@ -32,6 +34,7 @@ import com.hadden.emulator.Clock;
 import com.hadden.emulator.ClockLine;
 import com.hadden.emulator.Emulator;
 import com.hadden.emulator.cpu.MOS.MOS65C02A;
+import com.hadden.emulator.cpu.Motorola.m68000.MC68000;
 import com.hadden.emulator.cpu.Zilog.Z80;
 import com.hadden.emulator.project.CC65ProjectImpl;
 import com.hadden.emulator.project.Project;
@@ -71,12 +74,16 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 	private FileMonitor monitoredBinary;
 	
 	
+	public MainSystemEmulator(SystemConfig configuration)
+	{
+		init(configuration);		
+		initDisplay();	
+	}
+
+	
 	public MainSystemEmulator()
 	{
-		init();
-		
-		initDisplay();
-	
+		this(null);
 	}
 
 	private void initDisplay() 
@@ -134,133 +141,155 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 	}
 
 	@SuppressWarnings("deprecation")
-	private void init()
+	private void init(SystemConfig configuration)
 	{
-		ram = new RAMDevice(0x00000000,64*1024);
-		//rom = new ROMDevice(0x00008000,ROMManager.loadROM("demo.rom"));
-		
-		AddressMap map =  new AddressMapImpl((BusDevice)ram,
-	            new BusIRQ() 
+		if(configuration!=null)
+		{
+			try
+			{
+				
+				//
+				// Use configuration to create the default bus device (RAM typically)
+				//
+				BusDevice dbd = configuration.initBusDevice(configuration.getDefAddressDevice());
+				//
+				// Use configuration to create the bus device
+				//
+				bus = configuration.initBus(dbd, null);
+				//
+				// Iterate through devices defined into the address/bus space
+				//
+				Map<String, String[]> mapped = configuration.getMapped();
+				for(String k : mapped.keySet())
 				{
-					@Override
-					public void raise(int source)
+					System.out.println("Initializing bus device:" + k);
+					
+					if(!k.equals(configuration.getDefAddressDevice()))
 					{
-						//System.out.println("CPU IRQ");	
-						if(cpu!=null)
-							cpu.interrupt();
+						((AddressMap)bus).addBusDevice(configuration.initBusDevice(k));
 					}
-				});
-		
-		/*
-		map.addBusDevice((BusDevice)ram)
-		   //.addBusDevice(new DisplayDevice(0x0000A000,40,10))
-		   //.addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("demo.rom")))   
-		   .addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("file://./demo/projectB/main.bin")))
-		   //.addBusDevice(new ROMDevice(0x00000200,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\multia-prg.bin")))
-		   //.addBusDevice(new ROMDevice(0x0000FFFA,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\multia-irq.bin")))
-		   //.addBusDevice(new ROMDevice(0x00000200,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\cdemo.bin")))
-		   //.addBusDevice(new ROMDevice(0x00000200,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\multia.bin")))
-		   .addBusDevice(new DisplayDevice(0x0000A000,80,25))
-		   //.addBusDevice(new LCDDevice(0x0000B000))
-		   //.addBusDevice(new TimerDevice(0x0000B003,60000))
-		   .addBusDevice(new TimerDevice(0x0000B005,10))
-		   //.addBusDevice(new SerialDevice(0x00000200))
-		   ;
-		
-
-		map.printAddressMap();
-		//System.out.println(  ((Bus)map).dumpBytesAsString());
-
-		
-		bus = (Bus)map;
-		cpu = new MOS65C02A(bus);
-
-		*/
-		map.addBusDevice((BusDevice)ram)
-		   //.addBusDevice(new DisplayDevice(0x0000A000,40,10))
-		   //.addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("demo.rom")))   
-		   .addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("file://./demo/z80/memtest.bin")))
-		   //.addBusDevice(new ROMDevice(0x00000200,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\multia-prg.bin")))
-		   //.addBusDevice(new ROMDevice(0x0000FFFA,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\multia-irq.bin")))
-		   //.addBusDevice(new ROMDevice(0x00000200,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\cdemo.bin")))
-		   //.addBusDevice(new ROMDevice(0x00000200,ROMManager.loadROM("file://C:\\Users\\mike.bush\\devprojects\\Java-System-Emulator\\demo\\multia.bin")))
-		   .addBusDevice(new DisplayDevice(0x0000A000,80,25))
-		   //.addBusDevice(new LCDDevice(0x0000B000))
-		   //.addBusDevice(new TimerDevice(0x0000B003,60000))
-		   //.addBusDevice(new TimerDevice(0x0000B005,10))
-		   //.addBusDevice(new SerialDevice(0x00000200))
-		   ;
-		
-
-		map.printAddressMap();
-		//System.out.println(  ((Bus)map).dumpBytesAsString());
-
-		
-		bus = (Bus)map;
-		cpu = new Z80(bus);
-		
-		
-		((AddressMap)bus).addBusListener(new BusListener()
-		{
-
-			@Override
-			public void readListener(short address) 
-			{
-			}
-
-			@Override
-			public void writeListener(short address, byte data) 
-			{
-				if((address & 0x0000FFFF) == 0xA012)
-				{
-					System.out.println("DEBUG ADDRESS changed:" + AddressMap.toHexAddress(data, IOSize.IO8Bit));
 				}
+				//
+				// Use configuration to create the CPU
+				//
+				cpu = configuration.initCPU(bus);
+
 			}
-			
-		});
-		
-		
-		monitoredBinary = new FileMonitor(new File("./demo/projectB/main.bin"));
-		monitoredBinary.addObserver(new Observer() 
-		{
-			@Override
-			public void update(Observable o, Object arg) 
+			catch (Exception e)
 			{
-				System.out.println("monitoredBinary changed!");
-				
-				clock.setEnabled(false);
-				
-				((AddressMap)bus).removeDevices();
-				
-				ram = new RAMDevice(0x00000000,64*1024);
-				AddressMap map =  new AddressMapImpl((BusDevice)ram,
-			            new BusIRQ() 
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			//
+			// create default address handler device
+			//
+			ram = new RAMDevice(0x00000000,64*1024);
+			//
+			// create standard address bus with default bus device
+			//
+			AddressMap map =  new AddressMapImpl((BusDevice)ram,
+		            new BusIRQ() 
+					{
+						@Override
+						public void raise(int source)
 						{
-							@Override
-							public void raise(int source)
-							{
-								if(cpu!=null)
-									cpu.interrupt();
-							}
-						});				
-				map.addBusDevice((BusDevice)ram)
-				   .addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("file://./demo/projectB/main.bin")))
-				   .addBusDevice(new DisplayDevice(0x0000A000,80,25))
-				   .addBusDevice(new TimerDevice(0x0000B005,10))
-				   ;
-				map.printAddressMap();
-				bus = (Bus)map;
-				if(emulatorDisplay!=null)
-				{
-					((AddressMap)getBus()).addBusListener(emulatorDisplay);
-					emulatorDisplay.refreshBus();
-				}
-				cpu.setBus(bus);
-				MainSystemEmulator.this.repaint();
-			}
+							//System.out.println("CPU IRQ");	
+							if(cpu!=null)
+								cpu.interrupt();
+						}
+					});
+			//
+			// default 6502 test setting
+			//
+			map.addBusDevice((BusDevice)ram)
+			   .addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("file://./demo/projectB/main.bin")))
+			   .addBusDevice(new DisplayDevice(0x0000A000,80,25))
+			   //.addBusDevice(new LCDDevice(0x0000B000))
+			   .addBusDevice(new TimerDevice(0x0000B005,10)) // provide IRQs
+			   //.addBusDevice(new SerialDevice(0x00000200))
+			   ;
 			
-		});
-		//SystemEmulator.enableDebug(true);
+
+			map.printAddressMap();
+			bus = (Bus)map;
+			cpu = new MOS65C02A(bus);
+
+			//
+			// example bus listener
+			//			
+			((AddressMap)bus).addBusListener(new BusListener()
+			{
+
+				@Override
+				public void readListener(short address) 
+				{
+				}
+
+				@Override
+				public void writeListener(short address, byte data) 
+				{
+					if((address & 0x0000FFFF) == 0xA012)
+					{
+						System.out.println("DEBUG ADDRESS changed:" + AddressMap.toHexAddress(data, IOSize.IO8Bit));
+					}
+				}
+				
+			});
+			
+			
+			//
+			// test monitoring a cc65 based project for changes and auto update and reset CPU
+			//
+			/*
+			monitoredBinary = new FileMonitor(new File("./demo/projectB/main.bin"));
+			monitoredBinary.addObserver(new Observer() 
+			{
+				@Override
+				public void update(Observable o, Object arg) 
+				{
+					System.out.println("monitoredBinary changed!");
+					
+					clock.setEnabled(false);
+					
+					((AddressMap)bus).removeDevices();
+					
+					ram = new RAMDevice(0x00000000,64*1024);
+					AddressMap map =  new AddressMapImpl((BusDevice)ram,
+				            new BusIRQ() 
+							{
+								@Override
+								public void raise(int source)
+								{
+									if(cpu!=null)
+										cpu.interrupt();
+								}
+							});				
+					map.addBusDevice((BusDevice)ram)
+					   .addBusDevice(new ROMDevice(0x00000000,ROMManager.loadROM("file://./demo/projectB/main.bin")))
+					   .addBusDevice(new DisplayDevice(0x0000A000,80,25))
+					   .addBusDevice(new TimerDevice(0x0000B005,10))
+					   ;
+					map.printAddressMap();
+					bus = (Bus)map;
+					if(emulatorDisplay!=null)
+					{
+						((AddressMap)getBus()).addBusListener(emulatorDisplay);
+						emulatorDisplay.refreshBus();
+					}
+					cpu.setBus(bus);
+					MainSystemEmulator.this.repaint();
+				}
+				
+			});
+			*/
+			
+			//SystemEmulator.enableDebug(true);
+			
+		}
+		
 		
 		// Swing Stuff:
 		System.setProperty("sun.java2d.opengl", "true");
@@ -359,8 +388,6 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 		{
 			//System.out.println("MainSystemEmulator::ClockLine");
 			cpu.clock();
-			
-			
 			//if(cpu.getTelemetry().programCounter == 0x0075)
 		//		clock.setEnabled(false);
 		}
@@ -406,12 +433,18 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 	@Override
 	public String getMainTitle()
 	{
-		return this.getCPU().getName();
+		if(this.getCPU()!=null)
+			return this.getCPU().getName();
+		else
+			return "Loading";
 	}
 
 	public static void main(String[] args)
 	{
+		String configFile = null;
 		String projectDir = null;
+		
+		SystemConfig sc = null;
 		
 		MainSystemEmulator.platform = System.getProperty("os.name").toLowerCase();
 		
@@ -440,10 +473,20 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 						
 					}
 				}
+				else if("--config".equals(args[i]))
+				{
+					i++;
+					if(i < args.length)
+					{
+						configFile = args[i];
+						sc = SystemConfigLoader.loadConfiguration(configFile);
+					}
+				}
+			
 			}
 		}
 		
-		emu = new MainSystemEmulator();		
+		emu = new MainSystemEmulator(sc);		
 	}
 	
 	

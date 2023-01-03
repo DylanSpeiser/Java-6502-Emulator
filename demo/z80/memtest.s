@@ -1,4 +1,7 @@
 ;Memory testing program 
+;
+; pasmo memtest.s memtest.bin
+;
 display_memory:	equ	0xA000
 			org	0x0000			;start of RAM, config. 0
 			;call	write_newline

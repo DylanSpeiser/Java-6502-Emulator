@@ -4,10 +4,13 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import com.hadden.emu.Bus;
 import com.hadden.emu.BusDevice;
+import com.hadden.emu.BusIRQ;
 import com.hadden.emu.CPU;
 
 public class SystemConfig
@@ -19,12 +22,17 @@ public class SystemConfig
 	String slots     = null;
 	
 	Map<String,Class<BusDevice>> devices = new HashMap<String,Class<BusDevice>>();
-	Map<String,String[]>         mapped  = new HashMap<String,String[]>();
+	Map<String,String[]>         mapped  = new LinkedHashMap<String,String[]>();
 	
 
 	public void setCPU(String className)
 	{
 		this.clsCPU = className;
+	}
+	
+	private String getCPU()
+	{
+		return this.clsCPU;
 	}
 
 	public void setIRQ(String className)
@@ -32,14 +40,29 @@ public class SystemConfig
 		this.irqDevice = className;
 	}
 
+	public String getIRQ()
+	{
+		return this.irqDevice;
+	}
+	
 	public void setBus(String className)
 	{
 		this.clsBus = className;
 	}	
 
+	public String getBus()
+	{
+		return this.clsBus;
+	}
+	
 	public void setDefAddressDevice(String className)
 	{
 		this.defDevice = className;
+	}	
+
+	public String getDefAddressDevice()
+	{
+		return this.defDevice;
 	}	
 	
 	public void addDevice(String name,Class clz)
@@ -51,30 +74,127 @@ public class SystemConfig
 	{
 		mapped.put(name,arguments);
 	}	
-	
+
+	public Bus initBus(BusDevice defaultDevice, BusIRQ defaultIRQHandler)
+	{
+		try
+		{
+			Class cls = Class.forName(getBus());
+			Constructor[] cstor = cls.getConstructors();
+			for(Constructor c : cstor)
+			{
+				boolean bClassDetected = false;
+				//System.out.print("\tcstor:" + c.getName() + ":" + c.getParameterCount());
+				
+				for(Parameter p : c.getParameters())
+					if(p.getType().toString().startsWith("class"))
+						bClassDetected = true;
+				
+				if(!bClassDetected && c.getParameterCount() == 2)
+				{
+					Object[] args = new Object[c.getParameterCount()];
+					
+					args[0] = defaultDevice;
+					args[1] = defaultIRQHandler;
+					
+					Bus bd = null;
+					try
+					{
+						bd = (Bus)c.newInstance(args);
+					}
+					catch(Exception e)
+					{
+						e.printStackTrace();
+					}
+					
+					return (Bus) bd;
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+		
+		return null;
+	}
+
+	public CPU initCPU(Bus bus)
+	{
+		try
+		{
+			Class cls = Class.forName(getCPU());
+			Constructor[] cstor = cls.getConstructors();
+			for(Constructor c : cstor)
+			{
+				boolean bClassDetected = false;
+				//System.out.print("\tcstor:" + c.getName() + ":" + c.getParameterCount());
+				
+				for(Parameter p : c.getParameters())
+					if(p.getType().toString().startsWith("class"))
+						bClassDetected = true;
+				
+				if(c.getParameterCount() == 1)
+				{
+					Object[] args = new Object[c.getParameterCount()];
+					
+					args[0] = bus;
+					
+					CPU cpu = null;
+					try
+					{
+						cpu = (CPU)c.newInstance(args);
+					}
+					catch(Exception e)
+					{
+						e.printStackTrace();
+					}
+					
+					return cpu;
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}	
+		
+		return null;
+	}
+
 	public BusDevice initBusDevice(String name)
 	{
 		Class cls = this.devices.get(name);
+		
+		int ml = mapped.get(name).length - 1;
+		//System.out.println("ml:" + ml);
+		
 		Constructor[] cstor = cls.getConstructors();
 		for(Constructor c : cstor)
 		{
 			boolean bClassDetected = false;
-			System.out.print("\tcstor:" + c.getName() + ":" + c.getParameterCount());
+			//System.out.print("\tcstor:" + c.getName() + ":" + c.getParameterCount());
 			
 			for(Parameter p : c.getParameters())
+			{
+				//System.out.print("<" + p.getType().toString() + "> ");
 				if(p.getType().toString().startsWith("class"))
-					bClassDetected = true;
+					if(!p.getType().toString().startsWith("class java.lang.String"))
+						bClassDetected = true;
+			}
+			//System.out.println();
 			
-			if(!bClassDetected && c.getParameterCount() == mapped.get(name).length - 1)
+			if(!bClassDetected && c.getParameterCount() == ml)
 			{
 				int carg = 0;
 				Object[] args = new Object[c.getParameterCount()];
 				String[] attrs = mapped.get(name);
 				
-				System.out.print("* ");
+				//System.out.print("* ");
 				for(Parameter p : c.getParameters())
 				{												
-					System.out.print("<" + p.getType().toString() + "> ");
+					//System.out.print("<" + p.getType().toString() + "> ");
 					if("int".equals(p.getType().toString()))
 					{
 						int radix = 10;
@@ -95,14 +215,14 @@ public class SystemConfig
 						args[carg++] = attrs[carg];
 					}
 				}
-				System.out.println("");
+				//System.out.println("");
 				
 				
 				BusDevice bd = null;
 				try
 				{
 					bd = (BusDevice)c.newInstance(args);
-					System.out.println(bd.getName());
+					//System.out.println(bd.getName());
 				}
 				catch(Exception e)
 				{
