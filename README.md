@@ -21,7 +21,7 @@ ADDED FEATURES:
  - New Font Resource Manager
  - New ROM Resource Manager
  - New System Configuration Loader
- - Extensible CPU model, could model, say a Z-80
+ - Extensible CPU model, currently 6502 and Z-80, with 68000 in works
  - Address Mapper
  - C64 Testing ability.  Loads the Kernal and BASIC, but not 100% functional
 
@@ -68,3 +68,5 @@ You can load ```.bin``` files into RAM or ROM using the File Pickers in the top 
 ![Graphics Display](screenshots/gfx.png?raw=true)
 ![Configuration](screenshots/cfg.png?raw=true)
 ![C64 test](screenshots/c64.png?raw=true)
+![Z80 Emulating](screenshots/z80ui.png?raw=true)
+![Edit Memory](screenshots/edit.png?raw=true)
