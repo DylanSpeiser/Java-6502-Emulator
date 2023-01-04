@@ -44,8 +44,14 @@ Feel free to fork it, improve it, whatever, just link back to here. Enjoy!
 - H/J - Decrement/Increment RAM Page
 - K/L - Decrement/Increment ROM Page
 - R - Reset
+- P - Reset CPU
 - S - Toggle Slow Clock
-- I - Trigger Interrupt (the CA1 pin on the VIA)
+- I - Toggle Interrupt Disable
+- Arrows Navigate
+- CTL-E Enter/Exit Edit Mode
+- CTL-D Enter/Exit Debug Mode
+- Cursors(Wheel) Instruction Scroll History
+- < & > Default Reset Address 
    
 You can load ```.bin``` files into RAM or ROM using the File Pickers in the top right. It should be fully compatible with any binary compiled for the 6502 kit, except if it uses any unimplemented features. I might get to these sometime in the future. If I do, the repo will be updated.
 
