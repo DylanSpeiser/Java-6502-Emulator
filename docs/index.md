@@ -52,6 +52,9 @@ Example:
 - Arrows Navigate
 - CTL-E Enter/Exit Edit Mode
 - CTL-D Enter/Exit Debug Mode
+- Enter 
+   - Edit Mode, selects and accepts value 
+   - Debug Mode, selects break address
 - Cursors(Wheel) Instruction Scroll History
 - < & > Default Reset Address 
    
