@@ -38,7 +38,7 @@ Feel free to fork it, improve it, whatever, just link back to here. Enjoy!
     - Project directory that contains the source and development configuration files
 
 Example:
-  --project ./demo/projectA --config ./demo/Z80.system
+  java -cp ./dist/JavaSystemEmulator.jar com.hadden.emulator.ui.MainSystemEmulator --project ./demo/projectA --config ./demo/Z80.system
 
 ## Controls
 - C - Toggle Clock
