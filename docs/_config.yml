@@ -4,9 +4,9 @@ title: "Java Based 6502 & Z80 System Emulator"
 #description: "This is a java-based emulator for 6502, Z80, 68000 CPUs.  It is generic and allows for the extension of any configuration you would like."   
 #baseurl: ""
 url: "https://miketbush.github.io" # the base hostname & protocol for your site
-email: miketbush@gmail.com
-twitter_username: retrofxos
-github_username: miketbush
+#email: miketbush@gmail.com
+#twitter_username: retrofxos
+#github_username: miketbush
 
 theme: jekyll-theme-slate
 plugins:
