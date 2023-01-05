@@ -5,7 +5,7 @@ title: "Java Based 6502 & Z80 System Emulator"
 #baseurl: ""
 url: "https://miketbush.github.io" # the base hostname & protocol for your site
 #email: miketbush@gmail.com
-#twitter_username: retrofxos
+twitter_username: retrofxos
 #github_username: miketbush
 
 theme: jekyll-theme-slate
