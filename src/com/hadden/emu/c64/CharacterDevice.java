@@ -6,6 +6,7 @@ import com.hadden.ROMLoader;
 import com.hadden.SystemEmulator;
 import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
+import com.hadden.emu.IOSize;
 import com.hadden.emu.RAM;
 import com.hadden.emu.ROM;
 import com.hadden.roms.ROMManager;
@@ -32,6 +33,12 @@ public class CharacterDevice implements BusDevice, ROM
 	{
 		this(new BusAddressRange(bankAddress, 1024, 1), ROMManager.loadROM("characters.rom"));
 	}
+
+	public CharacterDevice(int bankAddress,String romFile)
+	{
+		this(bankAddress, ROMManager.loadROM(romFile));
+	}
+
 	
 	public CharacterDevice()
 	{

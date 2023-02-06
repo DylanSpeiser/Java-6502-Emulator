@@ -5,6 +5,7 @@ import java.util.Arrays;
 import com.hadden.ROMLoader;
 import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
+import com.hadden.emu.IOSize;
 import com.hadden.emu.RAM;
 import com.hadden.emu.ROM;
 import com.hadden.roms.ROMManager;

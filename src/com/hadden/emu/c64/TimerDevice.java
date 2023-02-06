@@ -11,6 +11,7 @@ import com.hadden.emu.RaisesIRQ;
 import com.hadden.emu.impl.AuxPortImpl;
 import com.hadden.emu.BusIRQ;
 import com.hadden.emu.HasPorts;
+import com.hadden.emu.IOSize;
 
 public class TimerDevice implements BusDevice, RaisesIRQ
 {
@@ -60,6 +61,12 @@ public class TimerDevice implements BusDevice, RaisesIRQ
 		this(name, new BusAddressRange(bankAddress, 2, 1));
 	}
 
+	public TimerDevice(int bankAddress)
+	{ 
+		this("Timer", new BusAddressRange(bankAddress, 2, 1));
+	}
+
+	
 	@Override
 	public String getName()
 	{

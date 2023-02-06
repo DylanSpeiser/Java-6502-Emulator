@@ -6,6 +6,7 @@ import java.util.TimerTask;
 import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
 import com.hadden.emu.BusIRQ;
+import com.hadden.emu.IOSize;
 import com.hadden.emu.RaisesIRQ;
 
 public class TimerDevice implements BusDevice, RaisesIRQ

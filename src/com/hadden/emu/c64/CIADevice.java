@@ -15,9 +15,9 @@ import com.hadden.emu.BusDevice;
 import com.hadden.emu.RAM;
 import com.hadden.emu.RaisesIRQ;
 import com.hadden.emu.impl.AuxPortImpl;
-import com.hadden.emu.BusDevice.IOSize;
 import com.hadden.emu.BusIRQ;
 import com.hadden.emu.HasPorts;
+import com.hadden.emu.IOSize;
 
 
 

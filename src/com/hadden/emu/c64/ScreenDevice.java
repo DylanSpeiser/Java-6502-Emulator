@@ -10,11 +10,11 @@ import java.util.Scanner;
 
 import javax.swing.*;
 
+import com.hadden.emu.AddressMap;
 import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
-import com.hadden.emu.BusDevice.IOSize;
-
 import com.hadden.emu.HasPorts;
+import com.hadden.emu.IOSize;
 import com.hadden.fonts.FontManager;
 
 public class ScreenDevice extends JFrame implements BusDevice, HasPorts, ActionListener
@@ -344,16 +344,19 @@ public class ScreenDevice extends JFrame implements BusDevice, HasPorts, ActionL
 	@Override
 	public void writeAddress(int address, int value, IOSize size)
 	{
+		//System.out.println("ADDR:" + AddressMap.toHexAddress(address,IOSize.IO16Bit) + ":" + value);
+		
 		if(address >= 0xD800 && address <= 0xDBE7)
 		{
 			bankColor[address - 0xD800] = (char) value;
+			//System.out.println("COLOR:" + value);
 		}
 		else
 		{				
 			bank[this.bar.getRelativeAddress(address)] = (char) value;
 			
-			//if(value!=0 && value!=85 && value!=32 && value!=-85)
-			//	System.out.println("CC:" + value + "[" + Integer.toHexString( (int)value & 0xFF) + "]" + (char) value);
+			if(value!=0 && value!=85 && value!=32 && value!=-85)
+				System.out.println("CC:" + value + "[" + Integer.toHexString( (int)value & 0xFF) + "]" + (char) value);
 		
 		}
 		

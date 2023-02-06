@@ -87,7 +87,7 @@ public class SystemEmulator extends JFrame implements ActionListener
 					}
 				});
 		
-
+		/*
 		map.addBusDevice((BusDevice)rom)
 		   //.addBusDevice(new DisplayDevice(0x0000A000,40,10))
 		   .addBusDevice(new DisplayDevice(0x0000A000,80,25))
@@ -96,9 +96,9 @@ public class SystemEmulator extends JFrame implements ActionListener
 		   //.addBusDevice(new TimerDevice(0x0000B005,5000))
 		   //.addBusDevice(new SerialDevice(0x00000200))
 		   ;
+		*/
 		
 		
-		/*
 		MuxDevice mux = new MuxDevice(0x0000D000, 0x3FF, 0x00000000, 
 				new MuxMapper() 
 				{
@@ -117,23 +117,23 @@ public class SystemEmulator extends JFrame implements ActionListener
 		
 		map.addBusDevice(new CIADevice(0x0000DC00))
 		   .addBusDevice(new ScreenDevice(0x00000400,40,25))
-		   .addBusDevice(mux)
+		   //.addBusDevice(mux)
 		   //.addBusDevice(new VICIIDevice(0x0000D000))
 		   .addBusDevice(new BASICDevice(0x0000A000,ROMManager.loadROM("basic.rom")))
 		   //.addBusDevice(new CharacterDevice(0x0000D000,ROMManager.loadROM("characters.rom")))
 		   .addBusDevice(new KernalDevice(0x0000E000,ROMManager.loadROM("kernal.rom")))
 		   .addBusDevice(new com.hadden.emu.c64.TimerDevice("TIMER-A", 0x0000DC04))
 		   .addBusDevice(new com.hadden.emu.c64.TimerDevice("TIMER-B", 0x0000DC06))
-		   .addBusDevice(new com.hadden.emu.c64.TimerDevice("TIMER-A", 0x0000DD04))
-		   .addBusDevice(new com.hadden.emu.c64.TimerDevice("TIMER-B", 0x0000DD06))
-		   .addBusDevice(new KeyboardDevice(0x0000DC00))
+		   .addBusDevice(new com.hadden.emu.c64.TimerDevice("TIMER-C", 0x0000DD04))
+		   .addBusDevice(new com.hadden.emu.c64.TimerDevice("TIMER-D", 0x0000DD06))
+		   //.addBusDevice(new KeyboardDevice(0x0000DC00))
 		   .addBusDevice(new TimerDevice(0x0000B005,1000))
 		   ;		
-		*/
+		
 		map.printAddressMap();
 		System.out.println(  ((Bus)map).dumpBytesAsString());
 		
-		SystemEmulator.enableDebug(true);
+		//SystemEmulator.enableDebug(true);
 		
 		bus = (Bus)map;
 		cpu = new MOS65C02A(bus);
@@ -182,7 +182,7 @@ public class SystemEmulator extends JFrame implements ActionListener
 				{
 					if (SystemEmulator.clockState)
 						cpu.clock();
-					System.out.print("");
+					System.out.println();					
 					if (slowerClock)
 					{
 						try

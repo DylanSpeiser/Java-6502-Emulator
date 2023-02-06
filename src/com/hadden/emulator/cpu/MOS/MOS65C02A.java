@@ -11,14 +11,20 @@ import java.util.Queue;
 import java.util.Vector;
 
 import com.hadden.Instruction;
-
+import com.hadden.emu.AddressMap;
 import com.hadden.emu.Bus;
 import com.hadden.emu.CPU;
+import com.hadden.emu.CPUInfo;
+import com.hadden.emu.IOSize;
 import com.hadden.emulator.ClockLine;
 import com.hadden.emulator.DeviceDebugger;
+import com.hadden.emulator.debug.DebugControl;
+import com.hadden.emulator.debug.DebugListener;
+import com.hadden.emulator.debug.DebugListener.DebugReason;
+import com.hadden.emulator.debug.Debugger;
 import com.hadden.emulator.util.Convert;
 
-public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
+public class MOS65C02A implements CPU, CPUInfo, ClockLine, DeviceDebugger, DebugControl
 {
 	private static class InterruptLock
 	{
@@ -39,6 +45,8 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 	public byte y = 0x00;
 	public byte stackPointer = 0x00;
 	public short programCounter = 0x0000;
+	public short optPC = 0x0000;
+	public Instruction lastInst = null;
 
 	public boolean debug = false;
 
@@ -78,7 +86,15 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 	private int irqCycles;
 	private int starveProtect = 5;
 
-	
+	//
+	// debugging variables
+	//
+	private boolean bDebugControl = false;
+	private List<DebugListener> debugSteps = new Vector<DebugListener>();
+	private List<DebugListener> debugClocks = new Vector<DebugListener>();
+	private List<DebugListener> debugBreaks = new Vector<DebugListener>();
+	//
+	//
 	
 	private InterruptLock irqLock = new InterruptLock();
 	
@@ -121,6 +137,8 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 	
 	private List<String> history = new LimitedSizeQueue<String>(2000);
 	private boolean historyEnabled = true;
+
+	private long irqTime = 0;
 	
 	public MOS65C02A(Bus bus)
 	{
@@ -446,8 +464,16 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 		*/
 		synchronized(irqLock)
 		{
+			long iirq = System.currentTimeMillis() - irqTime ;			
+			if(iirq < 5000 || clocks < 10)
+			{
+				System.out.println("Skip IRQ");
+				return;
+			}
+			
 			if(!interruptRequested)
 			{
+				irqTime = System.currentTimeMillis();
 				interruptRequested = true;
 			}
 		
@@ -456,19 +482,26 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 	
 	public void clock()
 	{
+		short lastPC = 0;
+		
  		if (cycles == 0)
 		{
 			if(interruptRequested && !debugger_irq_hold)
 				irq();
 			else if (NMinterruptRequested)
 				nmi();		
-			else			
+			//else
+			if(true)
 			{
 				additionalCycles = 0;
+				optPC = programCounter;
+				
+				
+				//System.out.println("PC" + AddressMap.toHexAddress(programCounter,IOSize.IO16Bit));
+
 				opcode = cpuBus.read(programCounter);
 				programCounter++;
 
-				
 				//cycles = lookup[Byte.toUnsignedInt(opcode)].cycles;
 				if(!cyclesCache.containsKey((int)opcode))
 				{
@@ -481,6 +514,8 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 					//this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].addressMode).invoke(this);
 					//this.getClass().getMethod(lookup[Byte.toUnsignedInt(opcode)].opcode).invoke(this);
 					Instruction instruction = lookup[Byte.toUnsignedInt(opcode)];
+					lastInst = instruction;
+					
 					//
 					// added mode and op caching for simple increase in speed
 					//
@@ -506,7 +541,8 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 					//	historyEnabled = false;
 					//interruptsEnabled = true;
 					
-				} catch (Exception e)
+				} 
+				catch (Exception e)
 				{
 					System.out.println(Integer.toHexString(opcode & 0xFF) + ": " + Integer.toHexString(this.addressAbsolute & 0xFFFF));
 					e.printStackTrace();
@@ -531,10 +567,16 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 		cycles--;
 		
 		
-		if(cycles < 0)
+		if(cycles <= 0)
 		{
 			cycles = 0;
+			if(bDebugControl && debugSteps.size() > 0)
+				for(DebugListener dl : this.debugSteps)
+					dl.debugEvent(DebugReason.Step, programCounter,IOSize.IO16Bit);
 		}
+		
+		
+		
 		
 		telemetry.a = a;
 		telemetry.x = x;
@@ -560,10 +602,15 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 		{
 			String debugLine = "";
 			
+			debugLine = (Convert.padStringWithZeroes(Integer.toHexString(Short.toUnsignedInt((short)(optPC))), 4) + ":" + 
+				     dbgOp.opcode + " " + 
+				     Convert.byteToHexString(opcode) + " ");
+			
+			/*
 			debugLine = (Convert.padStringWithZeroes(Integer.toHexString(Short.toUnsignedInt(programCounter)), 4) + ":" + 
 					     dbgOp.opcode + " " + 
 					     Convert.byteToHexString(opcode) + " ");
-			
+			*/
 			//System.out.println("addressAbsolute[" + dbgOp.opcode + ":" + dbgOp.addressMode  + "]:" +  addressAbsolute);
 			//System.out.println("addressAbsolute[" + dbgOp.opcode + ":" + dbgOp.addressMode  + "]:" +  Convert.toHex16String(addressAbsolute));
 			
@@ -575,7 +622,7 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 				{
 					//System.out.println("addressAbsolute IMM:" + Convert.toHex8String(addressAbsolute));
 					//debugLine+=("#$" + Integer.toHexString(Byte.toUnsignedInt(fetched))); 
-					debugLine+=("#$" + Convert.toHex8String(addressAbsolute));
+					debugLine+=("#$" + Convert.toHex8String(fetched));
 				}
 				else if (dbgOp.addressMode.equals("REL"))
 				{
@@ -771,13 +818,15 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 		}
 		else
 		{
+			//System.out.println("IRQ Cycles:" + cycles);
 			cycles = 1;
 		}
 
 		synchronized(irqLock)
 		{
 			//pendingIRQ.offer(this.clocks);
-			interruptRequested = false;
+			// put this back 
+			//interruptRequested = false;
 		};
 
 	}
@@ -1579,4 +1628,53 @@ public class MOS65C02A implements CPU, ClockLine, DeviceDebugger
 		this.reset();
 	}
 
+	@Override
+	public IOSize getAddressableSize()
+	{
+		return IOSize.IO16Bit;
+	}
+
+	@Override
+	public IOSize getDataSize()
+	{
+		return IOSize.IO8Bit;
+	}
+
+	@Override
+	public boolean isOddAlignmentValid(IOSize size)
+	{
+		return true;
+	}
+
+
+	@Override
+	public void enable()
+	{
+		bDebugControl = true;
+	}
+
+
+	@Override
+	public void disable()
+	{
+		bDebugControl = false;		
+	}
+
+	@Override
+	public void addStepListener(DebugListener dsl)
+	{
+		this.debugSteps.add(dsl);		
+	}
+
+	@Override
+	public void addClockListener(DebugListener dsl)
+	{
+		this.debugClocks.add(dsl);
+	}
+
+	@Override
+	public void addExecutionListener(DebugListener dsl)
+	{
+		this.debugBreaks.add(dsl);
+	}	
 }

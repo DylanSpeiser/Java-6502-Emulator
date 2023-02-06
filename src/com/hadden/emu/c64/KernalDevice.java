@@ -5,6 +5,7 @@ import java.util.Arrays;
 import com.hadden.ROMLoader;
 import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
+import com.hadden.emu.IOSize;
 import com.hadden.emu.RAM;
 import com.hadden.emu.ROM;
 import com.hadden.roms.ROMManager;
@@ -30,6 +31,11 @@ public class KernalDevice implements BusDevice, ROM
 	public KernalDevice(int bankAddress)
 	{
 		this(new BusAddressRange(bankAddress, 1024, 1), ROMManager.loadROM("kernal.rom"));
+	}
+
+	public KernalDevice(int bankAddress, String romName)
+	{
+		this(bankAddress, ROMManager.loadROM(romName));
 	}
 	
 	public KernalDevice()

@@ -2,6 +2,7 @@ package com.hadden.emu.impl;
 
 import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
+import com.hadden.emu.IOSize;
 
 
 

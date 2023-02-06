@@ -12,6 +12,7 @@ import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
 import com.hadden.emu.RaisesIRQ;
 import com.hadden.emu.BusIRQ;
+import com.hadden.emu.IOSize;
 
 
 public class KeyboardDevice implements BusDevice, RaisesIRQ

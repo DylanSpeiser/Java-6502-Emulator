@@ -8,6 +8,7 @@ import com.hadden.emu.BusDevice;
 import com.hadden.emu.BusIRQ;
 import com.hadden.emu.BusReader;
 import com.hadden.emu.BusWriter;
+import com.hadden.emu.IOSize;
 import com.hadden.emu.RAM;
 import com.hadden.emu.RaisesIRQ;
 import com.hadden.emu.c64.CIADevice;

@@ -25,7 +25,7 @@ public class MOS65C02A implements CPU
 	public byte stackPointer = 0x00;
 	public short programCounter = 0x0000;
 
-	public boolean debug = true;
+	public boolean debug = false;
 
 	public short addressAbsolute = 0x0000;
 	public short addressRelative = 0x0000;

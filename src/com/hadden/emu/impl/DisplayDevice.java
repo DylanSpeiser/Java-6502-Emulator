@@ -14,6 +14,7 @@ import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
 import com.hadden.emu.Detachable;
 import com.hadden.emu.HasPorts;
+import com.hadden.emu.IOSize;
 import com.hadden.fonts.FontManager;
 
 public class DisplayDevice extends JFrame implements BusDevice, HasPorts, ActionListener, Detachable

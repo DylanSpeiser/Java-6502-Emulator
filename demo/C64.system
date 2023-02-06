@@ -6,7 +6,7 @@
 # Extend functionality via class path entries 
 #
 ####################################################
-name=Z80
+name=Commodore 64
 
 ####################################################
 #            Address Map Handler Class
@@ -18,7 +18,7 @@ addressbus=com.hadden.emu.AddressMapImpl
 #             CPU Definition Class
 ####################################################
 
-cpu=com.hadden.emulator.cpu.Zilog.Z80
+cpu=com.hadden.emulator.cpu.MOS.MOS65C02A
 
 ####################################################
 #         Device Handler Classes and Namings
@@ -26,8 +26,21 @@ cpu=com.hadden.emulator.cpu.Zilog.Z80
 ####################################################
 
 device=RAM,com.hadden.emu.impl.RAMDevice
-device=ROM,com.hadden.emu.impl.ROMDevice
-device=DISPLAY,com.hadden.emu.impl.DisplayDevice
+device=CIA,com.hadden.emu.c64.CIADevice
+device=SCREEN,com.hadden.emu.c64.ScreenDevice
+device=MUX,com.hadden.emu.impl.MuxDevice
+device=CHAR,com.hadden.emu.c64.CharacterDevice
+device=VICII,com.hadden.emu.c64.VICIIDevice
+device=BASIC,com.hadden.emu.c64.BASICDevice
+device=KERNAL,com.hadden.emu.c64.KernalDevice
+device=TIMER-A,com.hadden.emu.c64.TimerDevice
+device=TIMER-B,com.hadden.emu.c64.TimerDevice
+device=TIMER-C,com.hadden.emu.c64.TimerDevice
+device=TIMER-D,com.hadden.emu.c64.TimerDevice
+device=KEYBOARD,com.hadden.emu.c64.KeyboardDevice
+device=TIMER,com.hadden.emu.impl.TimerDevice
+
+
 
 ####################################################
 #         Default Address Bus Device Class
@@ -44,6 +57,20 @@ default=RAM
 irqbus=com.hadden.emu.impl.BusIRQImpl
 
 ####################################################
+#            System MUX Device List
+#
+# Device arguments are per device, but typically   
+# the first argument is the device start address
+#
+# Format:
+# mux=SYMBOLIC_NAME,DEVICE_ARG_1,...,DEVICE_ARG_N
+# 
+####################################################
+
+mux=CHAR,0x0000D000,file://./demo/c64/characters.rom
+mux=VICII,0x0000D000
+
+####################################################
 #            System Bus Device List
 #
 # Device arguments are per device, but typically   
@@ -55,8 +82,19 @@ irqbus=com.hadden.emu.impl.BusIRQImpl
 ####################################################
 
 bus=RAM,0x00000000,65535
-bus=ROM,0x00000000,file://./demo/z80/memtest.bin
-bus=DISPLAY,0x000A000,80,25
+bus=CIA,0x0000DC00
+bus=SCREEN,0x00000400,40,25
+bus=CHAR,0x0000D000,file://./demo/c64/characters.rom
+#bus=MUX,0x0000D000, 0x3FF, 0x00000000,@CHAR(),@VICII(0x04)
+bus=BASIC,0x0000A000,file://./demo/c64/basic.rom
+bus=KERNAL,0x0000E000,file://./demo/c64/kernal.rom
+#bus=TIMER-A,0x0000DC04
+#bus=TIMER-B,0x0000DC06
+#bus=TIMER-C,0x0000DD04
+#bus=TIMER-D,0x0000DD06
+#bus=KEYBOARD,0x0000DC00
+bus=TIMER,0x0000B005,500
+		
 
 ####################################################
 #           Bus Expansion Slots (NOT IMPL)

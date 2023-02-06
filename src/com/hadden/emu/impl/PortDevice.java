@@ -3,6 +3,7 @@ package com.hadden.emu.impl;
 import com.hadden.ROMLoader;
 import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
+import com.hadden.emu.IOSize;
 import com.hadden.emu.RAM;
 
 public class PortDevice implements BusDevice, RAM

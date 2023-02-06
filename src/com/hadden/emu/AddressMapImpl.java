@@ -10,7 +10,6 @@ import java.util.Vector;
 
 import com.hadden.ROMLoader;
 import com.hadden.SystemEmulator;
-import com.hadden.emu.BusDevice.IOSize;
 import com.hadden.emu.c64.BASICDevice;
 import com.hadden.emu.c64.CIADevice;
 import com.hadden.emu.c64.CharacterDevice;

@@ -2,8 +2,6 @@ package com.hadden.emu;
 
 import java.util.Collection;
 
-import com.hadden.emu.BusDevice.IOSize;
-
 public interface AddressMap
 {
 	public void setDefaultDevice(BusDevice bd);

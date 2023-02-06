@@ -15,7 +15,7 @@ import javax.swing.*;
 
 import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
-import com.hadden.emu.BusDevice.IOSize;
+import com.hadden.emu.IOSize;
 
 public class VIADevice implements BusDevice
 {

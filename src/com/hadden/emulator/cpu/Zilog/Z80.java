@@ -6,8 +6,9 @@ import java.util.List;
 
 import com.hadden.emu.AddressMap;
 import com.hadden.emu.Bus;
-import com.hadden.emu.BusDevice.IOSize;
 import com.hadden.emu.CPU;
+import com.hadden.emu.CPUInfo;
+import com.hadden.emu.IOSize;
 import com.hadden.emulator.ClockLine;
 import com.hadden.emulator.DeviceDebugger;
 import com.hadden.emulator.cpu.MOS.MOS65C02A.LimitedSizeQueue;
@@ -289,7 +290,7 @@ interface Z80debug
  * index instruction.
  */
 
-public class Z80 implements Z80debug, CPU, ClockLine, DeviceDebugger
+public class Z80 implements Z80debug, CPU, ClockLine, DeviceDebugger, CPUInfo
 {
 	public static final int IM0 = 0;
 	public static final int IM1 = 1;
@@ -5867,6 +5868,24 @@ public class Z80 implements Z80debug, CPU, ClockLine, DeviceDebugger
 	{
 		this.cpuBus = bus;
 		
+	}
+
+	@Override
+	public IOSize getAddressableSize()
+	{
+		return IOSize.IO16Bit;
+	}
+
+	@Override
+	public IOSize getDataSize()
+	{
+		return IOSize.IO8Bit;
+	}
+
+	@Override
+	public boolean isOddAlignmentValid(IOSize size)
+	{
+		return true;
 	}
 
 }; // end class declaration

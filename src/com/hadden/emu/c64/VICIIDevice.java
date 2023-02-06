@@ -12,6 +12,7 @@ import com.hadden.emu.RaisesIRQ;
 import com.hadden.emu.impl.AuxPortImpl;
 import com.hadden.emu.BusIRQ;
 import com.hadden.emu.HasPorts;
+import com.hadden.emu.IOSize;
 
 public class VICIIDevice implements BusDevice, RaisesIRQ
 {
@@ -65,7 +66,10 @@ public class VICIIDevice implements BusDevice, RaisesIRQ
 							rasterLine = 0;
 							writeAddress(0xDC0D,0x80,IOSize.IO8Bit);
 							if(irq!=null)
+							{
+								System.out.println("VICII IRQ");
 								irq.raise(0);
+							}
 						}
 						Thread.sleep(16);
 					}

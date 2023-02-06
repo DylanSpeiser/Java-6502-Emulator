@@ -14,10 +14,10 @@ import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
 import com.hadden.emu.RAM;
 import com.hadden.emu.RaisesIRQ;
-import com.hadden.emu.BusDevice.IOSize;
 import com.hadden.emu.impl.Gfx256Device.GfxPort;
 import com.hadden.emu.BusIRQ;
 import com.hadden.emu.HasPorts;
+import com.hadden.emu.IOSize;
 
 public class SerialDevice implements BusDevice, RaisesIRQ, HasPorts
 {

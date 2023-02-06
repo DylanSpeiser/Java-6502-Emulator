@@ -5,6 +5,7 @@ import java.util.Arrays;
 import com.hadden.ROMLoader;
 import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
+import com.hadden.emu.IOSize;
 import com.hadden.emu.RAM;
 import com.hadden.emu.ROM;
 import com.hadden.roms.ROMManager;
@@ -27,9 +28,14 @@ public class BASICDevice implements BusDevice, ROM
 		this(new BusAddressRange(bankAddress, romImage.length, 1), romImage);
 	}
 
+	public BASICDevice(int bankAddress, String fileName)
+	{
+		this(bankAddress,  ROMManager.loadROM(fileName));
+	}	
+	
 	public BASICDevice(int bankAddress)
 	{
-		this(new BusAddressRange(bankAddress, 1024, 1),  ROMManager.loadROM("basic.rom"));
+		this(bankAddress,  ROMManager.loadROM("basic.rom"));
 	}
 	
 	public BASICDevice()

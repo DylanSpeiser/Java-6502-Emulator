@@ -46,4 +46,6 @@ public interface CPU
 	public Telemetry getTelemetry();
 	public void setBus(Bus bus);
 
+	//public IOSize getAddressSize();
+	
 }

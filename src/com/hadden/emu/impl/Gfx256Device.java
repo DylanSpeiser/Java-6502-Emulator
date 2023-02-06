@@ -14,6 +14,7 @@ import javax.swing.*;
 import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
 import com.hadden.emu.HasPorts;
+import com.hadden.emu.IOSize;
 
 public class Gfx256Device extends JFrame implements BusDevice, HasPorts, ActionListener
 {

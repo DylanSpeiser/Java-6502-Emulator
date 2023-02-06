@@ -4,8 +4,8 @@ import com.hadden.ROMLoader;
 import com.hadden.emu.AddressMap;
 import com.hadden.emu.BusAddressRange;
 import com.hadden.emu.BusDevice;
+import com.hadden.emu.IOSize;
 import com.hadden.emu.RAM;
-import com.hadden.emu.BusDevice.IOSize;
 
 public class RAMDevice implements BusDevice, RAM
 {

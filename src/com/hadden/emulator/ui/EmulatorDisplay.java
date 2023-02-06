@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -13,13 +15,15 @@ import javax.swing.SpinnerListModel;
 import javax.swing.Timer;
 
 import com.hadden.emu.AddressMap;
-import com.hadden.emu.BusDevice.IOSize;
 import com.hadden.emu.BusListener;
 import com.hadden.emu.CPU.Telemetry;
 import com.hadden.emu.CPU.TelemetryInfo;
+import com.hadden.emu.IOSize;
 import com.hadden.emulator.Clock;
 import com.hadden.emulator.DeviceDebugger;
 import com.hadden.emulator.Emulator;
+import com.hadden.emulator.debug.DebugControl;
+import com.hadden.emulator.debug.DebugListener;
 import com.hadden.emulator.util.Convert;
 
 public class EmulatorDisplay extends JPanel implements ActionListener, KeyListener, BusListener, MouseWheelListener
@@ -52,7 +56,7 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 	private Emulator emulator;
 	private JFrame editorFrame;
 
-	
+	private Map<Integer,String> debugBreaks = new HashMap<Integer,String>();
 
 	private boolean bDebugMode = false;
 	
@@ -72,7 +76,53 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 		memHILO[1] = ' ';
 		
 		this.emulator = emulator;
+		
+		//
+		// manually setting breaks, needs to be UI driven
+		//
+		debugBreaks.put((int)((short)0xFDA3),"0xFDA3");
+		debugBreaks.put((int)((short)0xFD15),"0xFD15");
+		debugBreaks.put((int)((short)0xA000),"0xA000");
+		
+		
+		if(emulator.getCPU() instanceof DebugControl)
+		{
+			((DebugControl)(emulator.getCPU())).addStepListener(new DebugListener()
+			{
+				@Override
+				public DebugCode debugEvent(DebugReason dr, int data, IOSize size)
+				{
+					return DebugCode.None;
+				}
 
+				@Override
+				public DebugCode debugEvent(DebugReason dr, byte data, IOSize size)
+				{
+					// TODO Auto-generated method stub
+					return DebugCode.None;
+				}
+
+				@Override
+				public DebugCode debugEvent(DebugReason dr, short data, IOSize size)
+				{
+					if(bDebugMode &&  debugBreaks.containsKey((int)data))
+					{
+						System.out.println("CPU STEP");
+						emulator.getClock().setEnabled(false);
+						repaint();
+					}
+					return DebugCode.None;
+				}
+
+				@Override
+				public DebugCode debugEvent(DebugReason dr, long data, IOSize size)
+				{
+					// TODO Auto-generated method stub
+					return DebugCode.None;
+				}
+			});
+			((DebugControl)(emulator.getCPU())).enable();
+		}
 		
 		if(System.getProperty("emulator.resetJMP") != null)
 		{
@@ -151,7 +201,7 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 		rightAlignHelper = Math.max(getWidth(), 1334);
 
 		// Title
-		g.setFont(new Font("Calibri Bold", 50, 50));
+		g.setFont(new Font("Calibri Bold", 50, 38));
 		// g.drawString("Ben Eater 6502 Emulator", 40, 50);
 		g.drawString(title, 40, 50);
 
@@ -169,6 +219,8 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 			ti = (TelemetryInfo)t;
 		}
 
+		
+		
 		// Clocks
 		g.drawString("Clocks: " + t.clocks, 40, 80);
 		if (t.clocksPerSecond > 1000000.0)
@@ -181,10 +233,10 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 					40, 110);
 
 		// PAGE INDICATORS
-		g.drawString("(K) <-- " + Convert.byteToHexString((byte) (romPage + 0x80)) + " --> (L)", rightAlignHelper - 304,
-				Math.max(getHeight() - 91, 920));
-		g.drawString("(H) <-- " + Convert.byteToHexString((byte) ramPage) + " --> (J)", rightAlignHelper - 704,
-				Math.max(getHeight() - 91, 920));
+		//g.drawString("(K) <-- " + Convert.byteToHexString((byte) (romPage + 0x80)) + " --> (L)", rightAlignHelper - 304,
+		//		Math.max(getHeight() - 91, 920));
+		//g.drawString("(H) <-- " + Convert.byteToHexString((byte) ramPage) + " --> (J)", rightAlignHelper - 704,
+		//		Math.max(getHeight() - 91, 920));
 
 		// Stack Pointer Underline
 		if (ramPage == 1)
@@ -211,6 +263,9 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 			g.setColor(Color.white);
 		}
 		g.drawString("RAM", rightAlignHelper - 624, 130);
+		//g.drawString("(H) <- RAM " + AddressMap.toHexAddress((int)(0x00FF & ramPage),IOSize.IO16Bit) + " -> (J)", 
+		//		rightAlignHelper - 714, 130);
+		
 		drawString(g, ramPageString, rightAlignHelper - 779, 150);
 		
 		// ROM
@@ -385,7 +440,10 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 		g.drawString("Space - Pulse Clock", 35, ctop+=30);
 		g.drawString("R - Reset System", 35, ctop+=30);
 		g.drawString("P - Reset CPU", 35, ctop+=30);
-		g.drawString("S - Toggle Slower " + (emulator.getClock().isSlow() ? "Disable" : "Enable"), 35, ctop+=30);
+		if(bDebugMode)
+			g.drawString("S - Step Debugger", 35, ctop+=30);
+		else
+			g.drawString("S - Toggle Slower " + (emulator.getClock().isSlow() ? "Disable" : "Enable"), 35, ctop+=30);
 		g.drawString("I - Toggle Interrupt "+ 
 		             (((DeviceDebugger) emulator.getCPU()).isEnabled("interrupt-hold") ? "Enable" : "Disable"),
 				     35, ctop+=30);
@@ -476,7 +534,8 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 					offset = 0;
 
 				if (bound > size)
-					bound = 0;
+					//bound = 0;
+					bound = size;
 
 				int top = size - bound - offset;
 				if (top < 0)
@@ -709,9 +768,13 @@ public class EmulatorDisplay extends JPanel implements ActionListener, KeyListen
 			break;
 		case ' ':
 			c.pulse();
+			this.historyOffset = 0;
 			break;
 		case 's':
-			c.setSlow(!c.isSlow());
+			if(bDebugMode)
+				System.out.println("DO STEP");
+			else
+				c.setSlow(!c.isSlow());
 			break;
 		case 'i':
 			if (emulator.getCPU() instanceof DeviceDebugger)
