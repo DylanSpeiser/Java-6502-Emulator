@@ -31,19 +31,6 @@ public class EmulatorFrame extends JFrame implements ActionListener
 	{
 		platform = System.getProperty("os.name").toLowerCase();
 
-		if (!platform.contains("windows"))
-		{
-			//JDialog.setDefaultLookAndFeelDecorated(true);
-			//JFrame.setDefaultLookAndFeelDecorated(true);
-			//this.setUndecorated(false);
-		}
-		else
-		{
-			//JDialog.setDefaultLookAndFeelDecorated(true);
-			//JFrame.setDefaultLookAndFeelDecorated(true);
-			//this.setUndecorated(true);
-		}
-
 		try
 		{
 			UIManager.setLookAndFeel(new MetalLookAndFeel());
