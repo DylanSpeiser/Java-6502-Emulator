@@ -135,6 +135,10 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 		clock = new SystemClock();
 		clock.addClockLine(clockLine);
 		
+		EmulatorFrame ef = new EmulatorFrame("");
+		ef.setSize(new Dimension(500,300));
+		ef.setVisible(true);
+		
 		// Final Setup
 		// separate out impl
 		JPanel jp = (JPanel)emulatorDisplay;
