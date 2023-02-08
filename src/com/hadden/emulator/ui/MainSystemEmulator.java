@@ -97,23 +97,23 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 
 	private void initDisplay() 
 	{
-		emulatorDisplay = new EmulatorDisplay(this);
-		((AddressMap)this.getBus()).addBusListener(emulatorDisplay);
+		emulatorDisplay = new EmulatorDisplayImpl(this);
+		((AddressMap)this.getBus()).addBusListener((BusListener)emulatorDisplay);
 		
 		// map.setBusListener(graphicsPanel);
 
 		// Open .bin file button
-		ROMopenButton.setVisible(true);
-		ROMopenButton.addActionListener(this);
-		ROMopenButton.setBounds(getWidth() - 150, 15, 125, 25);
-		ROMopenButton.setBackground(Color.white);
-		emulatorDisplay.add(ROMopenButton);
-
-		RAMopenButton.setVisible(true);
-		RAMopenButton.addActionListener(this);
-		RAMopenButton.setBounds(getWidth() - 150, 45, 125, 25);
-		RAMopenButton.setBackground(Color.white);
-		emulatorDisplay.add(RAMopenButton);
+//		ROMopenButton.setVisible(true);
+//		ROMopenButton.addActionListener(this);
+//		ROMopenButton.setBounds(getWidth() - 150, 15, 125, 25);
+//		ROMopenButton.setBackground(Color.white);
+//		emulatorDisplay.add(ROMopenButton);
+//
+//		RAMopenButton.setVisible(true);
+//		RAMopenButton.addActionListener(this);
+//		RAMopenButton.setBounds(getWidth() - 150, 45, 125, 25);
+//		RAMopenButton.setBackground(Color.white);
+//		emulatorDisplay.add(RAMopenButton);
 
 		// file chooser
 		fc.setVisible(true);
@@ -136,13 +136,14 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 		clock.addClockLine(clockLine);
 		
 		// Final Setup
-		
-		emulatorDisplay.setVisible(true);
-		
-		emulatorDisplay.setSize(new Dimension(1920,1200));
+		// separate out impl
+		JPanel jp = (JPanel)emulatorDisplay;
+		jp.setVisible(true);		
+		jp.setSize(new Dimension(1920,1200));
+		this.setContentPane(jp);
+		//
 		this.setUndecorated(false);
-		this.setTitle("System Emulator");
-		this.setContentPane(emulatorDisplay);
+		this.setTitle("System Emulator");		
 		this.setSize(new Dimension(1920,1080));
 		this.setVisible(true);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -477,7 +478,7 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 		}
 		
 		
-		this.emulatorDisplay.repaint();
+		this.emulatorDisplay.redraw();
 	}
 
 	@Override
