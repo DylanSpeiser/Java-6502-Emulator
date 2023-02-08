@@ -12,6 +12,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.*;
+import javax.swing.plaf.metal.MetalLookAndFeel;
 
 import com.dst.util.system.io.FileMonitor;
 import com.hadden.SystemConfig;
@@ -513,10 +514,20 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 		
 		MainSystemEmulator.platform = System.getProperty("os.name").toLowerCase();
 		
+		/*
 		if(!MainSystemEmulator.platform.contains("windows"))
 		{
 			JDialog.setDefaultLookAndFeelDecorated(true);
 			JFrame.setDefaultLookAndFeelDecorated(true);		
+		}
+		*/
+		try
+		{
+			UIManager.setLookAndFeel(new MetalLookAndFeel());
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
 		}
 		
 		if(args.length > 0)
