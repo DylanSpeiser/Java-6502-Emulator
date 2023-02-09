@@ -375,6 +375,14 @@ public class AddressMapImpl implements Bus, AddressMap
 				((Detachable)bd).detach();
 		
 		mappedAddressSpace.clear();		
+	}
+
+	@Override
+	public void reset()
+	{
+		if(busListeners!=null && busListeners.size() > 0)
+			for(BusListener b : busListeners)
+				b.busReset();
 	}	
 	
 }

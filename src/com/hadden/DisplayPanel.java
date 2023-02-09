@@ -299,4 +299,12 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener,
 		}
 	}
 
+	@Override
+	public void busReset()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+
 }

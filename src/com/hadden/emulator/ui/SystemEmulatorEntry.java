@@ -1,18 +1,6 @@
 package com.hadden.emulator.ui;
-//Original Code by Dylan Speiser
 
-//https://github.com/DylanSpeiser
-
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-
-import javax.swing.*;
-import javax.swing.plaf.metal.MetalLookAndFeel;
 
 import com.dst.util.system.io.FileMonitor;
 import com.hadden.SystemConfig;
@@ -25,16 +13,7 @@ import com.hadden.emu.BusDevice;
 import com.hadden.emu.BusIRQ;
 import com.hadden.emu.BusListener;
 import com.hadden.emu.CPU;
-import com.hadden.emu.IOSize;
-import com.hadden.emu.c64.BASICDevice;
-import com.hadden.emu.c64.CIADevice;
-import com.hadden.emu.c64.CharacterDevice;
-import com.hadden.emu.c64.KernalDevice;
-import com.hadden.emu.c64.KeyboardDevice;
-import com.hadden.emu.c64.ScreenDevice;
-import com.hadden.emu.c64.VICIIDevice;
 import com.hadden.emu.impl.DisplayDevice;
-import com.hadden.emu.impl.MuxDevice;
 import com.hadden.emu.impl.RAMDevice;
 import com.hadden.emu.impl.ROMDevice;
 import com.hadden.emu.impl.TimerDevice;
@@ -43,33 +22,15 @@ import com.hadden.emulator.Clock;
 import com.hadden.emulator.ClockLine;
 import com.hadden.emulator.Emulator;
 import com.hadden.emulator.cpu.MOS.MOS65C02A;
-import com.hadden.emulator.cpu.Motorola.m68000.MC68000;
-import com.hadden.emulator.cpu.Zilog.Z80;
 import com.hadden.emulator.project.CC65ProjectImpl;
 import com.hadden.emulator.project.Project;
-import com.hadden.emulator.project.ProjectImpl;
-
 
 @SuppressWarnings("serial")
-public class MainSystemEmulator extends JFrame implements ActionListener, Emulator
+public class SystemEmulatorEntry implements Emulator
 {
 	public String versionString = "1.0";
 
-	private static MainSystemEmulator emu;
-	
-	// Swing Things
-	JPanel p = new JPanel();
-	JPanel header = new JPanel();
-	JFileChooser fc = new JFileChooser();
-	public static JButton ROMopenButton = new JButton("Open ROM File");
-	public static JButton RAMopenButton = new JButton("Open RAM File");
-
-	private static String platform;
-
-	
-
-	public EmulatorDisplay emulatorDisplay = null;
-
+	private static SystemEmulatorEntry emu;
 	
 	private Clock clock = null;
 
@@ -84,72 +45,18 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 	private FileMonitor monitoredBinary;
 	
 	
-	public MainSystemEmulator(SystemConfig configuration)
+	public SystemEmulatorEntry(SystemConfig configuration)
 	{
 		init(configuration);		
-		initDisplay();	
+		//initDisplay();	
 	}
 
 	
-	public MainSystemEmulator()
+	public SystemEmulatorEntry()
 	{
 		this(null);
 	}
 
-	private void initDisplay() 
-	{
-		emulatorDisplay = new EmulatorDisplayImpl(this);
-		((AddressMap)this.getBus()).addBusListener((BusListener)emulatorDisplay);
-		
-		// map.setBusListener(graphicsPanel);
-
-		// Open .bin file button
-//		ROMopenButton.setVisible(true);
-//		ROMopenButton.addActionListener(this);
-//		ROMopenButton.setBounds(getWidth() - 150, 15, 125, 25);
-//		ROMopenButton.setBackground(Color.white);
-//		emulatorDisplay.add(ROMopenButton);
-//
-//		RAMopenButton.setVisible(true);
-//		RAMopenButton.addActionListener(this);
-//		RAMopenButton.setBounds(getWidth() - 150, 45, 125, 25);
-//		RAMopenButton.setBackground(Color.white);
-//		emulatorDisplay.add(RAMopenButton);
-
-		// file chooser
-		fc.setVisible(true);
-		String binDir = System.getProperty("user.home") + System.getProperty("file.separator") + "Downloads";
-		if (System.getenv("SEMU_BIN_DIR") != null && System.getenv("SEMU_BIN_DIR").length() > 0)
-			binDir = System.getenv("SEMU_BIN_DIR");
-
-		String ramDir = binDir;
-		if (System.getenv("SEMU_RAM_DIR") != null && System.getenv("SEMU_RAM_DIR").length() > 0)
-			ramDir = System.getenv("SEMU_RAM_DIR");
-
-		String romDir = binDir;
-		if (System.getenv("SEMU_ROM_DIR") != null && System.getenv("SEMU_ROM_DIR").length() > 0)
-			romDir = System.getenv("SEMU_ROM_DIR");
-
-		fc.setCurrentDirectory(new File(binDir));
-
-
-		clock = new SystemClock();
-		clock.addClockLine(clockLine);
-		
-		// Final Setup
-		// separate out impl
-		JPanel jp = (JPanel)emulatorDisplay;
-		jp.setVisible(true);		
-		jp.setSize(new Dimension(1920,1200));
-		this.setContentPane(jp);
-		//
-		this.setUndecorated(false);
-		this.setTitle("System Emulator");		
-		this.setSize(new Dimension(1920,1080));
-		this.setVisible(true);
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		this.setResizable(true);
-	}
 
 	@SuppressWarnings("deprecation")
 	private void init(SystemConfig configuration)
@@ -347,7 +254,8 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 			//SystemEmulator.enableDebug(true);
 			
 		}
-		
+		clock = new SystemClock();
+		clock.addClockLine(clockLine);
 		
 		// Swing Stuff:
 		System.setProperty("sun.java2d.opengl", "true");
@@ -359,80 +267,6 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 		return this.versionString;
 	}
 
-	/*
-	public static Bus getBus()
-	{
-		return bus;
-	}
-	*/
-
-	@Override
-	public void actionPerformed(ActionEvent e)
-	{
-		/*
-		if (e.getSource().equals(ROMopenButton))
-		{
-			fc.setSelectedFile(new File(""));
-			int returnVal = fc.showOpenDialog(this);
-
-			if (returnVal == JFileChooser.APPROVE_OPTION)
-			{
-				rom.setROMArray(ROMLoader.readROM(fc.getSelectedFile()));
-			}
-			graphicsPanel.requestFocus();
-			graphicsPanel.romPageString = SystemEmulator.rom.getROMString().substring(graphicsPanel.romPage * 960,
-					SystemEmulator.rom.getROMString().length());
-
-			ram.setRAMArray(new byte[] { 0x4C, 0x00, (byte) 0x80 });
-
-			cpu.reset();
-		}
-		else if (e.getSource().equals(RAMopenButton))
-		{
-			fc.setSelectedFile(new File(""));
-			int returnVal = fc.showOpenDialog(this);
-
-			if (returnVal == JFileChooser.APPROVE_OPTION)
-			{
-				File selectedFile = fc.getSelectedFile();
-
-				Integer[] baseAddress = new Integer[1];
-
-				byte[] array = ROMLoader.readROM(selectedFile, baseAddress);
-
-				if (baseAddress[0] == null)
-					baseAddress[0] = 0;
-				ram.setRAMArray(baseAddress[0], array);
-
-				if (baseAddress[0] > 0)
-				{
-					ram.write((short) 0x0000, (byte) 0x4C);
-					ram.write((short) 0x0001, (byte) (baseAddress[0] & 0xFF));
-					ram.write((short) 0x0002, (byte) ((baseAddress[0] & 0xFF00) >> 8));
-				}
-			}
-			graphicsPanel.requestFocus();
-			graphicsPanel.ramPageString = SystemEmulator.ram.getRAMString().substring(graphicsPanel.ramPage * 960,
-					(graphicsPanel.ramPage + 1) * 960);
-			cpu.reset();
-		}
-		*/
-	}
-
-	/*
-	public static boolean enableDebug(boolean enabled)
-	{
-		boolean mode = debugEnabled;
-		debugEnabled = enabled;
-		return mode;
-	}
-
-	public static void debug(String message)
-	{
-		if (debugEnabled)
-			System.out.println(message);
-	}
-	*/
 	@Override
 	public Clock getClock()
 	{
@@ -450,7 +284,6 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 		//		clock.setEnabled(false);
 		}
 	};
-
 
 	@Override
 	public CPU getCPU()
@@ -478,8 +311,8 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 			}
 		}
 		
-		
-		this.emulatorDisplay.redraw();
+		bus.reset();
+		//this.emulatorDisplay.redraw();
 	}
 
 	@Override
@@ -499,32 +332,14 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 
 	public static void main(String[] args)
 	{
-		// Useage of "--config"
+		// Usage of "--config"
 		// --config ./demo/Z80.system
 		//
-		
 		String configFile = null;
 		String projectDir = null;
 		
 		SystemConfig sc = null;
-		
-		MainSystemEmulator.platform = System.getProperty("os.name").toLowerCase();
-		
-		/*
-		if(!MainSystemEmulator.platform.contains("windows"))
-		{
-			JDialog.setDefaultLookAndFeelDecorated(true);
-			JFrame.setDefaultLookAndFeelDecorated(true);		
-		}
-		*/
-		try
-		{
-			UIManager.setLookAndFeel(new MetalLookAndFeel());
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
+
 		
 		if(args.length > 0)
 		{
@@ -554,11 +369,22 @@ public class MainSystemEmulator extends JFrame implements ActionListener, Emulat
 						sc = SystemConfigLoader.loadConfiguration(configFile);
 					}
 				}
-			
+				
 			}
 		}
 		
-		emu = new MainSystemEmulator(sc);		
+		EmulatorFrame ef = new EmulatorFrameImpl("Java System Emulator", -1, -1, 1920,1200);
+		if(ef!=null)
+		{			
+			emu = new SystemEmulatorEntry(sc);
+			if(emu!=null)
+			{
+				EmulatorDisplay ed = new EmulatorDisplayImpl(emu);
+				((AddressMap)emu.getBus()).addBusListener((BusListener)ed);
+				
+				ef.initFrame(ed);
+			}
+		}
 	}
 	
 	
