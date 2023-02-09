@@ -258,7 +258,7 @@ public class SystemEmulatorEntry implements Emulator
 		clock.addClockLine(clockLine);
 		
 		// Swing Stuff:
-		System.setProperty("sun.java2d.opengl", "true");
+		//System.setProperty("sun.java2d.opengl", "true");
 	}
 
 	@Override

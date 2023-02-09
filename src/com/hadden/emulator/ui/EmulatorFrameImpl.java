@@ -31,6 +31,9 @@ public class EmulatorFrameImpl extends JFrame implements EmulatorFrame, ActionLi
 
 	public EmulatorFrameImpl(String title, int initialX, int initialY, int initialWidth, int initialHeight)
 	{
+		platform = System.getProperty("os.name").toLowerCase();
+		// Global Stuff:
+		System.setProperty("sun.java2d.opengl", "true");
 		//
 		// set local look
 		//
