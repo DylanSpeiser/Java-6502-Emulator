@@ -953,4 +953,10 @@ public class EmulatorGUIImpl extends JPanel implements EmulatorDisplay, ActionLi
 		this.repaint();		
 	}
 
+	@Override
+	public void busReset()
+	{
+		redraw();		
+	}
+
 }

@@ -80,9 +80,9 @@ public class EmulatorDisplayImpl extends JPanel implements EmulatorDisplay, Acti
 		//
 		// manually setting breaks, needs to be UI driven
 		//
-		debugBreaks.put((int)((short)0xFDA3),"0xFDA3");
-		debugBreaks.put((int)((short)0xFD15),"0xFD15");
-		debugBreaks.put((int)((short)0xA000),"0xA000");
+		//debugBreaks.put((int)((short)0xFDA3),"0xFDA3");
+		//debugBreaks.put((int)((short)0xFD15),"0xFD15");
+		//debugBreaks.put((int)((short)0xA000),"0xA000");
 		
 		
 		if(emulator.getCPU() instanceof DebugControl)
@@ -951,6 +951,12 @@ public class EmulatorDisplayImpl extends JPanel implements EmulatorDisplay, Acti
 	public void redraw()
 	{
 		this.repaint();		
+	}
+
+	@Override
+	public void busReset()
+	{
+		redraw();		
 	}
 
 }

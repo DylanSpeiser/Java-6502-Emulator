@@ -467,7 +467,7 @@ public class MOS65C02A implements CPU, CPUInfo, ClockLine, DeviceDebugger, Debug
 			long iirq = System.currentTimeMillis() - irqTime ;			
 			if(iirq < 5000 || clocks < 10)
 			{
-				System.out.println("Skip IRQ");
+				//System.out.println("Skip IRQ");
 				return;
 			}
 			
@@ -720,9 +720,12 @@ public class MOS65C02A implements CPU, CPUInfo, ClockLine, DeviceDebugger, Debug
 	// Input Signal Handlers
 	public void reset()
 	{
+		history.clear();
+		
 		a = 0;
 		x = 0;
 		y = 0;
+		
 		stackPointer = (byte) 0xFD;
 		flags = (byte) (0x00 | (getFlag('U') ? 0b00000100 : 0));
 
