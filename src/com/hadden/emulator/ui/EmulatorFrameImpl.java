@@ -14,6 +14,10 @@ import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 
+import com.hadden.emu.AddressMap;
+import com.hadden.emu.BusListener;
+import com.hadden.emulator.Emulator;
+
 
 
 public class EmulatorFrameImpl extends JFrame implements EmulatorFrame, ActionListener
@@ -31,6 +35,9 @@ public class EmulatorFrameImpl extends JFrame implements EmulatorFrame, ActionLi
 
 	public EmulatorFrameImpl(String title, int initialX, int initialY, int initialWidth, int initialHeight)
 	{
+		platform = System.getProperty("os.name").toLowerCase();
+		// Global Stuff:
+		System.setProperty("sun.java2d.opengl", "true");
 		//
 		// set local look
 		//
@@ -58,6 +65,30 @@ public class EmulatorFrameImpl extends JFrame implements EmulatorFrame, ActionLi
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
 
+	
+	public void initFrame(Emulator emu) 
+	{
+		//
+		// Assume the contents of the frame are known to the Frame
+		//
+		try
+		{
+			EmulatorDisplay ed = new EmulatorDisplayImpl(emu);
+			if(ed!=null)
+			{
+				//
+				// Allow UI to see Bus events
+				//
+				((AddressMap)emu.getBus()).addBusListener((BusListener)ed);
+				initFrame(ed);
+			}
+		}
+		catch (Exception e)
+		{
+			System.out.println("Unable to instantiate user interface.");
+		}
+	}
+	
 	public void initFrame(EmulatorDisplay emulatorDisplay) 
 	{
 		this.emulatorDisplay = emulatorDisplay;
