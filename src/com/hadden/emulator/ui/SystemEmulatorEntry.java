@@ -1,5 +1,6 @@
 package com.hadden.emulator.ui;
 
+import java.lang.reflect.Constructor;
 import java.util.Map;
 
 import com.dst.util.system.io.FileMonitor;
@@ -111,7 +112,7 @@ public class SystemEmulatorEntry implements Emulator
 		else
 		{
 			//
-			// create default address handler device
+			// create default address handler device for a 6502
 			//
 			ram = new RAMDevice(0x00000000,64*1024);
 			//
@@ -330,6 +331,7 @@ public class SystemEmulatorEntry implements Emulator
 			return "Loading";
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void main(String[] args)
 	{
 		// Usage of "--config"
@@ -341,11 +343,20 @@ public class SystemEmulatorEntry implements Emulator
 		SystemConfig sc = null;
 
 		
+		String uiClass = "com.hadden.emulator.ui.EmulatorFrameImpl";
+		
+		
 		if(args.length > 0)
 		{
 			for(int i=0;i<args.length;i++)
 			{
 				//System.out.println("Args:" + args[i]);
+				if("--ui".equals(args[i]))
+				{
+					i++;
+					uiClass = args[i];
+				}
+				
 				if("--project".equals(args[i]))
 				{
 					i++;
@@ -373,17 +384,39 @@ public class SystemEmulatorEntry implements Emulator
 			}
 		}
 		
-		EmulatorFrame ef = new EmulatorFrameImpl("Java System Emulator", -1, -1, 1920,1200);
-		if(ef!=null)
-		{			
+		try
+		{
+			Class UIClass = Class.forName(uiClass);
+			
+			//
+			// create emulator from configuration or default
+			//
 			emu = new SystemEmulatorEntry(sc);
-			if(emu!=null)
+			//
+			// dynamically load frame
+			//
+			Constructor ctor = UIClass.getConstructor(String.class, Integer.TYPE, Integer.TYPE, Integer.TYPE, Integer.TYPE);
+			if(ctor!=null)
 			{
-				EmulatorDisplay ed = new EmulatorDisplayImpl(emu);
-				((AddressMap)emu.getBus()).addBusListener((BusListener)ed);
-				
-				ef.initFrame(ed);
+				//
+				// create requested UI
+				//
+				EmulatorFrame ef = (EmulatorFrame) ctor.newInstance("Java System Emulator", -1, -1, 1920,1200);
+				if(ef!=null)
+				{			
+					if(emu!=null)
+					{
+						//
+						// set emulator into UI
+						//
+						ef.initFrame(emu);
+					}
+				}
 			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
 		}
 	}
 	
