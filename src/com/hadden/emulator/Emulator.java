@@ -1,4 +1,4 @@
-package com.hadden.emulator;
+package com.juse.emulator;
 
 import com.hadden.emu.Bus;
 import com.hadden.emu.CPU;

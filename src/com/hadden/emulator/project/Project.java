@@ -1,4 +1,4 @@
-package com.hadden.emulator.project;
+package com.juse.emulator.project;
 
 import java.io.File;
 
