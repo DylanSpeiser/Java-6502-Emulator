@@ -1,7 +1,7 @@
-<project name="JavaSystemEmulator" basedir="." default="default">
+<project name="JUSEDevices" basedir="." default="default">
 
 	<property name="src.dir" value="src" />
-	<property name="res.dir" value="resources" />	
+	<!--<property name="res.dir" value="resources" /> -->	
 	<property name="build.dir" value="build" />
 	<property name="build.src" value="build/src" />
 	<property name="build.classes" value="build/classes" />
@@ -12,7 +12,9 @@
 	<target name="default" depends="compile,jar"></target>
 	
 	<path id="build.classpath">
-		<fileset dir="lib" includes="*.jar" />
+		<fileset dir="../lib" includes="*.jar" />
+		<fileset dir="../interfaces/dist" includes="*.jar" />
+		<fileset dir="../utility/dist" includes="*.jar" />
 	</path>
 
 	<target name="clean">
@@ -43,7 +45,7 @@
 	<target name="jar">
 		<jar destfile="dist/${ant.project.name}.jar"
 			 basedir="${build.classes}" includes="**/*.class">
-			<zipfileset dir="${res.dir}" prefix="${res.dir}" />
+			<!-- <zipfileset dir="${res.dir}" prefix="${res.dir}" /> -->
 			<zipfileset dir="${src.dir}" includes="**/*.ttf" />
 		</jar>
 	</target>

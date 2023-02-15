@@ -16,11 +16,11 @@ import com.hadden.emu.Bus;
 import com.hadden.emu.CPU;
 import com.hadden.emu.CPUInfo;
 import com.hadden.emu.IOSize;
-import com.juse.emulator.ClockLine;
-import com.juse.emulator.DeviceDebugger;
 import com.juse.emulator.debug.DebugControl;
 import com.juse.emulator.debug.DebugListener;
 import com.juse.emulator.debug.DebugListener.DebugReason;
+import com.juse.emulator.interfaces.ClockLine;
+import com.juse.emulator.interfaces.DeviceDebugger;
 import com.juse.emulator.debug.Debugger;
 import com.juse.emulator.util.Convert;
 

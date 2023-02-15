@@ -19,11 +19,13 @@ import com.hadden.emu.BusListener;
 import com.hadden.emu.CPU.Telemetry;
 import com.hadden.emu.CPU.TelemetryInfo;
 import com.hadden.emu.IOSize;
-import com.juse.emulator.Clock;
-import com.juse.emulator.DeviceDebugger;
-import com.juse.emulator.Emulator;
 import com.juse.emulator.debug.DebugControl;
 import com.juse.emulator.debug.DebugListener;
+import com.juse.emulator.interfaces.Clock;
+import com.juse.emulator.interfaces.DeviceDebugger;
+import com.juse.emulator.interfaces.Emulator;
+import com.juse.emulator.ui.EmulatorDisplay;
+import com.juse.emulator.ui.SystemCodeEditor;
 import com.juse.emulator.util.Convert;
 
 public class EmulatorDisplayImpl extends JPanel implements EmulatorDisplay, ActionListener, KeyListener, BusListener, MouseWheelListener

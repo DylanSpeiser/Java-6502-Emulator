@@ -39,15 +39,17 @@ import com.hadden.emu.impl.RAMDevice;
 import com.hadden.emu.impl.ROMDevice;
 import com.hadden.emu.impl.TimerDevice;
 import com.hadden.roms.ROMManager;
-import com.juse.emulator.Clock;
-import com.juse.emulator.ClockLine;
-import com.juse.emulator.Emulator;
 import com.juse.emulator.cpu.MOS.MOS65C02A;
 import com.juse.emulator.cpu.Motorola.m68000.MC68000;
 import com.juse.emulator.cpu.Zilog.Z80;
+import com.juse.emulator.devices.interfaces.project.Project;
+import com.juse.emulator.interfaces.Clock;
+import com.juse.emulator.interfaces.ClockLine;
+import com.juse.emulator.interfaces.Emulator;
 import com.juse.emulator.project.CC65ProjectImpl;
-import com.juse.emulator.project.Project;
 import com.juse.emulator.project.ProjectImpl;
+import com.juse.emulator.ui.EmulatorDisplay;
+import com.juse.emulator.ui.EmulatorDisplayImpl;
 
 
 @SuppressWarnings("serial")

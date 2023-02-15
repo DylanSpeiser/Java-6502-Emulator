@@ -3,28 +3,29 @@ package com.juse.emulator.ui;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 
-import com.dst.util.system.io.FileMonitor;
-import com.hadden.SystemConfig;
-import com.hadden.SystemConfigLoader;
-import com.hadden.emu.AddressMap;
-import com.hadden.emu.AddressMapImpl;
-import com.hadden.emu.Bus;
-import com.hadden.emu.BusAddressRange;
-import com.hadden.emu.BusDevice;
-import com.hadden.emu.BusIRQ;
-import com.hadden.emu.BusListener;
-import com.hadden.emu.CPU;
-import com.hadden.emu.impl.DisplayDevice;
-import com.hadden.emu.impl.RAMDevice;
-import com.hadden.emu.impl.ROMDevice;
-import com.hadden.emu.impl.TimerDevice;
-import com.hadden.roms.ROMManager;
-import com.juse.emulator.Clock;
-import com.juse.emulator.ClockLine;
-import com.juse.emulator.Emulator;
-import com.juse.emulator.cpu.MOS.MOS65C02A;
-import com.juse.emulator.project.CC65ProjectImpl;
-import com.juse.emulator.project.Project;
+import com.hadden.util.system.io.FileMonitor;
+import com.juse.emulator.devices.AddressMapImpl;
+import com.juse.emulator.devices.DisplayDevice;
+import com.juse.emulator.devices.RAMDevice;
+import com.juse.emulator.devices.ROMDevice;
+import com.juse.emulator.devices.SystemClock;
+import com.juse.emulator.devices.TimerDevice;
+import com.juse.emulator.devices.cpu.MOS.MOS65C02A;
+import com.juse.emulator.interfaces.AddressMap;
+import com.juse.emulator.interfaces.Bus;
+import com.juse.emulator.interfaces.BusAddressRange;
+import com.juse.emulator.interfaces.BusDevice;
+import com.juse.emulator.interfaces.BusIRQ;
+import com.juse.emulator.interfaces.CPU;
+import com.juse.emulator.interfaces.Clock;
+import com.juse.emulator.interfaces.ClockLine;
+import com.juse.emulator.interfaces.Emulator;
+import com.juse.emulator.interfaces.Project;
+import com.juse.emulator.util.config.SystemConfig;
+import com.juse.emulator.util.config.SystemConfigLoader;
+import com.juse.emulator.util.loaders.ROMManager;
+import com.juse.emulator.util.project.CC65ProjectImpl;
+
 
 @SuppressWarnings("serial")
 public class SystemEmulatorEntry implements Emulator

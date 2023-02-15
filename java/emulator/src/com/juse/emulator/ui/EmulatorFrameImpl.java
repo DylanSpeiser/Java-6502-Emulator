@@ -14,9 +14,9 @@ import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 
-import com.hadden.emu.AddressMap;
-import com.hadden.emu.BusListener;
-import com.juse.emulator.Emulator;
+import com.juse.emulator.interfaces.AddressMap;
+import com.juse.emulator.interfaces.BusListener;
+import com.juse.emulator.interfaces.Emulator;
 
 
 
@@ -65,7 +65,6 @@ public class EmulatorFrameImpl extends JFrame implements EmulatorFrame, ActionLi
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
 
-	
 	public void initFrame(Emulator emu) 
 	{
 		//
@@ -139,6 +138,7 @@ public class EmulatorFrameImpl extends JFrame implements EmulatorFrame, ActionLi
 	{
 		this.setVisible(bVisible);		
 	}
+
 
 	
 }

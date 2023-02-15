@@ -14,17 +14,18 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerListModel;
 import javax.swing.Timer;
 
-import com.hadden.emu.AddressMap;
-import com.hadden.emu.BusListener;
-import com.hadden.emu.CPU.Telemetry;
-import com.hadden.emu.CPU.TelemetryInfo;
-import com.hadden.emu.IOSize;
-import com.juse.emulator.Clock;
-import com.juse.emulator.DeviceDebugger;
-import com.juse.emulator.Emulator;
+
 import com.juse.emulator.debug.DebugControl;
 import com.juse.emulator.debug.DebugListener;
-import com.juse.emulator.util.Convert;
+import com.juse.emulator.interfaces.AddressMap;
+import com.juse.emulator.interfaces.BusListener;
+import com.juse.emulator.interfaces.Clock;
+import com.juse.emulator.interfaces.DeviceDebugger;
+import com.juse.emulator.interfaces.Emulator;
+import com.juse.emulator.interfaces.IOSize;
+import com.juse.emulator.interfaces.Telemetry;
+import com.juse.emulator.interfaces.TelemetryInfo;
+import com.juse.emulator.util.translate.Convert;
 
 public class EmulatorGUIImpl extends JPanel implements EmulatorDisplay, ActionListener, KeyListener, BusListener, MouseWheelListener
 {

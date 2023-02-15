@@ -1,8 +1,7 @@
 package com.juse.emulator.ui;
 
-import javax.swing.JFrame;
 
-import com.juse.emulator.Emulator;
+import com.juse.emulator.interfaces.Emulator;
 
 /*
 public abstract class EmulatorFrame extends JFrame

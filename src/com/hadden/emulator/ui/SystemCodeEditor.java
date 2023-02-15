@@ -46,6 +46,9 @@ import javax.swing.JFrame;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+
+import com.juse.emulator.ui.SystemCodeEditor;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;

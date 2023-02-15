@@ -3,8 +3,8 @@ package com.juse.emulator.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.juse.emulator.Clock;
-import com.juse.emulator.ClockLine;
+import com.juse.emulator.interfaces.Clock;
+import com.juse.emulator.interfaces.ClockLine;
 
 public class SystemClock implements Clock
 {

@@ -1,4 +1,4 @@
-<project name="JUSEIntefaces" basedir="." default="default">
+<project name="JUSEInterfaces" basedir="." default="default">
 
 	<property name="src.dir" value="src" />
 	<!--<property name="res.dir" value="resources" /> -->	

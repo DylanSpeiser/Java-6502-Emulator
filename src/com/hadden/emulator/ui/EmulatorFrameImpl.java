@@ -16,7 +16,11 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 
 import com.hadden.emu.AddressMap;
 import com.hadden.emu.BusListener;
-import com.juse.emulator.Emulator;
+import com.juse.emulator.interfaces.Emulator;
+import com.juse.emulator.ui.EmulatorDisplay;
+import com.juse.emulator.ui.EmulatorDisplayImpl;
+import com.juse.emulator.ui.EmulatorFrame;
+import com.juse.emulator.ui.EmulatorFrameImpl;
 
 
 

@@ -1,6 +1,6 @@
 package com.juse.emulator.debug;
 
-import com.hadden.emu.IOSize;
+import com.juse.emulator.interfaces.IOSize;
 
 public interface DebugListener
 {
