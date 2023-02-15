@@ -3,3 +3,8 @@
 /.project
 /.classpath
 /.settings
+/java/emulator/build/
+/java/interfaces/build/
+/java/devices/build/
+/java/utility/build/
+

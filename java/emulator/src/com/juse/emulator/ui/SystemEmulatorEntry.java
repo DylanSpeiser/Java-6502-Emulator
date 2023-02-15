@@ -1,7 +1,28 @@
 package com.juse.emulator.ui;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collections;
 import java.util.Map;
+import java.util.jar.JarFile;
+import java.util.zip.ZipFile;
 
 import com.hadden.util.system.io.FileMonitor;
 import com.juse.emulator.devices.AddressMapImpl;
@@ -21,6 +42,7 @@ import com.juse.emulator.interfaces.Clock;
 import com.juse.emulator.interfaces.ClockLine;
 import com.juse.emulator.interfaces.Emulator;
 import com.juse.emulator.interfaces.Project;
+import com.juse.emulator.util.config.ResourceCopy;
 import com.juse.emulator.util.config.SystemConfig;
 import com.juse.emulator.util.config.SystemConfigLoader;
 import com.juse.emulator.util.loaders.ROMManager;
@@ -331,7 +353,7 @@ public class SystemEmulatorEntry implements Emulator
 		else
 			return "Loading";
 	}
-
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void main(String[] args)
 	{
@@ -357,6 +379,31 @@ public class SystemEmulatorEntry implements Emulator
 					i++;
 					uiClass = args[i];
 				}
+
+				
+				if("--demo".equals(args[i]))
+				{
+				    URL fromURL = SystemEmulatorEntry.class.getClassLoader().getResource("demo");
+				    File toPath = new File("./demo");
+				    
+				    String url = fromURL.toString();
+				    String jarName = url.substring(0,url.indexOf('!')).replace("jar:file:","");
+				    
+				    try
+				    {				    	 
+					    //System.out.println("fromURL:" + fromURL);
+					    //System.out.println("toPath:" + toPath.getAbsolutePath());
+					    System.out.println("Copying demo directory:\nFrom: " + jarName + "\nTo  : " + toPath.getCanonicalPath());
+					    
+				    	ResourceCopy rc = new ResourceCopy();
+				    	rc.copyResourceDirectory(new JarFile(jarName), "demo", toPath);
+				    }
+				    catch(Exception e)
+				    {
+				    	e.printStackTrace();
+				    }
+
+				}				
 				
 				if("--project".equals(args[i]))
 				{
