@@ -1,28 +1,12 @@
 package com.juse.emulator.ui;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarFile;
-import java.util.zip.ZipFile;
 
 import com.hadden.util.system.io.FileMonitor;
 import com.juse.emulator.devices.AddressMapImpl;
@@ -67,6 +51,14 @@ public class SystemEmulatorEntry implements Emulator
 	private CPU cpu;
 
 	private FileMonitor monitoredBinary;
+	
+	public static class CommandItem
+	{
+		public String name;
+		public Class cls;
+		public String help;
+		public boolean optional = true;
+	}
 	
 	
 	public SystemEmulatorEntry(SystemConfig configuration)
@@ -368,7 +360,59 @@ public class SystemEmulatorEntry implements Emulator
 		
 		String uiClass = "com.juse.emulator.ui.EmulatorFrameImpl";
 		
+//		Map<String,Class> definedArgs = new HashMap<String,Class>();
+//		
+//		definedArgs.put("--demo", Boolean.class);
+//		definedArgs.put("--project", String.class);
+//		definedArgs.put("--ui", String.class);
+//		definedArgs.put("--config", String.class);
+//
+//		
+//		Map<String,String> dargs = processArgs(args,definedArgs);
 		
+		String[][] definedArgArray = new String[][] 
+		{
+			{"--help","boolean", "Provides this informational message."},
+			{"--demo","boolean", "Extracts the demonstration projects and ROM images to the 'demo' directory."},
+			{"--demo1","boolean", "Fake parameter 1"},
+			{"--demo2","boolean"},
+			{"--project","com.juse.emulator.util.project.CC65ProjectImpl", "Specifies a project associated with the emulator to build and run code."},
+			{"--ui","string",  "Specifies an optional UI class to override the default GUI"},
+			{"--config","string", "Specifies a configuration for the emulator to use."},
+		};
+		
+		
+		Map<String, CommandItem> converted = convertDefinedArgs(definedArgArray);
+		Map<String,Object> sargs = processArgs(args,converted);
+
+		
+		if((Boolean)sargs.get("--help"))
+		{
+			System.out.println();
+			System.out.println("Java Universal System Emulator Help");
+			System.out.println("===================================");
+			for(String s : converted.keySet())
+			{
+				CommandItem ci = converted.get(s);
+				String helpText = ci.help;
+				System.out.println("\t" + s + ":\n\t\t" + helpText + "\n");
+			}
+			return;
+		}		
+		
+		if((Boolean)sargs.get("--demo"))
+		{
+			doDemo();
+		}
+		if(sargs.get("--config") != null)
+		{
+			sc = SystemConfigLoader.loadConfiguration((String)sargs.get("--config"));
+		}
+		if(sargs.get("--ui") != null)
+		{
+			uiClass = (String)sargs.get("--ui");
+		}
+		/*
 		if(args.length > 0)
 		{
 			for(int i=0;i<args.length;i++)
@@ -383,26 +427,7 @@ public class SystemEmulatorEntry implements Emulator
 				
 				if("--demo".equals(args[i]))
 				{
-				    URL fromURL = SystemEmulatorEntry.class.getClassLoader().getResource("demo");
-				    File toPath = new File("./demo");
-				    
-				    String url = fromURL.toString();
-				    String jarName = url.substring(0,url.indexOf('!')).replace("jar:file:","");
-				    
-				    try
-				    {				    	 
-					    //System.out.println("fromURL:" + fromURL);
-					    //System.out.println("toPath:" + toPath.getAbsolutePath());
-					    System.out.println("Copying demo directory:\nFrom: " + jarName + "\nTo  : " + toPath.getCanonicalPath());
-					    
-				    	ResourceCopy rc = new ResourceCopy();
-				    	rc.copyResourceDirectory(new JarFile(jarName), "demo", toPath);
-				    }
-				    catch(Exception e)
-				    {
-				    	e.printStackTrace();
-				    }
-
+				    doDemo();
 				}				
 				
 				if("--project".equals(args[i]))
@@ -419,6 +444,7 @@ public class SystemEmulatorEntry implements Emulator
 						
 					}
 				}
+				
 				else if("--config".equals(args[i]))
 				{
 					i++;
@@ -431,6 +457,7 @@ public class SystemEmulatorEntry implements Emulator
 				
 			}
 		}
+		*/
 		
 		try
 		{
@@ -467,6 +494,128 @@ public class SystemEmulatorEntry implements Emulator
 		{
 			e.printStackTrace();
 		}
+	}
+
+
+	protected static void doDemo()
+	{
+		URL fromURL = SystemEmulatorEntry.class.getClassLoader().getResource("demo");
+		File toPath = new File("./demo");
+		
+		String url = fromURL.toString();
+		String jarName = url.substring(0,url.indexOf('!')).replace("jar:file:","");
+		
+		try
+		{				    	 
+		    //System.out.println("fromURL:" + fromURL);
+		    //System.out.println("toPath:" + toPath.getAbsolutePath());
+		    System.out.println("Copying demo directory:\nFrom: " + jarName + "\nTo  : " + toPath.getCanonicalPath());
+		    
+			ResourceCopy rc = new ResourceCopy();
+			rc.copyResourceDirectory(new JarFile(jarName), "demo", toPath);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	private static Map<String, Object> processArgs(String[] args, String[][] definedArgs)
+	{
+		return processArgs(args, convertDefinedArgs(definedArgs));
+	}
+
+
+	protected static Map<String, CommandItem> convertDefinedArgs(String[][] definedArgs)
+	{
+		Map<String,CommandItem> newrgs = new HashMap<String,CommandItem>();
+		
+		
+		for(String[] line : definedArgs)
+		{			
+			
+			CommandItem ci = new CommandItem();
+			
+			String var = line[0];
+			String val = line[1];
+			//System.out.println(var + " = " + val);
+			
+			try
+			{
+				if(!val.contains("."))
+				{
+					val = "java.lang." + new String("" + val.charAt(0)).toUpperCase() + val.toLowerCase().substring(1);
+				}
+				
+				ci.name = var;
+				ci.cls  = Class.forName(val);
+				if(line.length > 2)
+					ci.help = line[2];
+				else
+					ci.help = "No description available";
+				
+				newrgs.put(var, ci);
+			}
+			catch (ClassNotFoundException e)
+			{
+				e.printStackTrace();
+			}
+			
+		}
+		return newrgs;
+	}
+	
+	private static Map<String, Object> processArgs(String[] args, Map<String,CommandItem> definedArgs)
+	{
+		Map<String, Object> acceptedArgs = new HashMap<String, Object>();
+		
+		//
+		// set all boolean args to false
+		//
+		for(String key : definedArgs.keySet())
+		{
+			CommandItem ci = definedArgs.get(key);
+			Class dtype = ci.cls;
+			if(dtype == Boolean.class)
+			{
+				acceptedArgs.put(key, Boolean.FALSE);
+			}			
+		}
+		
+		
+		if(args.length > 0)
+		{
+			for(int i=0;i<args.length;i++)
+			{
+				if( definedArgs.containsKey(args[i]) )
+				{
+					CommandItem ci = definedArgs.get(args[i]);
+					
+					Class dtype = ci.cls;
+					if(dtype == Boolean.class)
+					{
+						acceptedArgs.put(args[i], Boolean.TRUE);
+					}
+					else
+					{
+						String key = args[i];
+						i++;
+						
+						String value = args[i];
+						try
+						{
+							acceptedArgs.put(key,dtype.getConstructor(String.class).newInstance(value));
+						}
+						catch (Exception e)
+						{
+							e.printStackTrace();
+						}
+					}
+				}
+
+			}
+		}
+		return acceptedArgs;
 	}
 	
 	
