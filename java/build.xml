@@ -1,0 +1,10 @@
+<project name="JUSEBuild" basedir="." default="buildall">
+
+	<target name="buildall">
+		<ant dir="./interfaces" />
+		<ant dir="./utility"    />
+		<ant dir="./devices"    />
+		<ant dir="./emulator"   />
+	</target>
+
+</project>
