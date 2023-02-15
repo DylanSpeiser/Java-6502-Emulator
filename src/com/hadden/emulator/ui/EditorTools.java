@@ -1,4 +1,4 @@
-package com.juse.emulator.ui;
+package com.hadden.emulator.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;

@@ -402,7 +402,8 @@ public class SystemEmulatorEntry implements Emulator
 				//
 				// create requested UI
 				//
-				EmulatorFrame ef = (EmulatorFrame) ctor.newInstance("Java System Emulator", -1, -1, 1920,1200);
+				Object newFrame = ctor.newInstance("Java System Emulator", -1, -1, 1920,1200);				
+				EmulatorFrame ef = (EmulatorFrame) newFrame;
 				if(ef!=null)
 				{			
 					if(emu!=null)

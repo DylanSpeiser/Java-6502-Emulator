@@ -1,4 +1,4 @@
-package com.juse.emulator.project;
+package com.hadden.emulator.project;
 
 import java.io.BufferedReader;
 import java.io.File;

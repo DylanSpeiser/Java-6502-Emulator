@@ -1,9 +1,9 @@
-package com.juse.emulator.ui;
+package com.hadden.emulator.ui;
 
 import java.lang.reflect.Constructor;
 import java.util.Map;
 
-import com.dst.util.system.io.FileMonitor;
+import com.hadden.util.system.io.FileMonitor;
 import com.hadden.SystemConfig;
 import com.hadden.SystemConfigLoader;
 import com.hadden.emu.AddressMap;
@@ -19,14 +19,14 @@ import com.hadden.emu.impl.RAMDevice;
 import com.hadden.emu.impl.ROMDevice;
 import com.hadden.emu.impl.TimerDevice;
 import com.hadden.roms.ROMManager;
-import com.juse.emulator.cpu.MOS.MOS65C02A;
-import com.juse.emulator.devices.interfaces.project.Project;
-import com.juse.emulator.interfaces.Clock;
-import com.juse.emulator.interfaces.ClockLine;
-import com.juse.emulator.interfaces.Emulator;
-import com.juse.emulator.project.CC65ProjectImpl;
-import com.juse.emulator.ui.EmulatorFrame;
-import com.juse.emulator.ui.SystemEmulatorEntry;
+import com.hadden.emulator.cpu.MOS.MOS65C02A;
+import com.hadden.emulator.Clock;
+import com.hadden.emulator.ClockLine;
+import com.hadden.emulator.Emulator;
+import com.hadden.emulator.project.CC65ProjectImpl;
+import com.hadden.emulator.project.Project;
+import com.hadden.emulator.ui.EmulatorFrame;
+import com.hadden.emulator.ui.SystemEmulatorEntry;
 
 @SuppressWarnings("serial")
 public class SystemEmulatorEntry implements Emulator
@@ -345,7 +345,7 @@ public class SystemEmulatorEntry implements Emulator
 		SystemConfig sc = null;
 
 		
-		String uiClass = "com.juse.emulator.ui.EmulatorFrameImpl";
+		String uiClass = "com.hadden.emulator.ui.EmulatorFrameImpl";
 		
 		
 		if(args.length > 0)

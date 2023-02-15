@@ -1,4 +1,4 @@
-package com.juse.emulator.util;
+package com.hadden.emulator.util;
 
 import com.hadden.Instruction;
 

@@ -1,4 +1,4 @@
-package com.juse.emulator.cpu.Motorola.m68000.memory;
+package com.hadden.emulator.cpu.Motorola.m68000.memory;
 
 import java.nio.ByteBuffer;
 

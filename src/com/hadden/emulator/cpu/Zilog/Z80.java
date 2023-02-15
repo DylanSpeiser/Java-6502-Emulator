@@ -1,4 +1,4 @@
-package com.juse.emulator.cpu.Zilog;
+package com.hadden.emulator.cpu.Zilog;
 
 import java.io.*;
 import java.util.LinkedHashMap;
@@ -9,10 +9,10 @@ import com.hadden.emu.Bus;
 import com.hadden.emu.CPU;
 import com.hadden.emu.CPUInfo;
 import com.hadden.emu.IOSize;
-import com.juse.emulator.cpu.MOS.MOS65C02A.LimitedSizeQueue;
-import com.juse.emulator.interfaces.ClockLine;
-import com.juse.emulator.interfaces.DeviceDebugger;
-import com.juse.emulator.util.Convert;
+import com.hadden.emulator.cpu.MOS.MOS65C02A.LimitedSizeQueue;
+import com.hadden.emulator.ClockLine;
+import com.hadden.emulator.DeviceDebugger;
+import com.hadden.emulator.util.Convert;
 
 /**
  * $Id: Z80.java 331 2010-09-14 10:30:13Z mviara $

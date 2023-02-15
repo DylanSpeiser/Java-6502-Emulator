@@ -1,4 +1,4 @@
-package com.juse.emulator.cpu.MOS;
+package com.hadden.emulator.cpu.MOS;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;

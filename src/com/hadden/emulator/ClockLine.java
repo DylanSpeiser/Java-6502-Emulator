@@ -1,4 +1,4 @@
-package com.juse.emulator;
+package com.hadden.emulator;
 
 public interface ClockLine
 {

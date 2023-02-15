@@ -1,4 +1,4 @@
-package com.juse.emulator.ui;
+package com.hadden.emulator.ui;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -16,11 +16,11 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 
 import com.hadden.emu.AddressMap;
 import com.hadden.emu.BusListener;
-import com.juse.emulator.interfaces.Emulator;
-import com.juse.emulator.ui.EmulatorDisplay;
-import com.juse.emulator.ui.EmulatorDisplayImpl;
-import com.juse.emulator.ui.EmulatorFrame;
-import com.juse.emulator.ui.EmulatorFrameImpl;
+import com.hadden.emulator.Emulator;
+import com.hadden.emulator.ui.EmulatorDisplay;
+import com.hadden.emulator.ui.EmulatorDisplayImpl;
+import com.hadden.emulator.ui.EmulatorFrame;
+import com.hadden.emulator.ui.EmulatorFrameImpl;
 
 
 

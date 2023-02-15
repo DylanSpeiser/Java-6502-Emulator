@@ -1,4 +1,4 @@
-package com.juse.emulator.ui;
+package com.hadden.emulator.ui;
 //Original Code by Dylan Speiser
 
 //https://github.com/DylanSpeiser
@@ -36,9 +36,9 @@ import com.hadden.emu.impl.SerialDevice;
 import com.hadden.emu.impl.TimerDevice;
 import com.hadden.emu.impl.MuxDevice.MuxMapper;
 import com.hadden.roms.ROMManager;
-import com.juse.emulator.interfaces.Clock;
-import com.juse.emulator.interfaces.ClockLine;
-import com.juse.emulator.interfaces.Emulator;
+import com.hadden.emulator.Clock;
+import com.hadden.emulator.ClockLine;
+import com.hadden.emulator.Emulator;
 
 @SuppressWarnings("serial")
 public class CommandSystemEmulator implements Emulator

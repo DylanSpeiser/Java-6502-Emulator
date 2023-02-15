@@ -1,4 +1,4 @@
-package com.juse.emulator.ui;
+package com.hadden.emulator.ui;
 
 /*
  * Copyright (c) 1995, 2008, Oracle and/or its affiliates. All rights reserved.
@@ -47,7 +47,7 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import com.juse.emulator.ui.SystemCodeEditor;
+import com.hadden.emulator.ui.SystemCodeEditor;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;

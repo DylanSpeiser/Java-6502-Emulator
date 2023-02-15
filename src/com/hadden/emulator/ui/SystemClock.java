@@ -1,10 +1,10 @@
-package com.juse.emulator.ui;
+package com.hadden.emulator.ui;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.juse.emulator.interfaces.Clock;
-import com.juse.emulator.interfaces.ClockLine;
+import com.hadden.emulator.Clock;
+import com.hadden.emulator.ClockLine;
 
 public class SystemClock implements Clock
 {

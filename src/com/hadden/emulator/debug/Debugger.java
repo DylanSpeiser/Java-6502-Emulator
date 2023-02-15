@@ -1,4 +1,4 @@
-package com.juse.emulator.debug;
+package com.hadden.emulator.debug;
 
 public interface Debugger
 {

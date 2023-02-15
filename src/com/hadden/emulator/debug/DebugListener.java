@@ -1,4 +1,4 @@
-package com.juse.emulator.debug;
+package com.hadden.emulator.debug;
 
 import com.hadden.emu.IOSize;
 

@@ -1,8 +1,8 @@
-package com.juse.emulator.cpu.Motorola.m68000.instructions;
+package com.hadden.emulator.cpu.Motorola.m68000.instructions;
 
-import com.juse.emulator.cpu.Motorola.m68000.*;
+import com.hadden.emulator.cpu.Motorola.m68000.*;
 
-import static com.juse.emulator.cpu.Motorola.m68000.Cpu.*;
+import static com.hadden.emulator.cpu.Motorola.m68000.Cpu.*;
 
 /*
 //  M68k - Java Amiga MachineCore

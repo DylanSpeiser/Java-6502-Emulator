@@ -1,4 +1,4 @@
-package com.juse.emulator.cpu.MOS;
+package com.hadden.emulator.cpu.MOS;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -16,13 +16,13 @@ import com.hadden.emu.Bus;
 import com.hadden.emu.CPU;
 import com.hadden.emu.CPUInfo;
 import com.hadden.emu.IOSize;
-import com.juse.emulator.debug.DebugControl;
-import com.juse.emulator.debug.DebugListener;
-import com.juse.emulator.debug.DebugListener.DebugReason;
-import com.juse.emulator.interfaces.ClockLine;
-import com.juse.emulator.interfaces.DeviceDebugger;
-import com.juse.emulator.debug.Debugger;
-import com.juse.emulator.util.Convert;
+import com.hadden.emulator.debug.DebugControl;
+import com.hadden.emulator.debug.DebugListener;
+import com.hadden.emulator.debug.DebugListener.DebugReason;
+import com.hadden.emulator.ClockLine;
+import com.hadden.emulator.DeviceDebugger;
+import com.hadden.emulator.debug.Debugger;
+import com.hadden.emulator.util.Convert;
 
 public class MOS65C02A implements CPU, CPUInfo, ClockLine, DeviceDebugger, DebugControl
 {
