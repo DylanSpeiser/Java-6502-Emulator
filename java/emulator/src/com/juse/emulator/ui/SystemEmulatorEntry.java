@@ -412,52 +412,7 @@ public class SystemEmulatorEntry implements Emulator
 		{
 			uiClass = (String)sargs.get("--ui");
 		}
-		/*
-		if(args.length > 0)
-		{
-			for(int i=0;i<args.length;i++)
-			{
-				//System.out.println("Args:" + args[i]);
-				if("--ui".equals(args[i]))
-				{
-					i++;
-					uiClass = args[i];
-				}
 
-				
-				if("--demo".equals(args[i]))
-				{
-				    doDemo();
-				}				
-				
-				if("--project".equals(args[i]))
-				{
-					i++;
-					if(i < args.length)
-					{
-						projectDir = args[i];
-						Project p = new CC65ProjectImpl(projectDir);
-						
-						p.getFiles();
-						p.compile();
-						p.link();
-						
-					}
-				}
-				
-				else if("--config".equals(args[i]))
-				{
-					i++;
-					if(i < args.length)
-					{
-						configFile = args[i];
-						sc = SystemConfigLoader.loadConfiguration(configFile);
-					}
-				}
-				
-			}
-		}
-		*/
 		
 		try
 		{
@@ -476,7 +431,7 @@ public class SystemEmulatorEntry implements Emulator
 				//
 				// create requested UI
 				//
-				Object newFrame = ctor.newInstance("Java System Emulator", -1, -1, 1920,1200);				
+				Object newFrame = ctor.newInstance("Java System Emulator", -1, -1, 1920,1080);				
 				EmulatorFrame ef = (EmulatorFrame) newFrame;
 				if(ef!=null)
 				{			
@@ -518,6 +473,8 @@ public class SystemEmulatorEntry implements Emulator
 		{
 			e.printStackTrace();
 		}
+		
+		System.exit(0);
 	}
 
 	private static Map<String, Object> processArgs(String[] args, String[][] definedArgs)
