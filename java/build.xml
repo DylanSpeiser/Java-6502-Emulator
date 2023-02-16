@@ -1,6 +1,6 @@
 <project name="JUSE" basedir="." default="buildall">
 
-	<property name="main.class" value="com.juse.emulator.ui.SystemEmulatorEntry"/>
+	<property name="main.class" value="com.juse.emulator.SystemEmulatorEntry"/>
 
 	
 	<target name="buildall">

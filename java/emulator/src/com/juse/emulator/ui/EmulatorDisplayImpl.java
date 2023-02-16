@@ -25,6 +25,7 @@ import com.juse.emulator.interfaces.Emulator;
 import com.juse.emulator.interfaces.IOSize;
 import com.juse.emulator.interfaces.Telemetry;
 import com.juse.emulator.interfaces.TelemetryInfo;
+import com.juse.emulator.interfaces.ui.EmulatorDisplay;
 import com.juse.emulator.util.translate.Convert;
 
 
@@ -681,7 +682,7 @@ public class EmulatorDisplayImpl extends JPanel implements EmulatorDisplay, Acti
 		Clock c = this.emulator.getClock();
 
 		
-		System.out.println("Key:" + arg0.getKeyCode() + ":" + arg0.getKeyChar() + "(" + (int)arg0.getKeyChar() + ") " + arg0.getModifiers());
+		//System.out.println("Key:" + arg0.getKeyCode() + ":" + arg0.getKeyChar() + "(" + (int)arg0.getKeyChar() + ") " + arg0.getModifiers());
 		
 		if(bMemoryEnter)
 		{

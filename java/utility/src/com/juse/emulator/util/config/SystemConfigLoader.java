@@ -14,6 +14,7 @@ import com.juse.emulator.interfaces.Bus;
 import com.juse.emulator.interfaces.BusDevice;
 import com.juse.emulator.interfaces.BusIRQ;
 import com.juse.emulator.interfaces.CPU;
+import com.juse.emulator.interfaces.ui.EmulatorFrame;
 
 
 
@@ -34,6 +35,7 @@ public class SystemConfigLoader
 	{
 		CPU cpu = null;
 		Class<CPU> cpuClass = null;
+		Class<EmulatorFrame> uiClass = null;
 		AddressMap addressMap = null;
 		BusIRQ irqbus = null;
 		String defaultAddressor = null;
@@ -107,6 +109,11 @@ public class SystemConfigLoader
 								{
 									cpuClass = (Class<CPU>) (Class.forName(value));
 									System.out.println("CPU:" + cpuClass.getClass().getCanonicalName());
+								}	
+								else if("ui".equalsIgnoreCase(key))
+								{
+									uiClass = (Class<EmulatorFrame>) (Class.forName(value));
+									System.out.println("UI:" + uiClass.getClass().getCanonicalName());
 								}	
 								else if("default".equalsIgnoreCase(key))
 								{
@@ -310,6 +317,12 @@ public class SystemConfigLoader
 								{
 									//cpuClass = (Class<CPU>) (Class.forName(value));
 									sc.setCPU(value);
+									//System.out.println("CPU:" + cpuClass.getClass().getCanonicalName());
+								}	
+								else if("ui".equalsIgnoreCase(key))
+								{
+									//cpuClass = (Class<CPU>) (Class.forName(value));
+									sc.setUI(value);
 									//System.out.println("CPU:" + cpuClass.getClass().getCanonicalName());
 								}	
 								else if("default".equalsIgnoreCase(key))

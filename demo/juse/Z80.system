@@ -1,0 +1,67 @@
+####################################################
+#             System Configuration File
+#
+# Describes the devices and address locations 
+#
+# Extend functionality via class path entries 
+#
+####################################################
+name=Z80
+
+####################################################
+#            Address Map Handler Class
+####################################################
+
+addressbus=com.juse.emulator.devices.AddressMapImpl
+
+####################################################
+#             CPU Definition Class
+####################################################
+
+cpu=com.juse.emulator.devices.cpu.Zilog.Z80
+
+####################################################
+#         Device Handler Classes and Namings
+# device=SYMBOLIC_NAME,CLASSNAME  
+####################################################
+
+device=RAM,com.juse.emulator.devices.RAMDevice
+device=ROM,com.juse.emulator.devices.ROMDevice
+device=DISPLAY,com.juse.emulator.devices.DisplayDevice
+
+####################################################
+#         Default Address Bus Device Class
+# Any address not mapped to another device 
+# is handled by this symbolic device
+####################################################
+
+default=RAM
+
+####################################################
+#           IRQ Handler Definition Class
+####################################################
+
+irqbus=com.juse.emulator.devices.BusIRQImpl
+
+####################################################
+#            System Bus Device List
+#
+# Device arguments are per device, but typically   
+# the first argument is the device start address
+#
+# Format:
+# bus=SYMBOLIC_NAME,DEVICE_ARG_1,...,DEVICE_ARG_N
+# 
+####################################################
+
+bus=RAM,0x00000000,65535
+bus=ROM,0x00000000,file://./demo/z80/memtest.bin
+bus=DISPLAY,0x000A000,80,25
+
+####################################################
+#           Bus Expansion Slots (NOT IMPL)
+####################################################
+
+path=c:\downloads\slots
+
+

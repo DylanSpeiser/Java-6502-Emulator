@@ -1,4 +1,4 @@
-package com.juse.emulator.ui;
+package com.juse.emulator.interfaces.ui;
 
 
 import com.juse.emulator.interfaces.Emulator;

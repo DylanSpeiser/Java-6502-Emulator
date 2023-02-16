@@ -1,8 +1,11 @@
-package com.juse.emulator.ui;
+package com.mygui;
 
 import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -16,6 +19,7 @@ import com.juse.emulator.interfaces.BusListener;
 import com.juse.emulator.interfaces.Emulator;
 import com.juse.emulator.interfaces.ui.EmulatorDisplay;
 import com.juse.emulator.interfaces.ui.EmulatorFrame;
+
 
 
 public class EmulatorFrameImpl extends JFrame implements EmulatorFrame, ActionListener
@@ -97,7 +101,7 @@ public class EmulatorFrameImpl extends JFrame implements EmulatorFrame, ActionLi
 		this.setContentPane(jp);
 		//
 		//this.setUndecorated(false);
-		this.setTitle("System Emulator");		
+		this.setTitle("Green System Emulator");		
 		//this.setSize(new Dimension(1920,1080));
 		this.setVisible(true);
 		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

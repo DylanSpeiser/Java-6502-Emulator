@@ -1,4 +1,4 @@
-package com.juse.emulator.ui;
+package com.mygui;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -25,9 +25,11 @@ import com.juse.emulator.interfaces.Emulator;
 import com.juse.emulator.interfaces.IOSize;
 import com.juse.emulator.interfaces.Telemetry;
 import com.juse.emulator.interfaces.TelemetryInfo;
+import com.juse.emulator.interfaces.ui.EmulatorDisplay;
 import com.juse.emulator.util.translate.Convert;
 
-public class EmulatorGUIImpl extends JPanel implements EmulatorDisplay, ActionListener, KeyListener, BusListener, MouseWheelListener
+
+public class EmulatorDisplayImpl extends JPanel implements EmulatorDisplay, ActionListener, KeyListener, BusListener, MouseWheelListener
 {
 	private boolean writeEvent = false;
 	private Timer t;
@@ -69,7 +71,7 @@ public class EmulatorGUIImpl extends JPanel implements EmulatorDisplay, ActionLi
 	{
 	}
 	
-	public EmulatorGUIImpl(Emulator emulator)
+	public EmulatorDisplayImpl(Emulator emulator)
 	{
 		super(null);
 
@@ -81,9 +83,9 @@ public class EmulatorGUIImpl extends JPanel implements EmulatorDisplay, ActionLi
 		//
 		// manually setting breaks, needs to be UI driven
 		//
-		debugBreaks.put((int)((short)0xFDA3),"0xFDA3");
-		debugBreaks.put((int)((short)0xFD15),"0xFD15");
-		debugBreaks.put((int)((short)0xA000),"0xA000");
+		//debugBreaks.put((int)((short)0xFDA3),"0xFDA3");
+		//debugBreaks.put((int)((short)0xFD15),"0xFD15");
+		//debugBreaks.put((int)((short)0xA000),"0xA000");
 		
 		
 		if(emulator.getCPU() instanceof DebugControl)
@@ -148,7 +150,7 @@ public class EmulatorGUIImpl extends JPanel implements EmulatorDisplay, ActionLi
 		*/
 		t = new javax.swing.Timer(16, this);
 		t.start();
-		setBackground(Color.blue);
+		setBackground(Color.green);
 		setPreferredSize(new Dimension(1200, 900));
 
 		// romPageString = SystemEmulator.rom.getROMString().substring(romPage * 960,
@@ -680,7 +682,7 @@ public class EmulatorGUIImpl extends JPanel implements EmulatorDisplay, ActionLi
 		Clock c = this.emulator.getClock();
 
 		
-		System.out.println("Key:" + arg0.getKeyCode() + ":" + arg0.getKeyChar() + "(" + (int)arg0.getKeyChar() + ") " + arg0.getModifiers());
+		//System.out.println("Key:" + arg0.getKeyCode() + ":" + arg0.getKeyChar() + "(" + (int)arg0.getKeyChar() + ") " + arg0.getModifiers());
 		
 		if(bMemoryEnter)
 		{
@@ -747,21 +749,6 @@ public class EmulatorGUIImpl extends JPanel implements EmulatorDisplay, ActionLi
 		{
 		case 'e':
 			
-			if(editorFrame == null)
-			{
-				editorFrame = SystemCodeEditor.createAndShowGUI();
-				
-				editorFrame.addWindowListener(new WindowAdapter()
-				{
-				    @Override
-				    public void windowClosing(WindowEvent e)
-				    {
-				      System.out.println("Code Window Closed");
-				      e.getWindow().dispose();
-				      editorFrame = null;
-				    }
-				});
-			}
 			break;
 		case 'c':
 			c.setEnabled(!c.isEnabled());
@@ -947,7 +934,7 @@ public class EmulatorGUIImpl extends JPanel implements EmulatorDisplay, ActionLi
 		 * SystemEmulator.via.CA1(); break; }
 		 */
 	}
-	
+
 	@Override
 	public void redraw()
 	{

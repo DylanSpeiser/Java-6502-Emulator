@@ -21,11 +21,22 @@ public class SystemConfig
 	String defDevice = null;
 	String irqDevice = null;
 	String slots     = null;
+	String clsUI     = null;
 	
 	Map<String,Class<BusDevice>> devices = new HashMap<String,Class<BusDevice>>();
 	Map<String,String[]>         mapped  = new LinkedHashMap<String,String[]>();
 	
 
+	public void setUI(String className)
+	{
+		this.clsUI = className;
+	}
+	
+	public String getUI()
+	{
+		return this.clsUI;
+	}
+	
 	public void setCPU(String className)
 	{
 		this.clsCPU = className;
@@ -121,7 +132,7 @@ public class SystemConfig
 		return null;
 	}
 
-	public CPU initCPU(Bus bus)
+	public CPU initCPU(Bus bus) throws Exception
 	{
 		try
 		{
@@ -159,6 +170,7 @@ public class SystemConfig
 		catch (Exception e)
 		{
 			e.printStackTrace();
+			throw new Exception("Bad CPU definition.");
 		}	
 		
 		return null;

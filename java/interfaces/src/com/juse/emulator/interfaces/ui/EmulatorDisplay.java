@@ -1,4 +1,4 @@
-package com.juse.emulator.ui;
+package com.juse.emulator.interfaces.ui;
 
 
 public interface EmulatorDisplay
