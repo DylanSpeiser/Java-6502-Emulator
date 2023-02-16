@@ -9,9 +9,9 @@ import com.hadden.emu.Bus;
 import com.hadden.emu.CPU;
 import com.hadden.emu.CPUInfo;
 import com.hadden.emu.IOSize;
+import com.hadden.emulator.cpu.MOS.MOS65C02A.LimitedSizeQueue;
 import com.hadden.emulator.ClockLine;
 import com.hadden.emulator.DeviceDebugger;
-import com.hadden.emulator.cpu.MOS.MOS65C02A.LimitedSizeQueue;
 import com.hadden.emulator.util.Convert;
 
 /**

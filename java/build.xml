@@ -1,0 +1,28 @@
+<project name="JUSE" basedir="." default="buildall">
+
+	<property name="main.class" value="com.juse.emulator.SystemEmulatorEntry"/>
+
+	
+	<target name="buildall">
+		<ant dir="./interfaces" />
+		<ant dir="./utility"    />
+		<ant dir="./devices"    />
+		<ant dir="./emulator"   />
+		
+		
+		<jar destfile="dist/${ant.project.name}.jar" filesetmanifest="skip">
+		    <zipgroupfileset dir="./interfaces/dist" includes="*.jar"/>
+			<zipgroupfileset dir="./utility/dist" includes="*.jar"/>
+			<zipgroupfileset dir="./devices/dist" includes="*.jar"/>
+		    <zipgroupfileset dir="./emulator/dist" includes="*.jar"/>
+			<zipgroupfileset dir="lib" includes="*.jar"/>
+
+		    <manifest>
+		        <attribute name="Main-Class" value="${main.class}"/>
+		        <!-- <attribute name="Class-Path" value="${mf.classpath}"/> -->
+		    </manifest>
+		</jar>		
+		
+	</target>
+
+</project>

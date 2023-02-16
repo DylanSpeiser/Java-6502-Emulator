@@ -1,0 +1,54 @@
+<project name="JUSEDevices" basedir="." default="default">
+
+	<property name="src.dir" value="src" />
+	<!--<property name="res.dir" value="resources" /> -->	
+	<property name="build.dir" value="build" />
+	<property name="build.src" value="build/src" />
+	<property name="build.classes" value="build/classes" />
+	<property name="dist.dir" value="dist" />
+
+	<property file="build.properties" />
+
+	<target name="default" depends="compile,jar"></target>
+	
+	<path id="build.classpath">
+		<fileset dir="../lib" includes="*.jar" />
+		<fileset dir="../interfaces/dist" includes="*.jar" />
+		<fileset dir="../utility/dist" includes="*.jar" />
+	</path>
+
+	<target name="clean">
+		<delete includeemptydirs="true" failonerror="false" >
+			<fileset dir="${build.src}" includes="**/*" />
+			<fileset dir="${build.classes}" includes="**/*" />
+		</delete>
+		<delete file="dist/${ant.project.name}.war" />
+	</target>
+
+	<target name="prepare" depends="clean">
+		<mkdir dir="${build.src}" />
+		<mkdir dir="${build.classes}" />
+	</target>
+
+	<target name="compile" depends="prepare">
+		<echo>=== COMPILE ===</echo>
+		<echo>Compiling ${src.dir} files ...</echo>
+		<javac debug="on" srcdir="${src.dir}" destdir="${build.classes}"
+			includes="**/*"  
+  		    source="1.8"
+            target="1.8" >
+			<classpath refid="build.classpath" />
+		</javac>
+
+	</target>
+
+	<target name="jar">
+		<jar destfile="dist/${ant.project.name}.jar"
+			 basedir="${build.classes}" includes="**/*.class">
+			<!-- <zipfileset dir="${res.dir}" prefix="${res.dir}" /> -->
+			<zipfileset dir="${src.dir}" includes="**/*.ttf" />
+		</jar>
+	</target>
+
+
+</project>

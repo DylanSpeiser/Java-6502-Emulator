@@ -3,6 +3,7 @@ package com.hadden.emulator.ui;
 import javax.swing.JFrame;
 
 import com.hadden.emulator.Emulator;
+import com.hadden.emulator.ui.EmulatorDisplay;
 
 /*
 public abstract class EmulatorFrame extends JFrame
