@@ -91,17 +91,17 @@ Example:
 
 
 ## Screenshots
-![M6502 Emulating](../screenshots/M6502.png?raw=true)
+![M6502 Emulating](screenshots/M6502.png?raw=true)
 
-![Z80 Emulating](../screenshots/z80ui.png?raw=true)
+![Z80 Emulating](screenshots/z80ui.png?raw=true)
 
-![Screenshot 0](../screenshots/screenshot0.png?raw=true)
-![Screenshot 1](../screenshots/screenshot1.png?raw=true)
-![Screenshot 2](../screenshots/screenshot2.png?raw=true)
-![Text Display](../screenshots/display.png?raw=true)
-![Text New Font Display](../screenshots/font.png?raw=true)
-![Graphics Display](../screenshots/gfx.png?raw=true)
-![Configuration](../screenshots/cfg.png?raw=true)
-![C64 test](../screenshots/c64.png?raw=true)
-![Z80 Emulating](../screenshots/z80ui.png?raw=true)
-![Edit Memory](../screenshots/edit.png?raw=true)
+![Screenshot 0](screenshots/screenshot0.png?raw=true)
+![Screenshot 1](screenshots/screenshot1.png?raw=true)
+![Screenshot 2](screenshots/screenshot2.png?raw=true)
+![Text Display](screenshots/display.png?raw=true)
+![Text New Font Display](screenshots/font.png?raw=true)
+![Graphics Display](screenshots/gfx.png?raw=true)
+![Configuration](screenshots/cfg.png?raw=true)
+![C64 test](screenshots/c64.png?raw=true)
+![Z80 Emulating](screenshots/z80ui.png?raw=true)
+![Edit Memory](screenshots/edit.png?raw=true)
