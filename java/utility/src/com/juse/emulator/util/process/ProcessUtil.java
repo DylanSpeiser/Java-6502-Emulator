@@ -107,10 +107,6 @@ public class ProcessUtil
 		command.add(className);
 		command.addAll(args);
 
-		for(String c : command)
-		{
-			System.out.println("EXT ARG:" + c);
-		}
 		
 		ProcessBuilder builder = new ProcessBuilder(command);
 		Process process = builder.inheritIO().start();

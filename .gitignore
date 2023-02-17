@@ -1,5 +1,6 @@
 /bin/
 /build/
+build/
 /.project
 /.classpath
 /.settings
@@ -8,4 +9,5 @@
 /java/devices/build/
 /java/utility/build/
 /java/zilog-z80acpu/build/
+/java/*/build/
 
