@@ -8,5 +8,5 @@
 /java/devices/build/
 /java/utility/build/
 /java/zilog-z80acpu/build/
-*/build/
+/java/*/build/
 

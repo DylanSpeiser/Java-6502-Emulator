@@ -1,7 +1,6 @@
 package com.juse.emulator.ext.cpu.motorola.m68000;
 
 import com.juse.emulator.ext.cpu.motorola.m68000.memory.AddressSpace;
-
 /*
 //  M68k - Java Amiga MachineCore
 //  Copyright (c) 2008-2010, Tony Headford
@@ -26,6 +25,9 @@ import com.juse.emulator.ext.cpu.motorola.m68000.memory.AddressSpace;
 //  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 */
+
+//TODO: make it emulator compliant
+
 public interface Cpu {
 	public static final int C_FLAG_BITS = 0;
 	public static final int V_FLAG_BITS = 1;
