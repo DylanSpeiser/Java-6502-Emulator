@@ -9,6 +9,7 @@ I have started by decoupling things so now you can expand and use it by making y
 As before, this is still a work in progress and may discover some bugs.  
 I would like to use this to do development debugging and gives flexibility to that end.
 
+** NEW SOURCE IS UNDER /java **
 
 FEATURES:
  - Architecture is modularized
@@ -85,16 +86,9 @@ Example:
 - Cursors(Wheel) Instruction Scroll History
 - < & > Default Reset Address 
    
-You can load ```.bin``` files into RAM or ROM using the File Pickers in the top right. It should be fully compatible with any binary compiled for the 6502 kit, except if it uses any unimplemented features. I might get to these sometime in the future. If I do, the repo will be updated.
 
-## Environmental Variables
-- SEMU_BIN_DIR
-- SEMU_RAM_DIR
-- SEMU_ROM_DIR
-- SEMU_FONT_DIR
-- SEMU_CFG_DIR
 
-#
+
 
 ## Screenshots
 ![M6502 Emulating](../screenshots/M6502.png?raw=true)
