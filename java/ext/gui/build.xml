@@ -1,7 +1,7 @@
 <project name="ExampleGUI" basedir="." default="default">
 
 	<property name="src.dir" value="src" />
-	<!--<property name="res.dir" value="resources" /> -->	
+	<property name="res.dir" value="resources" />
 	<property name="build.dir" value="build" />
 	<property name="build.src" value="build/src" />
 	<property name="build.classes" value="build/classes" />
@@ -45,7 +45,7 @@
 	<target name="jar">
 		<jar destfile="dist/${ant.project.name}.jar"
 			 basedir="${build.classes}" includes="**/*.class">
-			<!-- <zipfileset dir="${res.dir}" prefix="${res.dir}" /> -->
+			<zipfileset dir="${src.dir}/${res.dir}" prefix="${res.dir}" />
 			<zipfileset dir="${src.dir}" includes="**/*.ttf" />
 		</jar>
 		<delete includeemptydirs="true" failonerror="false" >

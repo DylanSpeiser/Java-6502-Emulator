@@ -81,7 +81,7 @@ public class ExGUIFrameImpl extends JFrame implements EmulatorFrame, ActionListe
 				// Allow UI to see Bus events
 				//
 				((AddressMap)emu.getBus()).addBusListener((BusListener)ed);
-				initFrame(ed);
+				initDisplay(ed);
 			}
 		}
 		catch (Exception e)
@@ -90,7 +90,7 @@ public class ExGUIFrameImpl extends JFrame implements EmulatorFrame, ActionListe
 		}
 	}
 	
-	public void initFrame(EmulatorDisplay emulatorDisplay) 
+	public void initDisplay(EmulatorDisplay emulatorDisplay) 
 	{
 		this.emulatorDisplay = emulatorDisplay;
 		

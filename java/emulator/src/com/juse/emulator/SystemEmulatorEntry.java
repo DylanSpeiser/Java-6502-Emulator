@@ -426,6 +426,14 @@ public class SystemEmulatorEntry implements Emulator
 						// set emulator into UI
 						//
 						ef.initFrame(emu);
+						
+						// test ext stuff
+						//
+						EmulatorFrame efe = (EmulatorFrame) new com.example.gui.DemoUITest4(EMULATOR_TITLE);
+						efe.initFrame(emu);
+						//
+						//
+						
 					}
 				}
 			}
