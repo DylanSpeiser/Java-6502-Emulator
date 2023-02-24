@@ -7,13 +7,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.SpinnerListModel;
 import javax.swing.Timer;
-
+import javax.swing.border.BevelBorder;
 
 import com.juse.emulator.debug.DebugControl;
 import com.juse.emulator.debug.DebugListener;
@@ -62,6 +65,8 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 	private Map<Integer,String> debugBreaks = new HashMap<Integer,String>();
 
 	private boolean bDebugMode = false;
+	private JTextArea lblClocks;
+	private Font systemFont;
 	
 	public interface ApplicationEvent 
 	{
@@ -140,28 +145,32 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 		}
 		this.title = ((Emulator) emulator).getMainTitle() + " Emulator v" + emulator.getSystemVersion();
 
-		/*
-		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-	    String[] fonts = env.getAvailableFontFamilyNames();
-		for(int i=0;i<fonts.length;i++)
-		{
-			System.out.println(fonts[i]);
-		}
-		*/
+		if(System.getProperty("os.name").toLowerCase().contains("windows"))
+			systemFont = new Font("Courier New Bold", Font.BOLD, 14);
+		else
+			systemFont = new Font("Monospaced", Font.BOLD, 14);		
+		
+		
+		lblClocks = new JTextArea("Clocks: ");
+		lblClocks.setFont(systemFont);
+		lblClocks.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+		lblClocks.setBounds(0, 0, 400, 200);		
+		lblClocks.setForeground(Color.black);
+		lblClocks.setBackground(Color.white);
+		lblClocks.setVisible(true);
+		this.add(lblClocks);
+		
 		t = new javax.swing.Timer(16, this);
 		t.start();
-		setBackground(Color.green);
+		setBackground(Color.black);
 		setPreferredSize(new Dimension(1200, 900));
 
-		// romPageString = SystemEmulator.rom.getROMString().substring(romPage * 960,
-		// (romPage + 1) * 960);
-		ramPageString = emulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
 
 		this.setFocusable(true);
 		this.requestFocus();
 		this.addKeyListener(this);
 		this.addMouseWheelListener(this);
-
+		this.validate();
 	}
 	
 	public void refreshBus()
@@ -194,8 +203,6 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 		super.paintComponent(g);
 		g.setColor(Color.white);
 
-		rightAlignHelper = 0;
-
 		// Version
 		if(System.getProperty("os.name").toLowerCase().contains("windows"))
 			g.setFont(new Font("Courier New Bold", Font.BOLD, 16));
@@ -203,6 +210,12 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 			g.setFont(new Font("Monospaced", Font.BOLD, 16));
 		
 
+		int charOffset = g.getFontMetrics().stringWidth(" ");
+		int lineOffset = g.getFontMetrics().getHeight() + g.getFontMetrics().getDescent();
+		int topAlign = lineOffset;// g.getFontMetrics().getWidths()[32];
+		int leftAlignHelper = charOffset;
+		
+		
 		TelemetryInfo ti = null;
 		Telemetry t = emulator.getCPU().getTelemetry();
 		if(t instanceof TelemetryInfo)
@@ -210,46 +223,57 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 			ti = (TelemetryInfo)t;
 		}
 
-		
-		
 		// Clocks
-		g.drawString("Clocks: " + t.clocks, 40, 80);
+		g.drawString("Clocks: " + t.clocks, leftAlignHelper, topAlign+=lineOffset);
 		if (t.clocksPerSecond > 1000000.0)
 		{
 			g.drawString("Speed: " + (int) t.clocksPerSecond / 1000000 + " MHz"
-					+ (emulator.getClock().isSlow() ? " (Slow)" : ""), 40, 110);
+					+ (emulator.getClock().isSlow() ? " (Slow)" : ""), leftAlignHelper, topAlign+=lineOffset);
 		}
 		else
 			g.drawString("Speed: " + (int) t.clocksPerSecond + " Hz" + (emulator.getClock().isSlow() ? " (Slow)" : ""),
-					40, 110);
+					leftAlignHelper, topAlign+=lineOffset);
 
 
-		int readoutOffset = 140;
+		//lblClocks.setText((int) t.clocksPerSecond / 1000000 + " MHz");
+		
+		//int readoutOffset = topAlign;
 		// CPU
-		g.drawString("CPU Registers:", 35, readoutOffset);
+		g.drawString("CPU Registers:", leftAlignHelper, topAlign+=lineOffset);
 		if(ti!=null)
 		{
-			int xoffset = 35;
+			int xoffset = leftAlignHelper;
 
-			readoutOffset+=30;
+			topAlign+=lineOffset;
+			
+			String registers = "";
+			String line = "";		
 			
 			int col = 0;
 			for(String r : ti.registerInfo.keySet())
 			{				
 				Integer tiv = ti.registerInfo.get(r);
-				g.drawString(r + ": " + Convert.padStringWithZeroes(Integer.toBinaryString(tiv & 0xFF), 8) + " ("
-						+ Convert.byteToHexString((byte)(tiv & 0xFF)) + ")", 
-						xoffset + (220 * col), 
-						readoutOffset);
+				
+				line = r + ": " + Convert.padStringWithZeroes(Integer.toBinaryString(tiv & 0xFF), 8) + " ("
+						+ Convert.byteToHexString((byte)(tiv & 0xFF)) + ")";
+				
+				registers+=(line + " ");
+				g.drawString(line, 
+						     xoffset + (18 * charOffset * col), 
+						     topAlign);
 				col++;
 				if(col > 1)
 				{
 					col = 0;
-					readoutOffset+=30;
+					topAlign+=lineOffset;
+					registers+="\n";
 				}
 			}
 			
-			g.drawString("Flags:             (" + Convert.byteToHexString(t.flags) + ")", 35, readoutOffset);
+			lblClocks.setText(registers);
+			
+			g.drawString("Flags:             (" + Convert.byteToHexString(t.flags) + ")", leftAlignHelper, topAlign);
+			int fw = g.getFontMetrics().stringWidth("Flags:");
 			for(String f : ti.flagInfo.keySet())
 			{
 				Integer fiv = ti.flagInfo.get(f);
@@ -258,26 +282,24 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 				for (char c : Convert.padStringWithZeroes(Integer.toBinaryString(fiv & 0xFF), 8).toCharArray())
 				{
 					g.setColor((c == '1') ? Color.green : Color.red);
-					g.drawString(String.valueOf(flagsString.charAt(counter)), 120 + 16 * counter, readoutOffset);
+					g.drawString(String.valueOf(flagsString.charAt(counter)), (fw+leftAlignHelper) + (charOffset * counter), topAlign);
 					counter++;
 				}			
 			}			
 			g.setColor(Color.white);
-			
-			g.drawString(
-					"Stack Pointer: "
-							+ Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.stackPointer)), 8)
+
+			g.drawString("Stack Pointer: ",leftAlignHelper, topAlign+=lineOffset);			
+			g.drawString(Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.stackPointer)), 8)
 							+ " (" + Convert.byteToHexString(t.stackPointer) + ")["
 							+ Integer.toHexString(((int) t.stackPointer & 0x0000FFFF)).toUpperCase() + "]",
-					35, readoutOffset+=30);
-			g.drawString(
-					"Program Counter: "
-							+ Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt(t.programCounter)), 8)
+							leftAlignHelper, topAlign+=lineOffset);
+			g.drawString("Program Counter: ", leftAlignHelper, topAlign+=lineOffset);	
+			g.drawString(Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt(t.programCounter)), 8)
 							+ " ("
 							+ Convert.padStringWithZeroes(
 									Integer.toHexString(Short.toUnsignedInt(t.programCounter)).toUpperCase(), 4)
 							+ ")",
-					35, readoutOffset+=30);			
+							leftAlignHelper, topAlign+=lineOffset);			
 			
 			if(ti.addressInfo.size() > 0)
 			{
@@ -285,7 +307,7 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 				{				
 					Integer adv = ti.registerInfo.get(ad);
 					g.drawString(ad + ": " + Convert.padStringWithZeroes(Integer.toBinaryString(adv & 0xFFFF), 8) + " ("
-							+ Convert.byteToHexString((byte)(adv & 0xFFFF)) + ")", xoffset + (220 * col), readoutOffset+=30);
+							+ Convert.byteToHexString((byte)(adv & 0xFFFF)) + ")", xoffset + (220 * col), topAlign+=lineOffset);
 				}				
 			}
 		}
@@ -293,17 +315,17 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 		{
 			
 			g.drawString("A: " + Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.a)), 8) + " ("
-					+ Convert.byteToHexString(t.a) + ")", 35, readoutOffset+=30);
+					+ Convert.byteToHexString(t.a) + ")", leftAlignHelper, topAlign+=lineOffset);
 			g.drawString("X: " + Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.x)), 8) + " ("
-					+ Convert.byteToHexString(t.x) + ")", 35, readoutOffset+=30);
+					+ Convert.byteToHexString(t.x) + ")", leftAlignHelper, topAlign+=lineOffset);
 			g.drawString("Y: " + Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.y)), 8) + " ("
-					+ Convert.byteToHexString(t.y) + ")", 35, readoutOffset+=30);
+					+ Convert.byteToHexString(t.y) + ")", leftAlignHelper, topAlign+=lineOffset);
 			g.drawString(
 					"Stack Pointer: "
 							+ Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.stackPointer)), 8)
 							+ " (" + Convert.byteToHexString(t.stackPointer) + ")["
 							+ Integer.toHexString(((int) t.stackPointer & 0x000000FF) + 0x00000100).toUpperCase() + "]",
-					35, readoutOffset+=30);
+							leftAlignHelper, topAlign+=lineOffset);
 			g.drawString(
 					"Program Counter: "
 							+ Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt(t.programCounter)), 16)
@@ -311,8 +333,8 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 							+ Convert.padStringWithZeroes(
 									Integer.toHexString(Short.toUnsignedInt(t.programCounter)).toUpperCase(), 4)
 							+ ")",
-					35, readoutOffset+=30);
-			g.drawString("Flags:             (" + Convert.byteToHexString(t.flags) + ")", 35, readoutOffset+=30);
+							leftAlignHelper, topAlign+=lineOffset);
+			g.drawString("Flags:             (" + Convert.byteToHexString(t.flags) + ")", leftAlignHelper, topAlign+=lineOffset);
 			int counter = 0;
 			String flagsString = "NVUBDIZC";
 			for (char c : Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.flags)), 8).toCharArray())
@@ -324,29 +346,30 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 			g.setColor(Color.white);
 			
 			g.drawString(
-					"Absolute Address: "
-							+ Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt(t.addressAbsolute)),
+					"Absolute Address: ",leftAlignHelper, topAlign+=lineOffset);
+			g.drawString(Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt(t.addressAbsolute)),
 									16)
 							+ " (" + Convert.byteToHexString((byte) ((short) t.addressAbsolute / 0xFF))
 							+ Convert.byteToHexString((byte) t.addressAbsolute) + ")",
-					35, readoutOffset+=30);
-			g.drawString("Relative Address: "
-					+ Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt((short) t.addressRelative)),
+							leftAlignHelper, topAlign+=lineOffset);
+			
+			g.drawString("Relative Address: ", leftAlignHelper, topAlign+=lineOffset);			
+			g.drawString(Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt((short) t.addressRelative)),
 							16)
 					+ " (" + Convert.byteToHexString((byte) ((short) t.addressRelative / 0xFF))
-					+ Convert.byteToHexString((byte) t.addressRelative) + ")", 35, readoutOffset+=30);
+					+ Convert.byteToHexString((byte) t.addressRelative) + ")", leftAlignHelper, topAlign+=lineOffset);
 		}
 
-		g.drawString("Opcode: " + t.opcodeName + " (" + Convert.byteToHexString(t.opcode) + ")", 35, readoutOffset+=30);
-		g.drawString("Cycles: " + t.cycles, 35, readoutOffset+=30);
-		g.drawString("IRQs  : " + t.irqs, 35, readoutOffset+=30);
+		g.drawString("Opcode: " + t.opcodeName + " (" + Convert.byteToHexString(t.opcode) + ")", leftAlignHelper, topAlign+=lineOffset);
+		g.drawString("Cycles: " + t.cycles, leftAlignHelper, topAlign+=lineOffset);
+		g.drawString("IRQs  : " + t.irqs, leftAlignHelper, topAlign+=lineOffset);
 
 		
-		g.drawString("Reset JMP: ", 35, readoutOffset+=30);
-		g.drawString("0x" + Convert.toHex16String(defaultResetAddress), 160, readoutOffset);
-		g.drawString("Reset Vector: ", 35, readoutOffset+=30);
-		g.drawString("0x" + Convert.toHex16String(defaultResetVector), 200, readoutOffset);
-		readoutOffset+=30;
+		g.drawString("Reset JMP: ", leftAlignHelper, topAlign+=lineOffset);
+		g.drawString("0x" + Convert.toHex16String(defaultResetAddress), 160, topAlign);
+		g.drawString("Reset Vector: ", leftAlignHelper, topAlign+=lineOffset);
+		g.drawString("0x" + Convert.toHex16String(defaultResetVector), 200, topAlign);
+		topAlign+=lineOffset;;
 
 
 		g.setColor(Color.white);

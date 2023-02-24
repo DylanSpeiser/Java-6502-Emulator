@@ -48,7 +48,7 @@ public class DemoUITest4 extends JFrame implements EmulatorFrame, BusListener, E
 	public DemoUITest4(String emulatorTitle) 
 	{
 	    super(emulatorTitle);
-	    this.setSize(new Dimension(1920, 2048));
+	    this.setSize(new Dimension(1920, 1080));
 
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);	 
@@ -212,7 +212,7 @@ public class DemoUITest4 extends JFrame implements EmulatorFrame, BusListener, E
 
 	@Override
 	public void showFrame(boolean bVisible)
-	{
+	{ 
 		this.setVisible(bVisible);		
 	}
 
@@ -222,6 +222,7 @@ public class DemoUITest4 extends JFrame implements EmulatorFrame, BusListener, E
 		this.emulator = emu;
 		((AddressMap)emu.getBus()).addBusListener((BusListener)this);		
 		setContentPane(createContentPane());
+		redraw();
 	}
 
 	@Override
