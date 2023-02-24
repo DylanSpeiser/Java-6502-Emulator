@@ -65,9 +65,9 @@ public class DemoUITest4 extends JFrame implements EmulatorFrame, BusListener, E
 		
 		
 		
-		p.add(buildDockingPort(Color.BLUE, "Registers"), BorderLayout.NORTH);
+		p.add(buildDockingPort(Color.BLUE, "Registers"), BorderLayout.WEST);
 		p.add(buildDockingPort(Color.GREEN, "RAM"), BorderLayout.EAST);
-		p.add(buildDockingPort(Color.BLACK, "Devices"), BorderLayout.WEST);
+		p.add(buildDockingPort(Color.BLACK, "Devices"), BorderLayout.NORTH);
 		p.add(buildDockingPort(Color.RED, "Instructions"), BorderLayout.CENTER);
 		//p.add(createDockingPort(), BorderLayout.CENTER);
 		return p;
@@ -94,7 +94,7 @@ public class DemoUITest4 extends JFrame implements EmulatorFrame, BusListener, E
 		if("Devices".equals(desc))
 		{
 			pp = createDevicesSubPanel(desc, myColor);
-			pp.setPreferredSize(new Dimension(300,200));
+			pp.setPreferredSize(new Dimension(300,150));
 		}
 		else if("Instructions".equals(desc)) 
 		{
@@ -104,7 +104,12 @@ public class DemoUITest4 extends JFrame implements EmulatorFrame, BusListener, E
 		else if("RAM".equals(desc)) 
 		{
 			pp = createRAMSubPanel(desc, myColor);			
-			pp.setPreferredSize(new Dimension(500,200));
+			pp.setPreferredSize(new Dimension(350,200));
+		}
+		else if("Registers".equals(desc)) 
+		{
+			pp = createRegistersSubPanel(desc, myColor);			
+			pp.setPreferredSize(new Dimension(400,200));
 		}
 		else
 		{
@@ -178,6 +183,12 @@ public class DemoUITest4 extends JFrame implements EmulatorFrame, BusListener, E
 		return pp;
 	}
 
+	protected JPanel createRegistersSubPanel(final String desc, final Color myColor)
+	{
+		JPanel pp = new ExRegistersImpl(this.emulator);
+		return pp;
+	}
+	
 	private DefaultDockingPort createDockingPort()
 	{
 		DefaultDockingPort port = new DefaultDockingPort();
