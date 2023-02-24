@@ -12,13 +12,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpinnerListModel;
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.TitledBorder;
+
 
 import com.juse.emulator.debug.DebugControl;
 import com.juse.emulator.debug.DebugListener;
@@ -34,14 +31,14 @@ import com.juse.emulator.interfaces.ui.EmulatorDisplay;
 import com.juse.emulator.util.translate.Convert;
 
 
-public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionListener, KeyListener, BusListener, MouseWheelListener
+public class ExRAMGridImpl extends JPanel implements EmulatorDisplay, ActionListener, KeyListener, BusListener, MouseWheelListener
 {
 	private boolean writeEvent = false;
 	private Timer t;
 	public int ramPage = 0;
 	public int romPage = 0;
 
-	int rightAlignHelper = Math.max(getWidth(), 1334);
+	int leftAlignHelper = Math.max(getWidth(), 1334);
 	int historyOffset = 0;
 
 	public String ramPageString = "";
@@ -67,8 +64,6 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 	private Map<Integer,String> debugBreaks = new HashMap<Integer,String>();
 
 	private boolean bDebugMode = false;
-	private JTextArea lblClocks;
-	private Font systemFont;
 	
 	public interface ApplicationEvent 
 	{
@@ -78,7 +73,7 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 	{
 	}
 	
-	public ExRegistersImpl(Emulator emulator)
+	public ExRAMGridImpl(Emulator emulator)
 	{
 		super(null);
 
@@ -147,44 +142,44 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 		}
 		this.title = ((Emulator) emulator).getMainTitle() + " Emulator v" + emulator.getSystemVersion();
 
-		if(System.getProperty("os.name").toLowerCase().contains("windows"))
-			systemFont = new Font("Courier New Bold", Font.BOLD, 14);
-		else
-			systemFont = new Font("Monospaced", Font.BOLD, 14);		
-
-		
-		SwingUtilities.invokeLater(
-		new Runnable()
+		/*
+		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	    String[] fonts = env.getAvailableFontFamilyNames();
+		for(int i=0;i<fonts.length;i++)
 		{
-			@Override
-			public void run()
-			{
-				((TitledBorder)((JPanel)ExRegistersImpl.this.getParent()).getBorder()).setTitle("CPU - " + ((Emulator) emulator).getCPU().getName());				
-			}
-		});
-		
-		
-		
-		lblClocks = new JTextArea("Clocks: ");
-		lblClocks.setFont(systemFont);
-		lblClocks.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		lblClocks.setBounds(0, 0, 400, 200);		
-		lblClocks.setForeground(Color.black);
-		lblClocks.setBackground(Color.white);
-		lblClocks.setVisible(true);
-		this.add(lblClocks);
-		
+			System.out.println(fonts[i]);
+		}
+		*/
 		t = new javax.swing.Timer(16, this);
 		t.start();
-		setBackground(Color.black);
+		setBackground(Color.green);
 		setPreferredSize(new Dimension(1200, 900));
 
+		this.setLayout(new GridLayout(0,9));
+		for(int y=0;y<32;y++)
+			for(int x=0;x<9;x++)
+			{
+				JTextField jf;
+				if(x == 0)
+				{
+					jf = new JTextField(Convert.toHex16String((y * 8)));
+					jf.setForeground(Color.blue);
+				}
+				else
+					jf = new JTextField("00");
+				jf.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+				jf.setHorizontalAlignment(JTextField.CENTER);
+				this.add(jf);
+			}	
+		// romPageString = SystemEmulator.rom.getROMString().substring(romPage * 960,
+		// (romPage + 1) * 960);
+		ramPageString = emulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
 
 		this.setFocusable(true);
 		this.requestFocus();
 		this.addKeyListener(this);
 		this.addMouseWheelListener(this);
-		this.validate();
+
 	}
 	
 	public void refreshBus()
@@ -215,22 +210,18 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 	public void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
+		
+		int topAlign = g.getFontMetrics().getHeight() + g.getFontMetrics().getDescent();// g.getFontMetrics().getWidths()[32];
+		leftAlignHelper = g.getFontMetrics().getWidths()[32];
+		
 		g.setColor(Color.white);
 
-		// Version
+		
 		if(System.getProperty("os.name").toLowerCase().contains("windows"))
-			g.setFont(new Font("Courier New Bold", Font.BOLD, 16));
+			g.setFont(new Font("Courier New Bold", Font.BOLD, 18));
 		else
-			g.setFont(new Font("Monospaced", Font.BOLD, 16));
+			g.setFont(new Font("Monospaced", Font.BOLD, 18));
 		
-
-		int charOffset = g.getFontMetrics().stringWidth(" ");
-		int lineOffset = g.getFontMetrics().getHeight() + g.getFontMetrics().getDescent();
-		int topAlign = lineOffset;// g.getFontMetrics().getWidths()[32];
-		int leftAlignHelper = charOffset;
-		
-		
-		String registers = "";
 		
 		TelemetryInfo ti = null;
 		Telemetry t = emulator.getCPU().getTelemetry();
@@ -239,164 +230,30 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 			ti = (TelemetryInfo)t;
 		}
 
-		registers+=("Clocks: " + t.clocks);
-		// Clocks
-		g.drawString("Clocks: " + t.clocks, leftAlignHelper, topAlign+=lineOffset);
-		if (t.clocksPerSecond > 1000000.0)
-		{
-			g.drawString("Speed : " + (int) t.clocksPerSecond / 1000000 + " MHz"
-					+ (emulator.getClock().isSlow() ? " (Slow)" : ""), leftAlignHelper, topAlign+=lineOffset);
-			registers+=(" (" + (int) t.clocksPerSecond / 1000000 + " MHz)"
-					    + (emulator.getClock().isSlow() ? " (Slow)" : ""));
-			registers+="\n";
-		}
-		else
-		{
-			g.drawString("Speed: " + (int) t.clocksPerSecond + " Hz" + (emulator.getClock().isSlow() ? " (Slow)" : ""),
-					leftAlignHelper, topAlign+=lineOffset);
-			registers+=(" (" + (int) t.clocksPerSecond + " Hz)" + (emulator.getClock().isSlow() ? " (Slow)" : ""));
-			registers+="\n";
-		}
 		
-		
-		//lblClocks.setText((int) t.clocksPerSecond / 1000000 + " MHz");
-		
-		//int readoutOffset = topAlign;
-		// CPU
-		g.drawString("CPU Registers:", leftAlignHelper, topAlign+=lineOffset);
-		if(ti!=null)
+		// Stack Pointer Underline
+		if (ramPage == 1)
 		{
-			int xoffset = leftAlignHelper;
-
-			topAlign+=lineOffset;
+			// g.setColor(new Color(0.7f, 0f, 0f));
+			g.setColor(Color.red);
+			g.fillRect(leftAlignHelper + 36 * (Byte.toUnsignedInt(t.stackPointer) % 8),
+					   23 * ((int) Byte.toUnsignedInt(t.stackPointer) / 8), 25, 22);
 			
-			
-			String line = "";		
-			
-			int col = 0;
-			for(String r : ti.registerInfo.keySet())
-			{				
-				Integer tiv = ti.registerInfo.get(r);
-				
-				line = r + ": " + Convert.padStringWithZeroes(Integer.toBinaryString(tiv & 0xFF), 8) + " ("
-						+ Convert.byteToHexString((byte)(tiv & 0xFF)) + ")";
-				
-				registers+=(line + " ");
-				g.drawString(line, 
-						     xoffset + (18 * charOffset * col), 
-						     topAlign);
-				col++;
-				if(col > 1)
-				{
-					col = 0;
-					topAlign+=lineOffset;
-					registers+="\n";
-				}
-			}
-			
-			lblClocks.setText(registers);
-			
-			g.drawString("Flags:             (" + Convert.byteToHexString(t.flags) + ")", leftAlignHelper, topAlign);
-			int fw = g.getFontMetrics().stringWidth("Flags:");
-			for(String f : ti.flagInfo.keySet())
-			{
-				Integer fiv = ti.flagInfo.get(f);
-				int counter = 0;
-				String flagsString = f;
-				for (char c : Convert.padStringWithZeroes(Integer.toBinaryString(fiv & 0xFF), 8).toCharArray())
-				{
-					g.setColor((c == '1') ? Color.green : Color.red);
-					g.drawString(String.valueOf(flagsString.charAt(counter)), (fw+leftAlignHelper) + (charOffset * counter), topAlign);
-					counter++;
-				}			
-			}			
 			g.setColor(Color.white);
-
-			g.drawString("Stack Pointer: ",leftAlignHelper, topAlign+=lineOffset);			
-			g.drawString(Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.stackPointer)), 8)
-							+ " (" + Convert.byteToHexString(t.stackPointer) + ")["
-							+ Integer.toHexString(((int) t.stackPointer & 0x0000FFFF)).toUpperCase() + "]",
-							leftAlignHelper, topAlign+=lineOffset);
-			g.drawString("Program Counter: ", leftAlignHelper, topAlign+=lineOffset);	
-			g.drawString(Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt(t.programCounter)), 8)
-							+ " ("
-							+ Convert.padStringWithZeroes(
-									Integer.toHexString(Short.toUnsignedInt(t.programCounter)).toUpperCase(), 4)
-							+ ")",
-							leftAlignHelper, topAlign+=lineOffset);			
-			
-			if(ti.addressInfo.size() > 0)
-			{
-				for(String ad : ti.addressInfo.keySet())
-				{				
-					Integer adv = ti.registerInfo.get(ad);
-					g.drawString(ad + ": " + Convert.padStringWithZeroes(Integer.toBinaryString(adv & 0xFFFF), 8) + " ("
-							+ Convert.byteToHexString((byte)(adv & 0xFFFF)) + ")", xoffset + (220 * col), topAlign+=lineOffset);
-				}				
-			}
 		}
-		else
+
+		// RAM
+		if(bMemoryEdit)
 		{
-			
-			g.drawString("A: " + Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.a)), 8) + " ("
-					+ Convert.byteToHexString(t.a) + ")", leftAlignHelper, topAlign+=lineOffset);
-			g.drawString("X: " + Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.x)), 8) + " ("
-					+ Convert.byteToHexString(t.x) + ")", leftAlignHelper, topAlign+=lineOffset);
-			g.drawString("Y: " + Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.y)), 8) + " ("
-					+ Convert.byteToHexString(t.y) + ")", leftAlignHelper, topAlign+=lineOffset);
-			g.drawString(
-					"Stack Pointer: "
-							+ Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.stackPointer)), 8)
-							+ " (" + Convert.byteToHexString(t.stackPointer) + ")["
-							+ Integer.toHexString(((int) t.stackPointer & 0x000000FF) + 0x00000100).toUpperCase() + "]",
-							leftAlignHelper, topAlign+=lineOffset);
-			g.drawString(
-					"Program Counter: "
-							+ Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt(t.programCounter)), 16)
-							+ " ("
-							+ Convert.padStringWithZeroes(
-									Integer.toHexString(Short.toUnsignedInt(t.programCounter)).toUpperCase(), 4)
-							+ ")",
-							leftAlignHelper, topAlign+=lineOffset);
-			g.drawString("Flags:             (" + Convert.byteToHexString(t.flags) + ")", leftAlignHelper, topAlign+=lineOffset);
-			int counter = 0;
-			String flagsString = "NVUBDIZC";
-			for (char c : Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.flags)), 8).toCharArray())
-			{
-				g.setColor((c == '1') ? Color.green : Color.red);
-				g.drawString(String.valueOf(flagsString.charAt(counter)), 120 + 16 * counter, 320);
-				counter++;
-			}		
+			g.setColor(Color.red);
+			g.fillRect(leftAlignHelper, 
+					   g.getFontMetrics().getHeight() + g.getFontMetrics().getDescent(),
+					   g.getFontMetrics().getWidths()[32] * 3,  22);
 			g.setColor(Color.white);
-			
-			g.drawString(
-					"Absolute Address: ",leftAlignHelper, topAlign+=lineOffset);
-			g.drawString(Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt(t.addressAbsolute)),
-									16)
-							+ " (" + Convert.byteToHexString((byte) ((short) t.addressAbsolute / 0xFF))
-							+ Convert.byteToHexString((byte) t.addressAbsolute) + ")",
-							leftAlignHelper, topAlign+=lineOffset);
-			
-			g.drawString("Relative Address: ", leftAlignHelper, topAlign+=lineOffset);			
-			g.drawString(Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt((short) t.addressRelative)),
-							16)
-					+ " (" + Convert.byteToHexString((byte) ((short) t.addressRelative / 0xFF))
-					+ Convert.byteToHexString((byte) t.addressRelative) + ")", leftAlignHelper, topAlign+=lineOffset);
 		}
-
-		g.drawString("Opcode: " + t.opcodeName + " (" + Convert.byteToHexString(t.opcode) + ")", leftAlignHelper, topAlign+=lineOffset);
-		g.drawString("Cycles: " + t.cycles, leftAlignHelper, topAlign+=lineOffset);
-		g.drawString("IRQs  : " + t.irqs, leftAlignHelper, topAlign+=lineOffset);
-
 		
-//		g.drawString("Reset JMP: ", leftAlignHelper, topAlign+=lineOffset);
-//		g.drawString("0x" + Convert.toHex16String(defaultResetAddress), 160, topAlign);
-//		g.drawString("Reset Vector: ", leftAlignHelper, topAlign+=lineOffset);
-//		g.drawString("0x" + Convert.toHex16String(defaultResetVector), 200, topAlign);
-//		topAlign+=lineOffset;;
+		drawString(g, ramPageString, leftAlignHelper, topAlign);
 
-
-		g.setColor(Color.white);
 	}
 
 	public void drawString(Graphics g, String text, int x, int y)

@@ -65,7 +65,7 @@ public class DemoUITest4 extends JFrame implements EmulatorFrame, BusListener, E
 		
 		
 		
-		p.add(buildDockingPort(Color.BLUE, "Registers"), BorderLayout.WEST);
+		p.add(buildDockingPort(Color.BLUE, "CPU"), BorderLayout.WEST);
 		p.add(buildDockingPort(Color.GREEN, "RAM"), BorderLayout.EAST);
 		p.add(buildDockingPort(Color.BLACK, "Devices"), BorderLayout.NORTH);
 		p.add(buildDockingPort(Color.RED, "Instructions"), BorderLayout.CENTER);
@@ -106,7 +106,7 @@ public class DemoUITest4 extends JFrame implements EmulatorFrame, BusListener, E
 			pp = createRAMSubPanel(desc, myColor);			
 			pp.setPreferredSize(new Dimension(350,200));
 		}
-		else if("Registers".equals(desc)) 
+		else if("CPU".equals(desc)) 
 		{
 			pp = createRegistersSubPanel(desc, myColor);			
 			pp.setPreferredSize(new Dimension(400,200));
@@ -134,7 +134,8 @@ public class DemoUITest4 extends JFrame implements EmulatorFrame, BusListener, E
 
 	private JPanel createRAMSubPanel(String desc, Color myColor)
 	{
-		JPanel pp = new ExRAMImpl(this.emulator);
+		//JPanel pp = new ExRAMImpl(this.emulator);
+		JPanel pp = new ExRAMGridImpl(this.emulator);
 		return pp;
 	}
 
