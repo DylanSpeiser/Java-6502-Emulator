@@ -18,6 +18,7 @@ import javax.swing.SpinnerListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
 import com.juse.emulator.debug.DebugControl;
@@ -153,26 +154,27 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 			systemFont = new Font("Monospaced", Font.BOLD, 14);		
 
 		
-		SwingUtilities.invokeLater(
-		new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				((TitledBorder)((JPanel)ExRegistersImpl.this.getParent()).getBorder()).setTitle("CPU - " + ((Emulator) emulator).getCPU().getName());				
-			}
-		});
-		
+//		SwingUtilities.invokeLater(
+//		new Runnable()
+//		{
+//			@Override
+//			public void run()
+//			{
+//				((TitledBorder)((JPanel)ExRegistersImpl.this.getParent()).getBorder()).setTitle("CPU - " + ((Emulator) emulator).getCPU().getName());				
+//			}
+//		});
+//		
 		
 		
 		lblClocks = new JTextArea("Clocks: ");
 		lblClocks.setFont(systemFont);
-		lblClocks.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		lblClocks.setBounds(0, 0, 400, 200);		
+		Border bevel = BorderFactory.createBevelBorder(BevelBorder.LOWERED);
+		lblClocks.setBorder(bevel);
+		lblClocks.setBounds(5, 5, 400, 200);		
 		lblClocks.setForeground(Color.black);
 		lblClocks.setBackground(Color.white);
 		lblClocks.setVisible(true);
-		this.add(lblClocks);
+		//this.add(lblClocks);
 		
 		t = new javax.swing.Timer(16, this);
 		t.start();
@@ -217,6 +219,8 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 		super.paintComponent(g);
 		g.setColor(Color.white);
 
+		((TitledBorder)((JPanel)this.getParent()).getBorder()).setTitle("CPU - " + ((Emulator) emulator).getCPU().getName());	
+		
 		// Version
 		if(System.getProperty("os.name").toLowerCase().contains("windows"))
 			g.setFont(new Font("Courier New Bold", Font.BOLD, 16));
@@ -286,7 +290,7 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 						     xoffset + (18 * charOffset * col), 
 						     topAlign);
 				col++;
-				if(col > 1)
+				if(col > 0)
 				{
 					col = 0;
 					topAlign+=lineOffset;
@@ -294,7 +298,16 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 				}
 			}
 			
-			lblClocks.setText(registers);
+			
+			for(String s : ti.flagInfo.keySet())
+			{
+				registers+=(s + ":" + ti.flagInfo.get(s) + "\n");
+			}
+			
+			//lblClocks.setText(registers);
+			
+			
+			
 			
 			g.drawString("Flags:             (" + Convert.byteToHexString(t.flags) + ")", leftAlignHelper, topAlign);
 			int fw = g.getFontMetrics().stringWidth("Flags:");
@@ -312,13 +325,13 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 			}			
 			g.setColor(Color.white);
 
-			g.drawString("Stack Pointer: ",leftAlignHelper, topAlign+=lineOffset);			
-			g.drawString(Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.stackPointer)), 8)
+			//g.drawString("Stack Pointer: ",leftAlignHelper, topAlign+=lineOffset);			
+			g.drawString("SP: " + Convert.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(t.stackPointer)), 8)
 							+ " (" + Convert.byteToHexString(t.stackPointer) + ")["
 							+ Integer.toHexString(((int) t.stackPointer & 0x0000FFFF)).toUpperCase() + "]",
 							leftAlignHelper, topAlign+=lineOffset);
-			g.drawString("Program Counter: ", leftAlignHelper, topAlign+=lineOffset);	
-			g.drawString(Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt(t.programCounter)), 8)
+			//g.drawString("Program Counter: ", leftAlignHelper, topAlign+=lineOffset);	
+			g.drawString("PC: " + Convert.padStringWithZeroes(Integer.toBinaryString(Short.toUnsignedInt(t.programCounter)), 8)
 							+ " ("
 							+ Convert.padStringWithZeroes(
 									Integer.toHexString(Short.toUnsignedInt(t.programCounter)).toUpperCase(), 4)
@@ -537,6 +550,8 @@ public class ExRegistersImpl extends JPanel implements EmulatorDisplay, ActionLi
 	@Override
 	public void keyPressed(KeyEvent e)
 	{
+		System.out.println("keyPressed");
+		
 		int keyCode = e.getKeyCode();
 		if (keyCode == KeyEvent.VK_DOWN)
 		{

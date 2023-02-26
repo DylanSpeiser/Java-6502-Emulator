@@ -11,6 +11,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerListModel;
@@ -20,6 +22,7 @@ import javax.swing.Timer;
 import com.juse.emulator.debug.DebugControl;
 import com.juse.emulator.debug.DebugListener;
 import com.juse.emulator.interfaces.AddressMap;
+import com.juse.emulator.interfaces.Bus;
 import com.juse.emulator.interfaces.BusListener;
 import com.juse.emulator.interfaces.Clock;
 import com.juse.emulator.interfaces.DeviceDebugger;
@@ -31,7 +34,7 @@ import com.juse.emulator.interfaces.ui.EmulatorDisplay;
 import com.juse.emulator.util.translate.Convert;
 
 
-public class ExRAMGridImpl extends JPanel implements EmulatorDisplay, ActionListener, KeyListener, BusListener, MouseWheelListener
+public class ExRAMGridImpl extends JPanel implements EmulatorDisplay, ActionListener, KeyListener, BusListener, MouseWheelListener, MouseListener
 {
 	private boolean writeEvent = false;
 	private Timer t;
@@ -63,7 +66,10 @@ public class ExRAMGridImpl extends JPanel implements EmulatorDisplay, ActionList
 
 	private Map<Integer,String> debugBreaks = new HashMap<Integer,String>();
 
+	private Map<String,JTextField> ramGrid = new HashMap<String,JTextField>();
+	
 	private boolean bDebugMode = false;
+	private Font systemFont;
 	
 	public interface ApplicationEvent 
 	{
@@ -142,6 +148,11 @@ public class ExRAMGridImpl extends JPanel implements EmulatorDisplay, ActionList
 		}
 		this.title = ((Emulator) emulator).getMainTitle() + " Emulator v" + emulator.getSystemVersion();
 
+		
+		if(System.getProperty("os.name").toLowerCase().contains("windows"))
+			systemFont = new Font("Courier New Bold", Font.BOLD, 16);
+		else
+			systemFont = new Font("Monospaced", Font.BOLD, 16);			
 		/*
 		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	    String[] fonts = env.getAvailableFontFamilyNames();
@@ -151,35 +162,63 @@ public class ExRAMGridImpl extends JPanel implements EmulatorDisplay, ActionList
 		}
 		*/
 		t = new javax.swing.Timer(16, this);
-		t.start();
-		setBackground(Color.green);
+		//t.start();
+		setBackground(Color.BLUE);
 		setPreferredSize(new Dimension(1200, 900));
-
-		this.setLayout(new GridLayout(0,9));
+	    this.setBorder(BorderFactory.createEmptyBorder(1,10,1,2));
+		
+		String hex = "";
+		
+		this.setLayout(new GridLayout(0,9,0,0));
 		for(int y=0;y<32;y++)
+		{			
 			for(int x=0;x<9;x++)
 			{
 				JTextField jf;
 				if(x == 0)
 				{
+					hex = "A" + Convert.toHex16String((y * 8));
 					jf = new JTextField(Convert.toHex16String((y * 8)));
-					jf.setForeground(Color.blue);
+					jf.setForeground(Color.CYAN);
 				}
 				else
-					jf = new JTextField("00");
-				jf.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+				{
+					hex = Convert.toHex8String((byte)((y * 8) + (x - 1)));
+					jf = new JTextField(hex);
+					jf.setForeground(Color.WHITE);
+				}
+				jf.addKeyListener(this);
+				jf.addMouseListener(this);
+				jf.setEditable(false);
+				jf.setRequestFocusEnabled(false);
+				jf.setBackground(Color.BLUE);
+				jf.setFont(systemFont);
+				jf.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
 				jf.setHorizontalAlignment(JTextField.CENTER);
+				ramGrid.put(hex, jf);
 				this.add(jf);
 			}	
+		}
 		// romPageString = SystemEmulator.rom.getROMString().substring(romPage * 960,
 		// (romPage + 1) * 960);
 		ramPageString = emulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
-
+		
+		//JScrollBar scrollBarV = new JScrollBar(JScrollBar.VERTICAL, 30, 40, 0, 500);
+		//add(scrollBarV, BorderLayout.EAST);
+		
 		this.setFocusable(true);
-		this.requestFocus();
+		
 		this.addKeyListener(this);
 		this.addMouseWheelListener(this);
-
+		
+		this.addMouseListener(this);
+		
+		
+		Bus bus = emulator.getBus();
+		if(bus instanceof AddressMap)
+		{
+			((AddressMap)bus).addBusListener(this);
+		}
 	}
 	
 	public void refreshBus()
@@ -231,26 +270,26 @@ public class ExRAMGridImpl extends JPanel implements EmulatorDisplay, ActionList
 		}
 
 		
-		// Stack Pointer Underline
-		if (ramPage == 1)
-		{
-			// g.setColor(new Color(0.7f, 0f, 0f));
-			g.setColor(Color.red);
-			g.fillRect(leftAlignHelper + 36 * (Byte.toUnsignedInt(t.stackPointer) % 8),
-					   23 * ((int) Byte.toUnsignedInt(t.stackPointer) / 8), 25, 22);
-			
-			g.setColor(Color.white);
-		}
-
-		// RAM
-		if(bMemoryEdit)
-		{
-			g.setColor(Color.red);
-			g.fillRect(leftAlignHelper, 
-					   g.getFontMetrics().getHeight() + g.getFontMetrics().getDescent(),
-					   g.getFontMetrics().getWidths()[32] * 3,  22);
-			g.setColor(Color.white);
-		}
+//		// Stack Pointer Underline
+//		if (ramPage == 1)
+//		{
+//			// g.setColor(new Color(0.7f, 0f, 0f));
+//			g.setColor(Color.red);
+//			g.fillRect(leftAlignHelper + 36 * (Byte.toUnsignedInt(t.stackPointer) % 8),
+//					   23 * ((int) Byte.toUnsignedInt(t.stackPointer) / 8), 25, 22);
+//			
+//			g.setColor(Color.white);
+//		}
+//
+//		// RAM
+//		if(bMemoryEdit)
+//		{
+//			g.setColor(Color.red);
+//			g.fillRect(leftAlignHelper, 
+//					   g.getFontMetrics().getHeight() + g.getFontMetrics().getDescent(),
+//					   g.getFontMetrics().getWidths()[32] * 3,  22);
+//			g.setColor(Color.white);
+//		}
 		
 		drawString(g, ramPageString, leftAlignHelper, topAlign);
 
@@ -260,7 +299,7 @@ public class ExRAMGridImpl extends JPanel implements EmulatorDisplay, ActionList
 	{
 		int cLine = 0;
 		
-		Color c = g.getColor();
+		//Color c = g.getColor();
 		for (String line : text.split("\n"))
 		{
 			
@@ -269,42 +308,59 @@ public class ExRAMGridImpl extends JPanel implements EmulatorDisplay, ActionList
 			if (line.length() > 0)
 			{
 				String[] part = line.split(":");
+				String[] bytes = part[1].trim().split(" ");
 				try
 				{
-					g.setColor(Color.CYAN);
-					g.drawString(part[0] + ":", x, y + g.getFontMetrics().getHeight());
+					String address = "00" + part[0].trim().substring(2);
+					String gridRowId = "A" + address;
+					
+					Integer addressVal = Integer.parseInt(address,16) & 0XFF;
+					
+					JTextField jtf = ramGrid.get(gridRowId);
+					jtf.setText(part[0]);
+					jtf.setForeground(Color.CYAN);
+					
+					//g.setColor(Color.CYAN);
+					//g.drawString(part[0] + ":", x, y + g.getFontMetrics().getHeight());
 					
 					
-					
-					if(bMemoryEdit && (cLine == memY))
-					{						
-						g.setColor(Color.GRAY);
-						
-						memAddress = (ramPage * 0x00000100) + (memY * 0x00000008) + memX;
-						//System.out.println("EDIT ADDRESS:" + AddressMap.toHexAddress(editAddress,IOSize.IO16Bit));
-						
-						g.fillRect(x + g.getFontMetrics().charWidth('0') * 6 + (g.getFontMetrics().charWidth('0') * 3 *memX),
-								   y + g.getFontMetrics().getDescent(),
-								   g.getFontMetrics().getWidths()[32] * 2,  
-								   22);
-					}					
-					y += g.getFontMetrics().getHeight();
-					
-					g.setColor(c);
-					
-					StringBuffer ptext = new StringBuffer(part[1]);
-					
-					if(bMemoryEnter && (cLine == memY))
+					for(int a=0;a<8;a++)
 					{
-						ptext.setCharAt(3*memX + 1, memHILO[1]);
-						ptext.setCharAt(3*memX + 2, memHILO[0]);
+						int va = addressVal + a;
+						String cellId = Convert.toHex8String((byte)va);
+						JTextField jctf = ramGrid.get(cellId);
+						jctf.setText(bytes[a]);
 					}
 					
-					g.drawString(ptext.toString(), 
-							     x + g.getFontMetrics().charWidth('0') * 5,
-							     //y += g.getFontMetrics().getHeight()
-							     y
-							     );
+//					if(bMemoryEdit && (cLine == memY))
+//					{						
+//						g.setColor(Color.GRAY);
+//						
+//						memAddress = (ramPage * 0x00000100) + (memY * 0x00000008) + memX;
+//						//System.out.println("EDIT ADDRESS:" + AddressMap.toHexAddress(editAddress,IOSize.IO16Bit));
+//						
+//						g.fillRect(x + g.getFontMetrics().charWidth('0') * 6 + (g.getFontMetrics().charWidth('0') * 3 *memX),
+//								   y + g.getFontMetrics().getDescent(),
+//								   g.getFontMetrics().getWidths()[32] * 2,  
+//								   22);
+//					}					
+//					y += g.getFontMetrics().getHeight();
+//					
+//					g.setColor(c);
+//					
+//					StringBuffer ptext = new StringBuffer(part[1]);
+//					
+//					if(bMemoryEnter && (cLine == memY))
+//					{
+//						ptext.setCharAt(3*memX + 1, memHILO[1]);
+//						ptext.setCharAt(3*memX + 2, memHILO[0]);
+//					}
+//					
+//					g.drawString(ptext.toString(), 
+//							     x + g.getFontMetrics().charWidth('0') * 5,
+//							     //y += g.getFontMetrics().getHeight()
+//							     y
+//							     );
 					
 				} catch (Exception e)
 				{
@@ -312,7 +368,7 @@ public class ExRAMGridImpl extends JPanel implements EmulatorDisplay, ActionList
 					e.printStackTrace();
 				}
 			}
-			cLine++;
+			//cLine++;
 		}
 	}
 
@@ -387,8 +443,10 @@ public class ExRAMGridImpl extends JPanel implements EmulatorDisplay, ActionList
 		int updatePage = ((0x0000FFFF & (address - 1)) / 0xFF);
 		// System.out.println("PAGE[" + Integer.toHexString(0x0000FFFF & address) + "]:"
 		// + updatePage);
+		ramPageString = emulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
 		if (ramPage == updatePage)
 			this.writeEvent = true;
+		redraw();	
 	}
 
 	@Override
@@ -474,7 +532,7 @@ public class ExRAMGridImpl extends JPanel implements EmulatorDisplay, ActionList
 		Clock c = this.emulator.getClock();
 
 		
-		//System.out.println("Key:" + arg0.getKeyCode() + ":" + arg0.getKeyChar() + "(" + (int)arg0.getKeyChar() + ") " + arg0.getModifiers());
+		System.out.println("Key:" + arg0.getKeyCode() + ":" + arg0.getKeyChar() + "(" + (int)arg0.getKeyChar() + ") " + arg0.getModifiers());
 		
 		if(bMemoryEnter)
 		{
@@ -581,6 +639,7 @@ public class ExRAMGridImpl extends JPanel implements EmulatorDisplay, ActionList
 				// (ramPage + 1) * 960);
 				ramPageString = emulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
 			}
+			redraw();
 			break;
 		case 'h':
 			if (ramPage > 0)
@@ -590,6 +649,7 @@ public class ExRAMGridImpl extends JPanel implements EmulatorDisplay, ActionList
 				// (ramPage + 1) * 960);
 				ramPageString = emulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
 			}
+			redraw();
 			break;
 
 		case '<':
@@ -739,4 +799,58 @@ public class ExRAMGridImpl extends JPanel implements EmulatorDisplay, ActionList
 		redraw();		
 	}
 
+	@Override
+	public boolean mouseMove(Event evt, int x, int y)
+	{
+		System.out.println("mouseMove");
+		return super.mouseMove(evt, x, y);
+	}
+
+	@Override
+	public boolean mouseEnter(Event evt, int x, int y)
+	{
+		System.out.println("mouseEnter");
+		return super.mouseEnter(evt, x, y);
+	}
+
+	@Override
+	public boolean mouseExit(Event evt, int x, int y)
+	{
+		System.out.println("mouseExit");
+		return super.mouseExit(evt, x, y);
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e)
+	{
+		System.out.println("mouseClicked");
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e)
+	{
+		System.out.println("mousePressed");
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e)
+	{
+		System.out.println("mouseReleased");
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e)
+	{
+		System.out.println("mouseEntered");
+		this.requestFocusInWindow();
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e)
+	{
+		System.out.println("mouseExited");
+	}	
 }

@@ -3,8 +3,10 @@ package com.example.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,8 +16,11 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
@@ -67,7 +72,7 @@ public class DemoUITest4 extends JFrame implements EmulatorFrame, BusListener, E
 		
 		p.add(buildDockingPort(Color.BLUE, "CPU"), BorderLayout.WEST);
 		p.add(buildDockingPort(Color.GREEN, "RAM"), BorderLayout.EAST);
-		p.add(buildDockingPort(Color.BLACK, "Devices"), BorderLayout.NORTH);
+		p.add(buildDockingPort(Color.BLACK, "Controls"), BorderLayout.NORTH);
 		p.add(buildDockingPort(Color.RED, "Instructions"), BorderLayout.CENTER);
 		//p.add(createDockingPort(), BorderLayout.CENTER);
 		return p;
@@ -104,12 +109,17 @@ public class DemoUITest4 extends JFrame implements EmulatorFrame, BusListener, E
 		else if("RAM".equals(desc)) 
 		{
 			pp = createRAMSubPanel(desc, myColor);			
-			pp.setPreferredSize(new Dimension(350,200));
+			pp.setPreferredSize(new Dimension(425,200));
 		}
 		else if("CPU".equals(desc)) 
 		{
 			pp = createRegistersSubPanel(desc, myColor);			
 			pp.setPreferredSize(new Dimension(400,200));
+		}
+		else if("Controls".equals(desc)) 
+		{
+			pp = createControlsSubPanel(desc, myColor);			
+			pp.setPreferredSize(new Dimension(400,75));
 		}
 		else
 		{
@@ -187,6 +197,23 @@ public class DemoUITest4 extends JFrame implements EmulatorFrame, BusListener, E
 	protected JPanel createRegistersSubPanel(final String desc, final Color myColor)
 	{
 		JPanel pp = new ExRegistersImpl(this.emulator);
+		return pp;
+	}
+
+	protected JPanel createControlsSubPanel(final String desc, final Color myColor)
+	{
+		JPanel pp = new JPanel();
+		pp.setLayout(new BorderLayout());
+		JToolBar toolBar = new JToolBar("Still draggable");
+		toolBar.setFloatable(false);
+		toolBar.add(new JButton("B1"));
+		toolBar.add(new JButton("B2"));
+		toolBar.add(new JButton("B3"));
+		toolBar.add(new JButton("B4"));
+        
+        setPreferredSize(new Dimension(450, 75));
+        pp.add(toolBar, BorderLayout.PAGE_START);
+		
 		return pp;
 	}
 	

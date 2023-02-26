@@ -150,7 +150,7 @@ public class ExInstructionsImpl extends JPanel implements EmulatorDisplay, Actio
 		*/
 		t = new javax.swing.Timer(16, this);
 		t.start();
-		setBackground(Color.green);
+		setBackground(Color.BLUE);
 		setPreferredSize(new Dimension(1200, 900));
 
 		// romPageString = SystemEmulator.rom.getROMString().substring(romPage * 960,
@@ -192,10 +192,10 @@ public class ExInstructionsImpl extends JPanel implements EmulatorDisplay, Actio
 	public void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
-		g.setColor(Color.white);
+		g.setColor(Color.WHITE);
 
-		int topAlign = 0;
-		rightAlignHelper = 0;
+		int topAlign = 10;
+		rightAlignHelper = g.getFontMetrics().charWidth(' ') * 2;
 
 		// Version
 		if(System.getProperty("os.name").toLowerCase().contains("windows"))
@@ -211,7 +211,7 @@ public class ExInstructionsImpl extends JPanel implements EmulatorDisplay, Actio
 			ti = (TelemetryInfo)t;
 		}
 		// OPS
-		g.drawString("Instructions", rightAlignHelper, topAlign);
+		//g.drawString("Instructions", rightAlignHelper, topAlign);
 		this.historyOffset = drawString(g, t.history, rightAlignHelper, topAlign, historyOffset);
 
 	}
