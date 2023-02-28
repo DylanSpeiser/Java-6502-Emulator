@@ -396,7 +396,7 @@ public class SystemEmulatorEntry implements Emulator
 			{
 				ProcessUtil.relauchWithExt((Class)MethodHandles.lookup().lookupClass(),
 		                   sc.getExtensionPath(), 
-		                   Arrays.asList(args));
+		                   Arrays.asList(args), false);
 				return;				
 			}
 		}
