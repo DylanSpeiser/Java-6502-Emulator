@@ -18,6 +18,7 @@ import javax.swing.Timer;
 import com.juse.emulator.debug.DebugControl;
 import com.juse.emulator.debug.DebugListener;
 import com.juse.emulator.interfaces.AddressMap;
+import com.juse.emulator.interfaces.Bus;
 import com.juse.emulator.interfaces.BusListener;
 import com.juse.emulator.interfaces.Clock;
 import com.juse.emulator.interfaces.DeviceDebugger;
@@ -29,7 +30,7 @@ import com.juse.emulator.interfaces.ui.EmulatorDisplay;
 import com.juse.emulator.util.translate.Convert;
 
 
-public class ExRAMImpl extends JPanel implements EmulatorDisplay, ActionListener, KeyListener, BusListener, MouseWheelListener
+public class ExRAMImpl extends JPanel implements EmulatorDisplay, ActionListener, KeyListener, BusListener, MouseWheelListener, MouseListener
 {
 	private boolean writeEvent = false;
 	private Timer t;
@@ -150,7 +151,7 @@ public class ExRAMImpl extends JPanel implements EmulatorDisplay, ActionListener
 		*/
 		t = new javax.swing.Timer(16, this);
 		t.start();
-		setBackground(Color.green);
+		setBackground(Color.blue);
 		setPreferredSize(new Dimension(1200, 900));
 
 		// romPageString = SystemEmulator.rom.getROMString().substring(romPage * 960,
@@ -161,6 +162,13 @@ public class ExRAMImpl extends JPanel implements EmulatorDisplay, ActionListener
 		this.requestFocus();
 		this.addKeyListener(this);
 		this.addMouseWheelListener(this);
+		this.addMouseListener(this);
+		
+		Bus bus = emulator.getBus();
+		if(bus instanceof AddressMap)
+		{
+			((AddressMap)bus).addBusListener(this);
+		}		
 
 	}
 	
@@ -189,12 +197,12 @@ public class ExRAMImpl extends JPanel implements EmulatorDisplay, ActionListener
 
 	}
 	
-	public void paintComponent(Graphics g)
+	public void paint(Graphics g)
 	{
-		super.paintComponent(g);
+		super.paint(g);
 		
 		int topAlign = g.getFontMetrics().getHeight() + g.getFontMetrics().getDescent();// g.getFontMetrics().getWidths()[32];
-		leftAlignHelper = g.getFontMetrics().getWidths()[32];
+		leftAlignHelper = g.getFontMetrics().getWidths()[32] * 2;
 		
 		g.setColor(Color.white);
 
@@ -212,7 +220,7 @@ public class ExRAMImpl extends JPanel implements EmulatorDisplay, ActionListener
 			ti = (TelemetryInfo)t;
 		}
 
-		
+		/*
 		// Stack Pointer Underline
 		if (ramPage == 1)
 		{
@@ -223,7 +231,7 @@ public class ExRAMImpl extends JPanel implements EmulatorDisplay, ActionListener
 			
 			g.setColor(Color.white);
 		}
-
+		
 		// RAM
 		if(bMemoryEdit)
 		{
@@ -233,7 +241,7 @@ public class ExRAMImpl extends JPanel implements EmulatorDisplay, ActionListener
 					   g.getFontMetrics().getWidths()[32] * 3,  22);
 			g.setColor(Color.white);
 		}
-		
+		*/
 		drawString(g, ramPageString, leftAlignHelper, topAlign);
 
 	}
@@ -369,8 +377,12 @@ public class ExRAMImpl extends JPanel implements EmulatorDisplay, ActionListener
 		int updatePage = ((0x0000FFFF & (address - 1)) / 0xFF);
 		// System.out.println("PAGE[" + Integer.toHexString(0x0000FFFF & address) + "]:"
 		// + updatePage);
+		
+		
+		ramPageString = emulator.getBus().dumpBytesAsString().substring(ramPage * 960, (ramPage + 1) * 960);
 		if (ramPage == updatePage)
 			this.writeEvent = true;
+		redraw();			
 	}
 
 	@Override
@@ -721,4 +733,39 @@ public class ExRAMImpl extends JPanel implements EmulatorDisplay, ActionListener
 		redraw();		
 	}
 
+	@Override
+	public void mouseEntered(MouseEvent e)
+	{
+		System.out.println("mouseEntered");
+		this.requestFocusInWindow();
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+	
 }

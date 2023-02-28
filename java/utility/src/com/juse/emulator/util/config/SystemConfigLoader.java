@@ -315,16 +315,32 @@ public class SystemConfigLoader
 								}	
 								else if("cpu".equalsIgnoreCase(key))
 								{
-									//cpuClass = (Class<CPU>) (Class.forName(value));
 									sc.setCPU(value);
-									//System.out.println("CPU:" + cpuClass.getClass().getCanonicalName());
 								}	
 								else if("ui".equalsIgnoreCase(key))
 								{
-									//cpuClass = (Class<CPU>) (Class.forName(value));
 									sc.setUI(value);
-									//System.out.println("CPU:" + cpuClass.getClass().getCanonicalName());
 								}	
+								else if("ext".equalsIgnoreCase(key))
+								{
+									if(value.startsWith("."))
+									{
+										String scfn = configFile.getName();
+										String gn = configFile.getCanonicalPath();
+										value = gn.replace(scfn, value);
+										
+										File nxt = new File(value);
+										if(nxt.exists())
+										{
+											value = nxt.getCanonicalPath();
+										}	
+										else
+										{
+											value = null;
+										}										
+									}
+									sc.setExtensionPath(value);
+								}
 								else if("default".equalsIgnoreCase(key))
 								{
 									//defaultAddressor = value;

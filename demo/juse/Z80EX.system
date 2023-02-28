@@ -6,7 +6,7 @@
 # Extend functionality via class path entries 
 #
 ####################################################
-name=Z80A
+name=Z80
 
 ####################################################
 #            Extension Class Path
@@ -16,8 +16,7 @@ ext=./ext
 ####################################################
 #            User Interface Handler Class
 ####################################################
-ui=com.mygui.EmulatorFrameImpl
-
+ui=com.example.gui.DemoUITest4
 ####################################################
 #            Address Map Handler Class
 ####################################################
@@ -28,8 +27,7 @@ addressbus=com.juse.emulator.devices.AddressMapImpl
 #             CPU Definition Class
 ####################################################
 
-cpu=com.juse.emulator.ext.cpu.Zilog.Z80A
-#cpu=com.juse.emulator.devices.cpu.Zilog.Z80
+cpu=com.juse.emulator.devices.cpu.Zilog.Z80
 
 ####################################################
 #         Device Handler Classes and Namings

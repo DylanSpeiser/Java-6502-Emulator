@@ -22,9 +22,11 @@ public class SystemConfig
 	String irqDevice = null;
 	String slots     = null;
 	String clsUI     = null;
+	String extPath   = null;
 	
 	Map<String,Class<BusDevice>> devices = new HashMap<String,Class<BusDevice>>();
 	Map<String,String[]>         mapped  = new LinkedHashMap<String,String[]>();
+	
 	
 
 	public void setUI(String className)
@@ -253,5 +255,16 @@ public class SystemConfig
 	{
 		return mapped;
 	}
+
+	public void setExtensionPath(String extPath)
+	{
+		//System.out.println("setExtensionPath:" + extPath );
+		this.extPath = extPath;
+	}
 	
+	public String getExtensionPath()
+	{
+		//System.out.println("getExtensionPath:" + extPath );
+		return this.extPath;
+	}
 }

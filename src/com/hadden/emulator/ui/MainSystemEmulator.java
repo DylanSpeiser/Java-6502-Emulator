@@ -14,7 +14,6 @@ import java.util.Observer;
 import javax.swing.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 
-import com.hadden.util.system.io.FileMonitor;
 import com.hadden.SystemConfig;
 import com.hadden.SystemConfigLoader;
 import com.hadden.emu.AddressMap;
@@ -39,6 +38,7 @@ import com.hadden.emu.impl.RAMDevice;
 import com.hadden.emu.impl.ROMDevice;
 import com.hadden.emu.impl.TimerDevice;
 import com.hadden.roms.ROMManager;
+import com.hadden.util.system.io.FileMonitor;
 import com.hadden.emulator.cpu.MOS.MOS65C02A;
 import com.hadden.emulator.cpu.Motorola.m68000.MC68000;
 import com.hadden.emulator.cpu.Zilog.Z80;

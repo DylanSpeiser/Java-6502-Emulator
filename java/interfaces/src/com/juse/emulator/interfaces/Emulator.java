@@ -1,6 +1,5 @@
 package com.juse.emulator.interfaces;
 
-
 public interface Emulator
 {
 	String getSystemVersion();
@@ -9,4 +8,6 @@ public interface Emulator
 	CPU    getCPU();
 	void   reset();
 	Bus    getBus();
+	String getExtensionsPath();
+	void   setExtensionsPath(String extPath);
 }

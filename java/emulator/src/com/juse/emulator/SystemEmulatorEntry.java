@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.jar.JarFile;
 
 import com.hadden.util.system.io.FileMonitor;
@@ -284,6 +285,8 @@ public class SystemEmulatorEntry implements Emulator
 		}
 	};
 
+	private String extPath;
+
 	@Override
 	public CPU getCPU()
 	{
@@ -339,7 +342,7 @@ public class SystemEmulatorEntry implements Emulator
 			{ "--ui", "string", "Specifies an optional UI class to override the default GUI" },
 			{ "--config", "string", "Specifies a configuration for the emulator to use." }, 
 		});
-		
+
 		// Usage of "--config"
 		// --config ./demo/Z80.system
 		//
@@ -348,7 +351,7 @@ public class SystemEmulatorEntry implements Emulator
 		// Known default main frame
 		//
 		String uiClass = "com.juse.emulator.ui.EmulatorFrameImpl";
-		
+		//		
 		//
 		// Process the arguments passed in
 		//
@@ -375,6 +378,7 @@ public class SystemEmulatorEntry implements Emulator
 			ProcessUtil.relauchWithExt((Class)MethodHandles.lookup().lookupClass(),
 					                   cli.asString("--ext"), 
 					                   Arrays.asList(args));
+			return;
 		}
 		
 		//
@@ -384,6 +388,17 @@ public class SystemEmulatorEntry implements Emulator
 		if(cli.isSet("--config"))
 		{
 			sc = SystemConfigLoader.loadConfiguration(cli.asString("--config"));
+			//
+			// if an extension dir is provided, relaunch with it, 
+			// but check to see if we are already relaunched. 
+			//
+			if(System.getProperty("juse.relaunch")==null &&  sc.getExtensionPath()!=null)
+			{
+				ProcessUtil.relauchWithExt((Class)MethodHandles.lookup().lookupClass(),
+		                   sc.getExtensionPath(), 
+		                   Arrays.asList(args));
+				return;				
+			}
 		}
 		//
 		// What GUI do we want to use
@@ -416,7 +431,7 @@ public class SystemEmulatorEntry implements Emulator
 				//
 				// create requested UI
 				//
-				Object newFrame = ctor.newInstance(EMULATOR_TITLE, -1, -1, 1920, 1080);
+				Object newFrame = ctor.newInstance(EMULATOR_TITLE, -1, -1, 1200, 1000);
 				EmulatorFrame ef = (EmulatorFrame) newFrame;
 				if (ef != null)
 				{
@@ -426,14 +441,7 @@ public class SystemEmulatorEntry implements Emulator
 						// set emulator into UI
 						//
 						ef.initFrame(emu);
-						
-						// test ext stuff
 						//
-						EmulatorFrame efe = (EmulatorFrame) new com.example.gui.DemoUITest4(EMULATOR_TITLE);
-						efe.initFrame(emu);
-						//
-						//
-						
 					}
 				}
 			}
@@ -448,6 +456,18 @@ public class SystemEmulatorEntry implements Emulator
 	protected static void doDemo()
 	{
 		ProcessUtil.extractResources(SystemEmulatorEntry.class, DEMO_RESOURCE, DEMO_RESOURCE);
+	}
+
+	@Override
+	public String getExtensionsPath()
+	{
+		return extPath;
+	}
+
+	@Override
+	public void setExtensionsPath(String extPath)
+	{
+		this.extPath = extPath;		
 	}
 
 
