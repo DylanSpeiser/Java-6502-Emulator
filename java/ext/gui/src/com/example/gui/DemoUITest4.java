@@ -38,22 +38,15 @@ import javax.swing.border.Border;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import com.example.gui.docking.DefaultDockingPort;
-import com.example.gui.docking.DockingManager;
-import com.example.gui.docking.DockingPort;
 import com.juse.emulator.interfaces.AddressMap;
 import com.juse.emulator.interfaces.BusListener;
 import com.juse.emulator.interfaces.Clock;
-import com.juse.emulator.interfaces.DeviceDebugger;
 import com.juse.emulator.interfaces.Emulator;
 import com.juse.emulator.interfaces.Telemetry;
 import com.juse.emulator.interfaces.TelemetryInfo;
 import com.juse.emulator.interfaces.ui.EmulatorDisplay;
 import com.juse.emulator.interfaces.ui.EmulatorFrame;
-import com.juse.emulator.util.config.SystemConfig;
-import com.juse.emulator.util.config.SystemConfigLoader;
 import com.juse.emulator.util.process.ProcessUtil;
-import com.juse.emulator.util.translate.Convert;
 
 
 public class DemoUITest4 extends JFrame implements EmulatorFrame, BusListener, EmulatorDisplay, KeyListener, MouseWheelListener, ActionListener
@@ -500,14 +493,6 @@ public class DemoUITest4 extends JFrame implements EmulatorFrame, BusListener, E
         //pp.add(toolBar);
 		
 		return pp;
-	}
-	
-	private DefaultDockingPort createDockingPort()
-	{
-		DefaultDockingPort port = new DefaultDockingPort();
-		port.setBackground(Color.gray);
-		port.setPreferredSize(new Dimension(100, 100));
-		return port;
 	}
 
 	@Override
