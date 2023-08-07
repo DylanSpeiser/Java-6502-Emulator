@@ -111,6 +111,7 @@ public class CPU {
 		lookup[0xC4] = new Instruction("CPY","ZPP",3);
 		lookup[0xCC] = new Instruction("CPY","ABS",4);
 		
+		lookup[0x3A] = new Instruction("DEC","IMP", 2); // NEW for wozmon, need to verify cycles
 		lookup[0xC6] = new Instruction("DEC","ZPP",5);
 		lookup[0xD6] = new Instruction("DEC","ZPX",6);
 		lookup[0xCE] = new Instruction("DEC","ABS",6);
@@ -1019,7 +1020,11 @@ public class CPU {
 	public void DEC() {
 		fetch();
 		int temp = (Byte.toUnsignedInt(fetched)-1);
-		Bus.write(addressAbsolute, (byte)(temp&0x00FF));
+	if (lookup[Byte.toUnsignedInt(opcode)].addressMode.equals("IMP")) {
+			a = (byte) temp;
+		} else {
+			Bus.write(addressAbsolute, (byte)(temp&0x00FF));
+		}
 		setFlag('Z',(temp&0x00FF)==0x0000);
 		setFlag('N',(temp&0x0080)==0x0080);
 	}
