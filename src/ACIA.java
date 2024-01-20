@@ -1,10 +1,10 @@
 import java.util.Scanner;
 
 public class ACIA {
-	private byte dataRegister = 0;
-	private byte commandRegister = 0;
-	private byte statusRegister =0;
-	private byte controlRegister = 0;
+	private byte DATA = 0;
+	private byte COMMAND = 0;
+	private byte STATUS =0;
+	private byte CONTROL = 0;
 
 	private Scanner s;
 
@@ -13,32 +13,20 @@ public class ACIA {
 
 	}
 
-	/**
-	 * @return theF dataRegister
-	 */
-	public byte getDataRegister() {
-		return dataRegister;
+	public byte getDATA() {
+		return DATA;
 	}
 
-	/**
-	 * @return the commandRegister
-	 */
-	public byte getCommandRegister() {
-		return commandRegister;
+	public byte getCOMMAND() {
+		return COMMAND;
 	}
 
-	/**
-	 * @return the statusRegister
-	 */
-	public byte getStatusRegister() {
-		return statusRegister;
+	public byte getSTATUS() {
+		return STATUS;
 	}
 
-	/**
-	 * @return the controlRegister
-	 */
-	public byte getControlRegister() {
-		return controlRegister;
+	public byte getCONTROL() {
+		return CONTROL;
 	}
 
 	public byte read(short address) {
@@ -46,29 +34,29 @@ public class ACIA {
 		switch (Short.toUnsignedInt(address) - Bus.ACIA_ADDRESS) {
 			case 0x00:
 				try {
-						dataRegister = (byte) System.in.read();
-						if (dataRegister == 0xa) dataRegister = 0xd; //convert \n to \r
+						DATA = (byte) System.in.read();
+						if (DATA == 0xa) DATA = 0xd; //convert \n to \r
 					
 				} catch (Exception e) {
 					System.err.println("Error reading from System.in");
 				}
-				return dataRegister; // Read Receiver Data Register
+				return DATA; // Read Receiver Data Register
 			case 0x01:
 			try	 {
 								if (System.in.available() >= 1) {  // TODO: Remove this later when we go to a windowed interface
-					statusRegister = 1 << 3;
+					STATUS = 1 << 3;
 				} else {
-					statusRegister = 0 << 3;
+					STATUS = 0 << 3;
 				}
 			} catch (Exception e) {
 				System.err.println("Error reading from System.in");
 			}
-				return statusRegister; // Read Status Register
+				return STATUS; // Read Status Register
 			case 0x02:
-				return commandRegister; // Read Command Register
+				return COMMAND; // Read Command Register
 
 			case 0x03:
-				return controlRegister; // Read Control Register
+				return CONTROL; // Read Control Register
 			default:
 				System.err.printf("Attempted to read from invalid ACIA register: %04x\n", address);
 				return 0;
@@ -86,10 +74,10 @@ public class ACIA {
 							// Clear bits 4 through 0 in the Command Register and bit 2 in the Status
 							// Register
 			case 0x02:
-				commandRegister = data;
+				COMMAND = data;
 				break; // Write Command Register
 			case 0x03:
-				controlRegister = data;
+				CONTROL = data;
 				break; // Write Control Register
 			default:
 				System.err.printf("Attempted to write to invalid ACIA register: %04x\n", address);

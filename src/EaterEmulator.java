@@ -8,8 +8,10 @@ import java.io.File;
 import javax.swing.*;
 
 public class EaterEmulator extends JFrame implements ActionListener {
-	public static String versionString = "2.8";
+	public static String versionString = "2.9";
 	public static boolean debug = false;
+
+	public static boolean verbose = false;
 	
 	//Swing Things
 	JPanel p = new JPanel();
@@ -182,6 +184,12 @@ public class EaterEmulator extends JFrame implements ActionListener {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
 				emu = new EaterEmulator();
+
+				for (String s : args) {
+					if (s.equals("-verbose"))
+						verbose = true;
+						System.out.println("Running in verbose mode!");
+				}
             }
         });
 	}

@@ -1,5 +1,18 @@
 # Java 6502 Emulator
 
+## Update: v2.9: ACIA and Command line options!
+Thanks to Steve Rubin, the emulator now supports ACIA communication through the command line! Like the VIA, the ACIA's address can be adjusted in the options menu.
+
+Speaking of the command line, the first command line option has been added: `-verbose`. Use it to enable debug messages in the command line, which are now disabled by default.
+
+That's it for this update. Remember to save new config files!
+
+Coming soon:
+- ROM preloading via a command line argument
+- Implement all 65C02 instructions
+- More bug fixes
+- Code cleanup
+
 ## Update: v2.8: Bigger is better!
 Added support for:
 - 20x4 LCDs

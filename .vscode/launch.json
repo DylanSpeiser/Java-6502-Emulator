@@ -23,7 +23,8 @@
             "name": "Launch EaterEmulator",
             "request": "launch",
             "mainClass": "EaterEmulator",
-            "projectName": "Java-6502-Emulator_cdf032ed"
+            "projectName": "Java-6502-Emulator_cdf032ed",
+            "args": "-verbose"
         },
         {
             "type": "java",

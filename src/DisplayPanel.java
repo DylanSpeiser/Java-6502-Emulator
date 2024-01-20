@@ -34,7 +34,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 			ge.registerFont(courierNewBold);
 		} catch (FontFormatException | IOException e) {
 			e.printStackTrace();
-			System.out.println("Error loading Courier Font!");
+			if (EaterEmulator.verbose) System.out.println("Error loading Courier Font!");
 		}
 		
 		romPageString = EaterEmulator.rom.ROMString.substring(romPage*960,(romPage+1)*960);
@@ -122,13 +122,12 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
         g.drawString("   IFR: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.via.IFR)), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.via.IFR)+")", 35, 670);
         g.drawString("   IER: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.via.IER)), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.via.IER)+")", 35, 700);
         
-		  //ACIA
-		  g.drawString("ACIA Registers:",350,490);
-		  g.drawString("Data Register:    "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.acia.getDataRegister())), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.acia.getDataRegister())+")", 325, 520);
-        g.drawString("Command Register: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.acia.getCommandRegister())), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.acia.getCommandRegister())+")", 325, 550);
-        g.drawString("Status Register:  "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.acia.getStatusRegister())), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.acia.getStatusRegister())+")", 325, 580);
-        g.drawString("Control Register: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.acia.getControlRegister())), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.acia.getControlRegister())+")", 325, 610);
-
+		//ACIA
+		g.drawString("ACIA Registers:",350,490);
+		g.drawString("Data Register:    "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.acia.getDATA())), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.acia.getDATA())+")", 325, 520);
+        g.drawString("Command Register: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.acia.getCOMMAND())), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.acia.getCOMMAND())+")", 325, 550);
+        g.drawString("Status Register:  "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.acia.getSTATUS())), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.acia.getSTATUS())+")", 325, 580);
+        g.drawString("Control Register: "+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(EaterEmulator.acia.getCONTROL())), 8)+" ("+ROMLoader.byteToHexString(EaterEmulator.acia.getCONTROL())+")", 325, 610);
 
         //Controls
 
@@ -237,12 +236,13 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 					EaterEmulator.cpu.reset();
 					EaterEmulator.lcd.reset();
 					EaterEmulator.via = new VIA();
+					EaterEmulator.acia = new ACIA();
 					EaterEmulator.ram = new RAM();
 					EaterEmulator.gpu.setRAM(EaterEmulator.ram);
 					ramPageString = EaterEmulator.ram.RAMString.substring(ramPage*960,(ramPage+1)*960);
 
 					if (EaterEmulator.debug)
-						System.out.println("Size: "+this.getWidth()+" x "+this.getHeight());
+						if (EaterEmulator.verbose) System.out.println("Size: "+this.getWidth()+" x "+this.getHeight());
 					break;
 				case ' ':
 					EaterEmulator.cpu.clock();

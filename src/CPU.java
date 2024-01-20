@@ -313,7 +313,7 @@ public class CPU {
 		case 'C':
 			return ((flags&0b00000001) == 0b00000001);
 		}
-		System.out.println("Something has gone wrong in getFlag!");
+		if (EaterEmulator.verbose) System.out.println("Something has gone wrong in getFlag!");
 		return false;
 	}
 	
@@ -371,7 +371,7 @@ public class CPU {
 					System.out.print(",Y");
 				}
 				System.out.print("  A:"+Integer.toHexString(Byte.toUnsignedInt(a))+" X:"+Integer.toHexString(Byte.toUnsignedInt(x))+" Y:"+Integer.toHexString(Byte.toUnsignedInt(y))+" Flags:"+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(flags)), 8));
-				System.out.println();
+				if (EaterEmulator.verbose) System.out.println();
 			}
 		}
 		
@@ -423,7 +423,7 @@ public class CPU {
 				IZY();
 			break;
 			default:
-				System.out.println("Something has gone seriously wrong! AddressMode: "+addressMode);
+				if (EaterEmulator.verbose) System.out.println("Something has gone seriously wrong! AddressMode: "+addressMode);
 			break;
 		}
 	}
@@ -653,7 +653,7 @@ public class CPU {
 	void irq() {
 		if (!getFlag('I')) {
 			if (debug)
-				System.out.println("Interrupted!");
+				if (EaterEmulator.verbose) System.out.println("Interrupted!");
 
 			Bus.write((short)(0x0100+Byte.toUnsignedInt(stackPointer)), (byte)(programCounter>>8));
 			stackPointer--;
@@ -1308,6 +1308,6 @@ public class CPU {
 	}
 	
 	public void XXX() {
-		System.out.println("Illegal Opcode at $"+Integer.toHexString(Short.toUnsignedInt(programCounter)).toUpperCase()+" (" + ROMLoader.byteToHexString(opcode) +") - "+lookup[Byte.toUnsignedInt(opcode)].opcode);
+		if (EaterEmulator.verbose) System.out.println("Illegal Opcode at $"+Integer.toHexString(Short.toUnsignedInt(programCounter)).toUpperCase()+" (" + ROMLoader.byteToHexString(opcode) +") - "+lookup[Byte.toUnsignedInt(opcode)].opcode);
 	}
 }

@@ -9,6 +9,7 @@ public class OptionsData implements Serializable {
         System.getProperty("user.home") + "/Library/Application Support/JavaEaterEmulator/";
     String defaultFileChooserDirectory = System.getProperty("user.home") + System.getProperty("file.separator")+ "Documents";
     int VIA_Address = 0x6000;
+    int ACIA_Address = 0x5000;
     int GPUWidth = GPU.width;
     int GPUHeight = GPU.height;
     int GPUCols = GPU.n_cols;
@@ -27,6 +28,7 @@ public class OptionsData implements Serializable {
         "Default Save Directory: "+defaultSaveDirectory+"\n"+
         "GPU Resolution: ("+GPUWidth+","+GPUHeight+")\n"+
         "VIA Address: 0x"+Integer.toHexString(VIA_Address)+"\n"+
+        "ACIA Address: 0x"+Integer.toHexString(ACIA_Address)+"\n"+
         "GPU Buffer Address: 0x"+Integer.toHexString(GPUBufferBegin)+"\n"+
         "GPU Character Dimentsions: "+GPUCols+"x"+GPURows+"\n"+
         "GPU Mode: "+GPUMode+"\n"+

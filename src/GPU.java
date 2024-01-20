@@ -57,7 +57,7 @@ public class GPU extends JFrame implements ActionListener {
         effectiveCharHeight = height/n_rows;
 
         if (debug)
-            System.out.println("charWidth, charHeight = "+charWidth+", "+charHeight);
+            if (EaterEmulator.verbose) System.out.println("charWidth, charHeight = "+charWidth+", "+charHeight);
 
         charsetStream = this.getClass().getClassLoader().getResourceAsStream("DylSCII.bin");
         byte[] charsetBytes = {};
@@ -95,12 +95,12 @@ public class GPU extends JFrame implements ActionListener {
             //         ImageIO.write(charImages[i], "png", new File("charImg/"+i+".png"));
             //     } catch (Exception e) {
             //         e.printStackTrace();
-            //         System.out.println("ERROR WRITING CHAR IMAGE");
+            //         if (EaterEmulator.verbose) System.out.println("ERROR WRITING CHAR IMAGE");
             //     }
             // }
 
             if (debug)
-                System.out.println();
+                if (EaterEmulator.verbose) System.out.println();
         }
 
         if (debug) {
@@ -126,7 +126,7 @@ public class GPU extends JFrame implements ActionListener {
 		
 		@SuppressWarnings("resource")
 		Scanner scan = new Scanner(System.in);
-		System.out.println("Enter the path to a .bin file with character data:");
+		if (EaterEmulator.verbose) System.out.println("Enter the path to a .bin file with character data:");
 		
 		while (true) {
 			String input = scan.nextLine();
@@ -135,7 +135,7 @@ public class GPU extends JFrame implements ActionListener {
             byte[] newData = new byte[0];
             byte[] newRAMArray = new byte[0x8000];
 
-            System.out.println("Created new RAM Array with "+newRAMArray.length+" bytes.");
+            if (EaterEmulator.verbose) System.out.println("Created new RAM Array with "+newRAMArray.length+" bytes.");
 
             try {
                 newData = Files.readAllBytes(f.toPath());
@@ -145,14 +145,14 @@ public class GPU extends JFrame implements ActionListener {
                 System.exit(ABORT);
             }
 
-            System.out.println("Read "+newData.length+" bytes.");
+            if (EaterEmulator.verbose) System.out.println("Read "+newData.length+" bytes.");
 
             System.arraycopy(newData, 0, newRAMArray, (gpuMode == 1 | gpuMode == 2) ? 0 : (GPU.VRAM_START_ADDRESS), Math.min(newData.length,newRAMArray.length));
 
             gpu.vram.setRAMArray(newRAMArray);
 
             gpu.scanned = true;
-            // System.out.println(ROMLoader.ROMString(gpu.vram.getRAMArray(),40,false));
+            // if (EaterEmulator.verbose) System.out.println(ROMLoader.ROMString(gpu.vram.getRAMArray(),40,false));
             // System.exit(0);
 		}
 	}
@@ -182,7 +182,7 @@ public class GPU extends JFrame implements ActionListener {
 
         					g.drawImage(charImages[character],j*effectiveCharWidth,i*effectiveCharHeight,effectiveCharWidth,effectiveCharHeight,this);
                             if (debug) {
-                                System.out.println("Painted Char #"+character+" @ index "+index+" ("+j*charWidth+","+i*charHeight+")");
+                                if (EaterEmulator.verbose) System.out.println("Painted Char #"+character+" @ index "+index+" ("+j*charWidth+","+i*charHeight+")");
                             }
         				}
         			}
@@ -215,9 +215,9 @@ public class GPU extends JFrame implements ActionListener {
                             );
 
                             if (scanned && debug) {
-                                System.out.println("PixelData: "+ROMLoader.byteToHexString(pixelData)+" Color "+c.toString()+" @ ("+i+","+j+"), Index "+Integer.toHexString(index));
-                                System.out.println("PixelData "+Integer.toBinaryString(pixelData)+" R:"+Integer.toBinaryString(red)+" G:"+Integer.toBinaryString(green)+" B:"+Integer.toBinaryString(blue));
-                                System.out.println("NextPowerOf2: "+nextPowerOf2);
+                                if (EaterEmulator.verbose) System.out.println("PixelData: "+ROMLoader.byteToHexString(pixelData)+" Color "+c.toString()+" @ ("+i+","+j+"), Index "+Integer.toHexString(index));
+                                if (EaterEmulator.verbose) System.out.println("PixelData "+Integer.toBinaryString(pixelData)+" R:"+Integer.toBinaryString(red)+" G:"+Integer.toBinaryString(green)+" B:"+Integer.toBinaryString(blue));
+                                if (EaterEmulator.verbose) System.out.println("NextPowerOf2: "+nextPowerOf2);
                             }
 
                             g.setColor(c);

@@ -84,6 +84,6 @@ public class ROMLoader {
 	
 //	public static void main(String[] args) {
 //		byte[] be = {(byte)255,(byte)0,(byte)16,(byte)128,(byte)11,(byte)32,(byte)255,(byte)0,(byte)16,(byte)128,(byte)11,(byte)32,(byte)255,(byte)0,(byte)16,(byte)128,(byte)11,(byte)32,(byte)255,(byte)0,(byte)16,(byte)128,(byte)11,(byte)32,(byte)255,(byte)0,(byte)16,(byte)128,(byte)11,(byte)32,(byte)255,(byte)0,(byte)16,(byte)128,(byte)11,(byte)32};
-//		System.out.println(ROMString(readROM(ROMfile),16,true));
+//		if (EaterEmulator.verbose) System.out.println(ROMString(readROM(ROMfile),16,true));
 //	}
 }

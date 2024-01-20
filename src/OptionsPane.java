@@ -37,6 +37,10 @@ public class OptionsPane extends JFrame implements ActionListener {
     JTextField VIAAddressOptionTextField = new JTextField(""+data.VIA_Address);
     JLabel VIAAddressOptionHexLabel = new JLabel(Integer.toHexString(data.VIA_Address));
 
+    JLabel ACIAAddressOptionLabel = new JLabel("ACIA Address");
+    JTextField ACIAAddressOptionTextField = new JTextField(""+data.ACIA_Address);
+    JLabel ACIAAddressOptionHexLabel = new JLabel(Integer.toHexString(data.ACIA_Address));
+
     JLabel GPUResolutionOptionLabel = new JLabel("GPU Resolution (WxH)");
     JTextField GPUHeightTextField = new JTextField(""+data.GPUHeight);
     JTextField GPUWidthTextField = new JTextField(""+data.GPUWidth);
@@ -80,7 +84,7 @@ public class OptionsPane extends JFrame implements ActionListener {
     JButton saveOptionsButton = new JButton("Save Options to File");
 	
 	public OptionsPane() {
-		this.setSize(700,700);
+		this.setSize(700,730);
 		t = new Timer(16,this);
 		t.start();
 
@@ -107,6 +111,9 @@ public class OptionsPane extends JFrame implements ActionListener {
         SwingComponentsList.add(VIAAddressOptionLabel);
         SwingComponentsList.add(VIAAddressOptionTextField);
         SwingComponentsList.add(VIAAddressOptionHexLabel);
+        SwingComponentsList.add(ACIAAddressOptionLabel);
+        SwingComponentsList.add(ACIAAddressOptionTextField);
+        SwingComponentsList.add(ACIAAddressOptionHexLabel);
         SwingComponentsList.add(GPUResolutionOptionLabel);
         SwingComponentsList.add(GPUHeightTextField);
         SwingComponentsList.add(GPUWidthTextField);
@@ -204,6 +211,17 @@ public class OptionsPane extends JFrame implements ActionListener {
 
             VIAAddressOptionHexLabel.setText("= $"+Integer.toHexString(VIAaddr));
 
+            //ACIA Address Hex Decoding
+            int ACIAaddr = 0;
+
+            try {
+                ACIAaddr = Integer.parseInt(ACIAAddressOptionTextField.getText().equals("") ? "0" : ACIAAddressOptionTextField.getText());
+            } catch (Exception e) {
+                e.printStackTrace();
+            };
+
+            ACIAAddressOptionHexLabel.setText("= $"+Integer.toHexString(ACIAaddr));
+
             //Video Buffer Start Address Hex Decoding
             int VBStartAddr = 0;
 
@@ -294,7 +312,7 @@ public class OptionsPane extends JFrame implements ActionListener {
          data = newData;
          updateSwingComponents();
       } catch (Exception e) {
-        System.out.println("Reading options data failed!");
+        if (EaterEmulator.verbose) System.out.println("Reading options data failed!");
          e.printStackTrace();
       }
     }
@@ -302,7 +320,7 @@ public class OptionsPane extends JFrame implements ActionListener {
     public void updateSwingComponents() {
         DefaultFileChooserPathOptionTextField.setText(data.defaultFileChooserDirectory);
         VIAAddressOptionTextField.setText(""+data.VIA_Address);
-
+        ACIAAddressOptionTextField.setText(""+data.ACIA_Address);
         GPUWidthTextField.setEditable(!(data.GPUMode == 1));
         GPUHeightTextField.setEditable(!(data.GPUMode == 1));
         GPUBufferAddressOptionTextField.setEditable(!(data.GPUMode == 1));
@@ -345,6 +363,7 @@ public class OptionsPane extends JFrame implements ActionListener {
         data.optionsFileString = optionsFile.getAbsolutePath();
         data.defaultFileChooserDirectory = DefaultFileChooserPathOptionTextField.getText();
         data.VIA_Address = Integer.parseInt(VIAAddressOptionTextField.getText());
+        data.ACIA_Address = Integer.parseInt(ACIAAddressOptionTextField.getText());
         data.GPUWidth = Integer.parseInt(GPUWidthTextField.getText());
         data.GPUHeight = Integer.parseInt(GPUHeightTextField.getText());
         data.GPUCols = Integer.parseInt(GPUColsTextField.getText());
@@ -357,6 +376,7 @@ public class OptionsPane extends JFrame implements ActionListener {
         data.keyboardLocation = Integer.parseInt(KeyboardLocationTextField.getText());
 
         Bus.VIA_ADDRESS = data.VIA_Address;
+        Bus.ACIA_ADDRESS = data.ACIA_Address;
         boolean gpuWasVisible = EaterEmulator.gpu.isVisible();
         EaterEmulator.gpu.dispose();
 
@@ -396,44 +416,48 @@ public class OptionsPane extends JFrame implements ActionListener {
         VIAAddressOptionTextField.setBounds(300,80,100,25);
         VIAAddressOptionHexLabel.setBounds(400,80,100,25);
 
-        GPUResolutionOptionLabel.setBounds(150,120,150,25);
-        GPUWidthTextField.setBounds(300,120,50,25);
-        GPUHeightTextField.setBounds(350,120,50,25);
+        ACIAAddressOptionLabel.setBounds(200,110,100,25);
+        ACIAAddressOptionTextField.setBounds(300,110,100,25);
+        ACIAAddressOptionHexLabel.setBounds(400,110,100,25);
 
-        GPUCharGridOptionLabel.setBounds(150,160,150,25);
-        GPUColsTextField.setBounds(300,160,50,25);
-        GPURowsTextField.setBounds(350,160,50,25);
-        VRAMSizeLabel.setBounds(400,(data.GPUMode == 1 || data.GPUMode == 2) ? 120 : 160,100,25);
+        GPUResolutionOptionLabel.setBounds(150,150,150,25);
+        GPUWidthTextField.setBounds(300,150,50,25);
+        GPUHeightTextField.setBounds(350,150,50,25);
 
-        GPUBufferAddressOptionLabel.setBounds(75,200,225,25);
-        GPUBufferAddressOptionTextField.setBounds(300,200,100,25);
-        GPUBufferAddressOptionHexLabel.setBounds(400,200,100,25);
+        GPUCharGridOptionLabel.setBounds(150,190,150,25);
+        GPUColsTextField.setBounds(300,190,50,25);
+        GPURowsTextField.setBounds(350,190,50,25);
+        VRAMSizeLabel.setBounds(400,(data.GPUMode == 1 || data.GPUMode == 2) ? 150 : 190,100,25);
 
-        GPUModeOptionLabel.setBounds(225,240,75,25);
-        GPUModeOptionTextField.setBounds(300,240,25,25);
+        GPUBufferAddressOptionLabel.setBounds(75,230,225,25);
+        GPUBufferAddressOptionTextField.setBounds(300,230,100,25);
+        GPUBufferAddressOptionHexLabel.setBounds(400,230,100,25);
 
-        GPUBitmapPixelScaleLabel.setBounds(150,280,150,25);
-        GPUBitmapPixelScaleTextField.setBounds(300,280,25,25);
+        GPUModeOptionLabel.setBounds(225,270,75,25);
+        GPUModeOptionTextField.setBounds(300,270,25,25);
 
-        VRAMRangeLabel.setBounds(175,320,300,25);
+        GPUBitmapPixelScaleLabel.setBounds(150,310,150,25);
+        GPUBitmapPixelScaleTextField.setBounds(300,310,25,25);
 
-        GPUModeExplanationLabel.setBounds(175,340,500,100);
+        VRAMRangeLabel.setBounds(175,350,300,25);
 
-        KeyboardLocationLabel.setBounds(125,440,175,25);
-        KeyboardLocationTextField.setBounds(300,440,100,25);
-        KeyboardLocationHexLabel.setBounds(400,440,100,25);
+        GPUModeExplanationLabel.setBounds(175,370,500,100);
 
-        LCDModeLabel.setBounds(225,480,75,25);
-        LCDModeRadioSmall.setBounds(300,480,100,25);
-        LCDModeRadioLarge.setBounds(400,480,100,25);
+        KeyboardLocationLabel.setBounds(125,470,175,25);
+        KeyboardLocationTextField.setBounds(300,470,100,25);
+        KeyboardLocationHexLabel.setBounds(400,470,100,25);
 
-        ForegroundColorLabel.setBounds(175,520,125,25);
-        ForegroundColorChooser.setBounds(300,520,100,25);
+        LCDModeLabel.setBounds(225,510,75,25);
+        LCDModeRadioSmall.setBounds(300,510,100,25);
+        LCDModeRadioLarge.setBounds(400,510,100,25);
 
-        BackgroundColorLabel.setBounds(175,560,125,25);
-        BackgroundColorChooser.setBounds(300,560,100,25);
+        ForegroundColorLabel.setBounds(175,550,125,25);
+        ForegroundColorChooser.setBounds(300,550,100,25);
 
-        applyOptionsButton.setBounds(200,625,150,25);
-        saveOptionsButton.setBounds(350,625,150,25);
+        BackgroundColorLabel.setBounds(175,590,125,25);
+        BackgroundColorChooser.setBounds(300,590,100,25);
+
+        applyOptionsButton.setBounds(200,640,150,25);
+        saveOptionsButton.setBounds(350,640,150,25);
     }
 }

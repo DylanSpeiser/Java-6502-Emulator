@@ -68,7 +68,7 @@ public class LCD extends JFrame implements ActionListener {
 		
 		@SuppressWarnings("resource")
 		Scanner scan = new Scanner(System.in);
-		System.out.println("[R/W] [RS] [data]");
+		if (EaterEmulator.verbose) System.out.println("[R/W] [RS] [data]");
 		
 		while (true) {
 			String input = scan.nextLine();
@@ -81,16 +81,16 @@ public class LCD extends JFrame implements ActionListener {
 
 				try {
 				byte data = (byte)Integer.parseInt(input.substring(4,12), 2);
-				System.out.println((rs ? "Data" : "Instruction") + ": 0x" + ROMLoader.byteToHexString(data));
+				if (EaterEmulator.verbose) System.out.println((rs ? "Data" : "Instruction") + ": 0x" + ROMLoader.byteToHexString(data));
 				lcd.write(rs, data);
 				} catch (Exception e) {
-					System.out.println("Error!");
+					if (EaterEmulator.verbose) System.out.println("Error!");
 				}
 
 			} else {
 				//Read
 				byte readData = lcd.read(rs);
-				System.out.println("Read byte 0x" + ROMLoader.byteToHexString(readData));
+				if (EaterEmulator.verbose) System.out.println("Read byte 0x" + ROMLoader.byteToHexString(readData));
 			}
 		}
 	}
@@ -132,7 +132,7 @@ public class LCD extends JFrame implements ActionListener {
 
 			} else if ((data & 0b01000000) == 0b01000000) {
 				//Set CGRAM Address
-				System.out.println("LCD: Tried to set CGRAM Address, that is unimplemented!");
+				if (EaterEmulator.verbose) System.out.println("LCD: Tried to set CGRAM Address, that is unimplemented!");
 
 			} else if ((data & 0b00100000) == 0b00100000) {
 				//FUNCTION SET
@@ -142,7 +142,7 @@ public class LCD extends JFrame implements ActionListener {
 					fourBitMode = true;
 				}
 				if (debug)
-					System.out.println("Function: Four Bit Mode: "+fourBitMode);
+					if (EaterEmulator.verbose) System.out.println("Function: Four Bit Mode: "+fourBitMode);
 			} else if ((data & 0b00010000) == 0b00010000) {
 				//SHIFT
 				boolean rightleft = false;
@@ -158,15 +158,15 @@ public class LCD extends JFrame implements ActionListener {
 					char[] newCharArray = new char[40];
 					Arrays.fill(newCharArray, ' ');
 					if (debug)
-						System.out.println("Shifted screen to the "+(rightleft ? "right." : "left."));
+						if (EaterEmulator.verbose) System.out.println("Shifted screen to the "+(rightleft ? "right." : "left."));
 				} else {
 					//CURSOR
 					cursorPos += (rightleft ? 1 : -1);
 					if (cursorPos < 0)
 						cursorPos = 0;
 					if (debug) {
-						System.out.println("Shifted cursor to the "+(rightleft ? "right." : "left."));
-						System.out.println("CursorPos: "+cursorPos);
+						if (EaterEmulator.verbose) System.out.println("Shifted cursor to the "+(rightleft ? "right." : "left."));
+						if (EaterEmulator.verbose) System.out.println("CursorPos: "+cursorPos);
 					}
 				}
 			} else if ((data & 0b00001000) == 0b00001000) {
@@ -176,7 +176,7 @@ public class LCD extends JFrame implements ActionListener {
 				} else {
 					displayPower = false;
 					if (debug)
-						System.out.println("Turned the Display off! | "+Integer.toBinaryString(Byte.toUnsignedInt(data)));
+						if (EaterEmulator.verbose) System.out.println("Turned the Display off! | "+Integer.toBinaryString(Byte.toUnsignedInt(data)));
 				}
 				if ((data & 0b00000010) == 0b00000010) {
 					cursor = true;
@@ -189,7 +189,7 @@ public class LCD extends JFrame implements ActionListener {
 					cursorBlink = false;
 				}
 				if (debug)
-					System.out.println("Display Control: Power: "+displayPower+" Cursor: "+cursor+" Blink: "+cursorBlink);
+					if (EaterEmulator.verbose) System.out.println("Display Control: Power: "+displayPower+" Cursor: "+cursor+" Blink: "+cursorBlink);
 			} else if ((data & 0b00000100) == 0b00000100) {
 				//ENTRY MODE SET
 				if ((data & 0b00000010) == 0b00000010) {
@@ -198,12 +198,12 @@ public class LCD extends JFrame implements ActionListener {
 					increment = false;
 				}
 				if (debug)
-					System.out.println("Set Entry Mode: Increment: "+increment);
+					if (EaterEmulator.verbose) System.out.println("Set Entry Mode: Increment: "+increment);
 			} else if ((data & 0b00000010) == 0b00000010) {
 				//RETURN HOME
 				cursorPos = 0;
 				if (debug)
-					System.out.println("Return Home");
+					if (EaterEmulator.verbose) System.out.println("Return Home");
 			} else if (data == 0b00000001) {
 				//CLEAR
 				cursorPos = 0;
@@ -212,9 +212,9 @@ public class LCD extends JFrame implements ActionListener {
 					text[i] = ' ';
 				}
 				if (debug)
-					System.out.println("Cleared!");
+					if (EaterEmulator.verbose) System.out.println("Cleared!");
 			} else {
-				System.out.println("Tried to do invalid instruction "+ROMLoader.byteToHexString(data));
+				if (EaterEmulator.verbose) System.out.println("Tried to do invalid instruction "+ROMLoader.byteToHexString(data));
 			}
 		} else {
 			//DATA
@@ -227,14 +227,14 @@ public class LCD extends JFrame implements ActionListener {
 				cursorPos = 0;
 			}
 			if (debug)
-				System.out.println("Data: Wrote "+(char)data+" at "+prevCursorPos);
+				if (EaterEmulator.verbose) System.out.println("Data: Wrote "+(char)data+" at "+prevCursorPos);
 		}
 	}
 	
 	//Read from LCD
 	public byte read(boolean regSel) {
 		if (debug)
-			System.out.println("Reading from LCD with regSel"+(regSel ? '1':'0'));
+			if (EaterEmulator.verbose) System.out.println("Reading from LCD with regSel"+(regSel ? '1':'0'));
 
 		byte retVal = 0;
 
@@ -257,7 +257,7 @@ public class LCD extends JFrame implements ActionListener {
 				ge.registerFont(lcdFont);
 			} catch (FontFormatException | IOException e) {
 				e.printStackTrace();
-				System.out.println("Error loading LCD Font!");
+				if (EaterEmulator.verbose) System.out.println("Error loading LCD Font!");
 			}
 		}
 		
