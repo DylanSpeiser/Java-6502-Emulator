@@ -33,24 +33,9 @@ public class ACIA {
 
 		switch (Short.toUnsignedInt(address) - Bus.ACIA_ADDRESS) {
 			case 0x00:
-				try {
-						DATA = (byte) System.in.read();
-						if (DATA == 0xa) DATA = 0xd; //convert \n to \r
-					
-				} catch (Exception e) {
-					System.err.println("Error reading from System.in");
-				}
-				return DATA; // Read Receiver Data Register
+				return EaterEmulator.serial.getKey(); // get serial key
 			case 0x01:
-			try	 {
-								if (System.in.available() >= 1) {  // TODO: Remove this later when we go to a windowed interface
-					STATUS = 1 << 3;
-				} else {
-					STATUS = 0 << 3;
-				}
-			} catch (Exception e) {
-				System.err.println("Error reading from System.in");
-			}
+				STATUS = (byte) (EaterEmulator.serial.hasKey() ? 0x08 : 0x00);
 				return STATUS; // Read Status Register
 			case 0x02:
 				return COMMAND; // Read Command Register
@@ -67,12 +52,15 @@ public class ACIA {
 	public void write(short address, byte data) {
 		switch (Short.toUnsignedInt(address) - Bus.ACIA_ADDRESS) {
 			case 0x00:
-				System.out.printf("%c", data); // Write Transmitter Data Register
-				if (data == 0xd) System.out.printf("\n"); // convert \r to \n
+				if (data != 0xd) EaterEmulator.serial.receiveKey(data); // discard \r so its just \n, send to serial interface
 
 			case 0x01: // Programmed Reset
 							// Clear bits 4 through 0 in the Command Register and bit 2 in the Status
 							// Register
+				//COMMAND &= 0b11100000;
+				//STATUS &= 0b11111011; //i dont remember this but just doing what was written
+				//EaterEmulator.serial.reset();
+				//okay this is triggering in some random places and im kinda confused why so ill just leave it empty like how it was before
 			case 0x02:
 				COMMAND = data;
 				break; // Write Command Register
