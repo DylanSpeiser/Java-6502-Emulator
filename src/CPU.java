@@ -624,6 +624,9 @@ public class CPU {
 	
 	//Input Signal Handlers
 	void reset() {
+		EaterEmulator.clockState = false;
+		if (EaterEmulator.serial != null) EaterEmulator.serial.reset();
+		
 		a = 0;
 		x = 0;
 		y = 0;
