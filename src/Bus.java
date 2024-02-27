@@ -8,6 +8,7 @@ public class Bus {
 		} else if (Short.toUnsignedInt(address) <= VIA_ADDRESS+16 && Short.toUnsignedInt(address) >= VIA_ADDRESS) {
 			return EaterEmulator.via.read(address);
 		} else if (Short.toUnsignedInt(address) <= ACIA_ADDRESS+3 && Short.toUnsignedInt(address) >= ACIA_ADDRESS) {
+			if (EaterEmulator.verbose) System.out.println("Read from address "+Integer.toHexString(Short.toUnsignedInt(address)));
 			return EaterEmulator.acia.read(address);
 		} else {
 			return EaterEmulator.ram.read(address);
@@ -21,9 +22,10 @@ public class Bus {
 			EaterEmulator.via.write(address, data);
 		} else if (Short.toUnsignedInt(address) <= ACIA_ADDRESS+3 && Short.toUnsignedInt(address) >= ACIA_ADDRESS) {
 			EaterEmulator.acia.write(address, data);
+			if (EaterEmulator.verbose) System.out.println("Wrote "+ROMLoader.byteToHexString(data)+" at "+Integer.toHexString(Short.toUnsignedInt(address)));
 		} else {
 			EaterEmulator.ram.write(address, data);
 		}
-		//if (EaterEmulator.verbose) System.out.println("Wrote "+data+" at "+address);
+		
 	}
 }

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 public class ROMLoader {
 	static ArrayList<Byte> ROM = new ArrayList<Byte>();
 	
-	//static File ROMfile = new File("C:/Users/Dylan/Documents/vasm workspace/out.bin");
-	
 	public static byte[] readROM(File file) {
 		ROM = new ArrayList<Byte>();
 		

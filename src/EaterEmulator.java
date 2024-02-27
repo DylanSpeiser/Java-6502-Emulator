@@ -213,7 +213,6 @@ public class EaterEmulator extends JFrame implements ActionListener {
 				for (int i = 0; i < args.length; i++) {
 					String s = args[i];
 					if (s.equals("-verbose")) verbose = true;
-					else if (s.equals("-realisticKeyboard")) realisticKeyboard = true;
 					else if (s.equals("-windowWidth")) {
 						try {
 							windowWidth = Integer.parseInt(args[++i]);
@@ -228,11 +227,21 @@ public class EaterEmulator extends JFrame implements ActionListener {
 							System.out.println("Window height not understood, defaulting to " + windowHeight);
 						}
 					}
+					else if (s.equals("-f")) {
+						try {
+							rom.setROMArray(ROMLoader.readROM(new File(args[++i])));
+				        
+					        GraphicsPanel.requestFocus();
+					        GraphicsPanel.romPageString = EaterEmulator.rom.ROMString.substring(GraphicsPanel.romPage*960,(GraphicsPanel.romPage+1)*960);
+							cpu.reset();
+						} catch (Exception e) {
+							System.out.println("There was an error loading the ROM file specified with -f");
+						}
+					}
 				}
 				
 				//printing done after all arguments incase verbose argument comes after the other arguments
 				if (verbose) System.out.println("Running in verbose mode!");
-				if (verbose&&realisticKeyboard) System.out.println("Realistic keyboard enabled!");
 				if (verbose) System.out.println("Resolution of " + windowWidth + "x" + windowHeight + ".");
 				
 				emu = new EaterEmulator();

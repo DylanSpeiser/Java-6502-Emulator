@@ -68,7 +68,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
         
         //Version
         g.setFont(courierNewBold);
-        g.drawString("v"+EaterEmulator.versionString+" (c) Dylan Speiser", 7, 1033);
+        g.drawString("v"+EaterEmulator.versionString, 7, 1033);
         
         //Clocks
         g.drawString("Clocks: "+EaterEmulator.clocks, 40, 80);
