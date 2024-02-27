@@ -15,7 +15,12 @@ public class VIA {
 				return PORTB;
 			case 0x001:
 				IFR &= (byte)(0b01111100);
-				return 0;
+				byte value = 0;
+				if(DisplayPanel.keys.size() > 0 && EaterEmulator.realisticKeyboard) {
+					value = DisplayPanel.keys.get(0);
+					DisplayPanel.keys.remove(0);
+				}
+				return value;
 			case 0x002:
 				return 0;
 			case 0x003:
@@ -60,31 +65,34 @@ public class VIA {
 				IER = data;
 				break;
 		}
+		if(!EaterEmulator.cpu.interruptRequested && DisplayPanel.keys.size() > 0 && EaterEmulator.realisticKeyboard) { //some additional keys, like for release where it sends 2, or maybe two presses really fast
+			CA1();
+		}
 	}
 	
 	public void CA1() {
-		if ((IER &= (byte)(0b00000010)) == 0b00000010) {
+		if ((IER & (byte)(0b00000010)) == 0b00000010) {
 			IFR |= (byte)(0b10000010);
 			EaterEmulator.cpu.interruptRequested = true;
 		}
 	}
 	
 	public void CA2() {
-		if ((IER &= (byte)(0b00000010)) == 0b00000001) {
+		if ((IER & (byte)(0b00000001)) == 0b00000001) {
 			IFR |= (byte)(0b10000001);
 			EaterEmulator.cpu.interruptRequested = true;
 		}
 	}
 	
 	public void CB1() {
-		if ((IER &= (byte)(0b00000010)) == 0b00010000) {
+		if ((IER & (byte)(0b00010000)) == 0b00010000) {
 			IFR |= (byte)(0b10010000);
 			EaterEmulator.cpu.interruptRequested = true;
 		}
 	}
 	
 	public void CB2() {
-		if ((IER &= (byte)(0b00000010)) == 0b00001000) {
+		if ((IER & (byte)(0b00001000)) == 0b00001000) {
 			IFR |= (byte)(0b10001000);
 			EaterEmulator.cpu.interruptRequested = true;
 		}

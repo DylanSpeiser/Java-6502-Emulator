@@ -3,6 +3,7 @@ import java.awt.event.*;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class DisplayPanel extends JPanel implements ActionListener, KeyListener {
 	Timer frameTimer = new javax.swing.Timer(16, this);;
@@ -19,6 +20,10 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 
 	public static Color bgColor = Color.blue;
 	public static Color fgColor = Color.white;
+	
+	public static ArrayList<Byte> keys = new ArrayList<Byte>();
+	
+	boolean debug = false;
 	
 	public DisplayPanel() {
 		super(null);
@@ -63,7 +68,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
         
         //Version
         g.setFont(courierNewBold);
-        g.drawString("v"+EaterEmulator.versionString+" (c) Dylan Speiser", 7, 1033);
+        g.drawString("v"+EaterEmulator.versionString, 7, 1033);
         
         //Clocks
         g.drawString("Clocks: "+EaterEmulator.clocks, 40, 80);
@@ -167,11 +172,13 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 			EaterEmulator.RAMopenButton.setBounds(rightAlignHelper-150, 45, 125, 25);
 			EaterEmulator.ShowLCDButton.setBounds(rightAlignHelper-300, 15, 125, 25);
 			EaterEmulator.ShowGPUButton.setBounds(rightAlignHelper-300, 45, 125, 25);
-			EaterEmulator.optionsButton.setBounds(rightAlignHelper-450, 15, 125, 25);
-			EaterEmulator.keyboardButton.setBounds(rightAlignHelper-450, 45, 125, 25);
+			EaterEmulator.ResetButton.setBounds(rightAlignHelper-450, 15, 125, 25);
+			EaterEmulator.ShowSerialButton.setBounds(rightAlignHelper-450, 45, 125, 25);
+			EaterEmulator.optionsButton.setBounds(rightAlignHelper-600, 15, 125, 25);
+			EaterEmulator.keyboardButton.setBounds(rightAlignHelper-600, 45, 125, 25);
 			this.repaint();
 
-			if (!EaterEmulator.options.isVisible())
+			if (!EaterEmulator.options.isVisible() && !EaterEmulator.serial.isVisible())
 				this.requestFocus();
 		} else if (e.getSource().equals(clocksPerSecondCheckTimer)) {
 			EaterEmulator.cpu.timeDelta = System.nanoTime()-EaterEmulator.cpu.lastTime;
@@ -186,12 +193,21 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 
 	@Override
 	public void keyPressed(KeyEvent arg0) {
-		
+		if (EaterEmulator.keyboardMode && EaterEmulator.realisticKeyboard) {
+			keys.add(convertToPs2(arg0));
+			if(EaterEmulator.verbose&&debug) System.out.println("Pressed key " + arg0.getKeyChar() + " " + convertToPs2(arg0) + " : " + (arg0.getKeyCode()));
+			EaterEmulator.via.CA1();
+		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent arg0) {
-		
+		if (EaterEmulator.keyboardMode && EaterEmulator.realisticKeyboard) {
+			keys.add((byte) 0xf0);
+			keys.add(convertToPs2(arg0));
+			if(EaterEmulator.verbose&&debug) System.out.println("Pressed key " + arg0.getKeyChar() + " " + convertToPs2(arg0) + " : " + (arg0.getKeyCode()));
+			EaterEmulator.via.CA1();
+		}
 	}
 
 	@Override
@@ -257,10 +273,240 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 					EaterEmulator.via.CA1();
 					break;
 			}
-		} else {
+		} else if (!EaterEmulator.realisticKeyboard) { //realistic keyboard uses key pressed and released so it can get the key code
 			//Typing Keyboard Mode
 			Bus.write((short)EaterEmulator.options.data.keyboardLocation, (byte)arg0.getKeyChar());
 			EaterEmulator.via.CA1();
 		}
+	}
+
+	
+	//converts java keyCode to ps2 keyCode to be compatible
+	//found https://techdocs.altium.com/display/FPGA/PS2+Keyboard+Scan+Codes
+	private byte convertToPs2(KeyEvent keyEvent) {
+		switch(keyEvent.getKeyCode()) {
+		case KeyEvent.VK_ESCAPE:
+			return 0x76;
+		case KeyEvent.VK_F1:
+			return 0x05;
+		case KeyEvent.VK_F2:
+			return 0x06;
+		case KeyEvent.VK_F3:
+			return 0x04;
+		case KeyEvent.VK_F4:
+			return 0x0C;
+		case KeyEvent.VK_F5:
+			return 0x03;
+		case KeyEvent.VK_F6:
+			return 0x0B;
+		case KeyEvent.VK_F7:
+			return (byte) 0x83;
+		case KeyEvent.VK_F8:
+			return 0x0A;
+		case KeyEvent.VK_F9:
+			return 0x01;
+		case KeyEvent.VK_F10:
+			return 0x09;
+		case KeyEvent.VK_F11:
+			return 0x78;
+		case KeyEvent.VK_F12:
+			return 0x07;
+		case KeyEvent.VK_SCROLL_LOCK:
+			return 0x7E;
+		case KeyEvent.VK_DEAD_GRAVE:
+			return 0x0E;
+		case KeyEvent.VK_BACK_QUOTE:
+			return 0x0E;
+		case KeyEvent.VK_1:
+			return 0x16;
+		case KeyEvent.VK_2:
+			return 0x1E;
+		case KeyEvent.VK_3:
+			return 0x26;
+		case KeyEvent.VK_4:
+			return 0x25;
+		case KeyEvent.VK_5:
+			return 0x2E;
+		case KeyEvent.VK_6:
+			return 0x36;
+		case KeyEvent.VK_7:
+			return 0x3D;
+		case KeyEvent.VK_8:
+			return 0x3E;
+		case KeyEvent.VK_9:
+			return 0x46;
+		case KeyEvent.VK_0:
+			return 0x45;
+		case KeyEvent.VK_MINUS:
+			if(keyEvent.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) return 0x7B;
+			else return 0x4E;
+		case KeyEvent.VK_UNDERSCORE:
+			return 0x4E;
+		case KeyEvent.VK_EQUALS:
+			return 0x55;
+		case KeyEvent.VK_PLUS:
+			if(keyEvent.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) return 0x79;
+			else return 0x55;
+		case KeyEvent.VK_BACK_SPACE:
+			return 0x66;
+		case KeyEvent.VK_TAB:
+			return 0x0D;
+		case KeyEvent.VK_Q:
+			return 0x15;
+		case KeyEvent.VK_W:
+			return 0x1D;
+		case KeyEvent.VK_E:
+			return 0x24;
+		case KeyEvent.VK_R:
+			return 0x2D;
+		case KeyEvent.VK_T:
+			return 0x2C;
+		case KeyEvent.VK_Y:
+			return 0x35;
+		case KeyEvent.VK_U:
+			return 0x3C;
+		case KeyEvent.VK_I:
+			return 0x43;
+		case KeyEvent.VK_O:
+			return 0x44;
+		case KeyEvent.VK_P:
+			return 0x4D;
+		case KeyEvent.VK_OPEN_BRACKET:
+			return 0x54;
+		case KeyEvent.VK_BRACELEFT:
+			return 0x54;
+		case KeyEvent.VK_CLOSE_BRACKET:
+			return 0x5B;
+		case KeyEvent.VK_BRACERIGHT:
+			return 0x5B;
+		case KeyEvent.VK_BACK_SLASH:
+			return 0x5D;
+		case KeyEvent.VK_CAPS_LOCK:
+			return 0x58;
+		case KeyEvent.VK_A:
+			return 0x1C;
+		case KeyEvent.VK_S:
+			return 0x1B;
+		case KeyEvent.VK_D:
+			return 0x23;
+		case KeyEvent.VK_F:
+			return 0x2B;
+		case KeyEvent.VK_G:
+			return 0x34;
+		case KeyEvent.VK_H:
+			return 0x33;
+		case KeyEvent.VK_J:
+			return 0x3B;
+		case KeyEvent.VK_K:
+			return 0x32;
+		case KeyEvent.VK_L:
+			return 0x4B;
+		case KeyEvent.VK_SEMICOLON:
+			return 0x4C;
+		case KeyEvent.VK_COLON:
+			return 0x4C;
+		case KeyEvent.VK_QUOTE:
+			return 0x52;
+		case KeyEvent.VK_QUOTEDBL:
+			return 0x52;
+		case KeyEvent.VK_ENTER:
+			if(keyEvent.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) return 0x5A;
+			else return 0x5A;
+		case KeyEvent.VK_SHIFT:
+			if(keyEvent.getKeyLocation() == KeyEvent.KEY_LOCATION_RIGHT) return 0x59;
+			else return 0x12;
+		case KeyEvent.VK_Z:
+			return 0x1A;
+		case KeyEvent.VK_X:
+			return 0x22;
+		case KeyEvent.VK_C:
+			return 0x21;
+		case KeyEvent.VK_V:
+			return 0x2A;
+		case KeyEvent.VK_B:
+			return 0x32;
+		case KeyEvent.VK_N:
+			return 0x31;
+		case KeyEvent.VK_M:
+			return 0x3A;
+		case KeyEvent.VK_COMMA:
+			return 0x41;
+		case KeyEvent.VK_LESS:
+			return 0x41;
+		case KeyEvent.VK_PERIOD:
+			if(keyEvent.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) return 0x71;
+			else return 0x49;
+		case KeyEvent.VK_GREATER:
+			return 0x49;
+		case KeyEvent.VK_SLASH:
+			return 0x4A;
+		case KeyEvent.VK_CONTROL:
+			if(keyEvent.getKeyLocation() == KeyEvent.KEY_LOCATION_RIGHT) return 0x14;
+			else return 0x14;
+		case KeyEvent.VK_WINDOWS:
+			if(keyEvent.getKeyLocation() == KeyEvent.KEY_LOCATION_RIGHT) return 0x27;
+			else return 0x1F;
+		case KeyEvent.VK_ALT:
+			if(keyEvent.getKeyLocation() == KeyEvent.KEY_LOCATION_RIGHT) return 0x11;
+			else return 0x11;
+		case KeyEvent.VK_SPACE:
+			return 0x29;
+		case KeyEvent.VK_CONTEXT_MENU:
+			return 0x2F;
+		case KeyEvent.VK_INSERT:
+			return 0x70;
+		case KeyEvent.VK_HOME:
+			return 0x6C;
+		case KeyEvent.VK_PAGE_UP:
+			return 0x7D;
+		case KeyEvent.VK_DELETE:
+			return 0x71;
+		case KeyEvent.VK_END:
+			return 0x69;
+		case KeyEvent.VK_PAGE_DOWN:
+			return 0x7A;
+		case KeyEvent.VK_UP:
+			return 0x75;
+		case KeyEvent.VK_KP_UP:
+			return 0x75;
+		case KeyEvent.VK_LEFT:
+			return 0x6B;
+		case KeyEvent.VK_KP_LEFT:
+			return 0x6B;
+		case KeyEvent.VK_DOWN:
+			return 0x72;
+		case KeyEvent.VK_KP_DOWN:
+			return 0x72;
+		case KeyEvent.VK_RIGHT:
+			return 0x74;
+		case KeyEvent.VK_KP_RIGHT:
+			return 0x74;
+		case KeyEvent.VK_NUM_LOCK:
+			return 0x77;
+		case KeyEvent.VK_ASTERISK:
+			if(keyEvent.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) return 0x7C;
+			else return 0x3E;
+		case KeyEvent.VK_NUMPAD1:
+			return 0x69;
+		case KeyEvent.VK_NUMPAD2:
+			return 0x72;
+		case KeyEvent.VK_NUMPAD3:
+			return 0x7A;
+		case KeyEvent.VK_NUMPAD4:
+			return 0x6B;
+		case KeyEvent.VK_NUMPAD5:
+			return 0x73;
+		case KeyEvent.VK_NUMPAD6:
+			return 0x74;
+		case KeyEvent.VK_NUMPAD7:
+			return 0x6C;
+		case KeyEvent.VK_NUMPAD8:
+			return 0x75;
+		case KeyEvent.VK_NUMPAD9:
+			return 0x7D;
+		case KeyEvent.VK_NUMPAD0:
+			return 0x70;
+		}
+		return 0;
 	}
 }

@@ -70,6 +70,10 @@ public class OptionsPane extends JFrame implements ActionListener {
     JTextField KeyboardLocationTextField = new JTextField(""+data.keyboardLocation);
     JLabel KeyboardLocationHexLabel = new JLabel(Integer.toHexString(data.GPUBufferBegin));
 
+    JLabel KeyboardModeOptionLabel = new JLabel("Keyboard Mode");
+    JTextField KeyboardModeOptionTextField = new JTextField(""+data.keyboardMode);
+    JLabel KeyboardModeExplanationLabel = new JLabel("<html>Keyboard Mode 0 = Simplified Keyboard Mode<br>Keyboard Mode 1 = Realistic Keyboard Mode</html>");
+
     JLabel ForegroundColorLabel = new JLabel("Foreground Color");
     JTextField ForegroundColorChooser = new JTextField("#"+Integer.toHexString(data.fgColor.getRGB()).substring(2));
 
@@ -84,7 +88,7 @@ public class OptionsPane extends JFrame implements ActionListener {
     JButton saveOptionsButton = new JButton("Save Options to File");
 	
 	public OptionsPane() {
-		this.setSize(700,730);
+		this.setSize(700,750);
 		t = new Timer(16,this);
 		t.start();
 
@@ -141,6 +145,9 @@ public class OptionsPane extends JFrame implements ActionListener {
         SwingComponentsList.add(KeyboardLocationLabel);
         SwingComponentsList.add(KeyboardLocationTextField);
         SwingComponentsList.add(KeyboardLocationHexLabel);
+        SwingComponentsList.add(KeyboardModeOptionLabel);
+        SwingComponentsList.add(KeyboardModeOptionTextField);
+        SwingComponentsList.add(KeyboardModeExplanationLabel);
         SwingComponentsList.add(LCDModeLabel);
         SwingComponentsList.add(LCDModeRadioLarge);
         SwingComponentsList.add(LCDModeRadioSmall);
@@ -374,6 +381,7 @@ public class OptionsPane extends JFrame implements ActionListener {
         data.bgColor = Color.decode(BackgroundColorChooser.getText());
         data.GPUBitmapPixelScale = Integer.parseInt(GPUBitmapPixelScaleTextField.getText());
         data.keyboardLocation = Integer.parseInt(KeyboardLocationTextField.getText());
+        data.keyboardMode = Integer.parseInt(KeyboardModeOptionTextField.getText());
 
         Bus.VIA_ADDRESS = data.VIA_Address;
         Bus.ACIA_ADDRESS = data.ACIA_Address;
@@ -402,6 +410,8 @@ public class OptionsPane extends JFrame implements ActionListener {
         data.lcdBigMode = LCDModeRadioLarge.isSelected();
         EaterEmulator.lcd.bigMode = data.lcdBigMode;
         EaterEmulator.lcd.updateMode();
+
+        EaterEmulator.realisticKeyboard = (data.keyboardMode == 1);
     }
 
     private void resetSwingPositions() {
@@ -443,21 +453,25 @@ public class OptionsPane extends JFrame implements ActionListener {
 
         GPUModeExplanationLabel.setBounds(175,370,500,100);
 
-        KeyboardLocationLabel.setBounds(125,470,175,25);
+        KeyboardLocationLabel.setBounds(120,470,185,25);
         KeyboardLocationTextField.setBounds(300,470,100,25);
         KeyboardLocationHexLabel.setBounds(400,470,100,25);
+        
+        KeyboardModeOptionLabel.setBounds(180,500,175,25);
+        KeyboardModeOptionTextField.setBounds(300,500,25,25);
+        KeyboardModeExplanationLabel.setBounds(175,520,500,60);
 
-        LCDModeLabel.setBounds(225,510,75,25);
-        LCDModeRadioSmall.setBounds(300,510,100,25);
-        LCDModeRadioLarge.setBounds(400,510,100,25);
+        LCDModeLabel.setBounds(225,580,75,25);
+        LCDModeRadioSmall.setBounds(300,580,100,25);
+        LCDModeRadioLarge.setBounds(400,580,100,25);
 
-        ForegroundColorLabel.setBounds(175,550,125,25);
-        ForegroundColorChooser.setBounds(300,550,100,25);
+        ForegroundColorLabel.setBounds(175,610,125,25);
+        ForegroundColorChooser.setBounds(300,610,100,25);
 
-        BackgroundColorLabel.setBounds(175,590,125,25);
-        BackgroundColorChooser.setBounds(300,590,100,25);
+        BackgroundColorLabel.setBounds(175,640,125,25);
+        BackgroundColorChooser.setBounds(300,640,100,25);
 
-        applyOptionsButton.setBounds(200,640,150,25);
-        saveOptionsButton.setBounds(350,640,150,25);
+        applyOptionsButton.setBounds(200,690,150,25);
+        saveOptionsButton.setBounds(350,690,150,25);
     }
 }

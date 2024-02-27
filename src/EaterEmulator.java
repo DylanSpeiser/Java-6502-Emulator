@@ -8,10 +8,12 @@ import java.io.File;
 import javax.swing.*;
 
 public class EaterEmulator extends JFrame implements ActionListener {
-	public static String versionString = "2.9";
+	public static String versionString = "2.10";
 	public static boolean debug = false;
 
 	public static boolean verbose = false;
+	public static boolean realisticKeyboard = false;
+	public static int windowWidth = 1920, windowHeight = 1080;
 	
 	//Swing Things
 	JPanel p = new JPanel();
@@ -20,8 +22,10 @@ public class EaterEmulator extends JFrame implements ActionListener {
 	public static JButton ROMopenButton = new JButton("Open ROM File");
 	public static JButton RAMopenButton = new JButton("Open RAM File");
 
-	public static JButton ShowLCDButton = new JButton("Hide LCD");
+	public static JButton ShowLCDButton = new JButton("Show LCD");
 	public static JButton ShowGPUButton = new JButton("Show GPU");
+	public static JButton ShowSerialButton = new JButton("Show Serial");
+	public static JButton ResetButton = new JButton("Reset");
 
 	public static JButton optionsButton = new JButton("Options");
 	public static JButton keyboardButton= new JButton("Keyboard Mode");
@@ -45,13 +49,14 @@ public class EaterEmulator extends JFrame implements ActionListener {
 	public static Bus bus = new Bus();
 	public static CPU cpu = new CPU();
 	public static GPU gpu = new GPU(ram,false);
+	public static SerialInterface serial = new SerialInterface(false);
 	public static DisplayPanel GraphicsPanel = new DisplayPanel();
 	public static OptionsPane options = new OptionsPane();
 	
 	public EaterEmulator() {
 		//Swing Stuff:
 		System.setProperty("sun.java2d.opengl", "true");
-		this.setSize(1920,1080);
+		this.setSize(windowWidth, windowHeight);
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		}catch(Exception ex) {
@@ -83,18 +88,30 @@ public class EaterEmulator extends JFrame implements ActionListener {
 		ShowGPUButton.setBounds(getWidth()-300, 45, 125, 25);
 		ShowGPUButton.setBackground(Color.white);
 		GraphicsPanel.add(ShowGPUButton);
+		
+		ShowSerialButton.setVisible(true);
+		ShowSerialButton.addActionListener(this);
+		ShowSerialButton.setBounds(getWidth()-450, 15, 125, 25);
+		ShowSerialButton.setBackground(Color.white);
+		GraphicsPanel.add(ShowSerialButton);
+		
+		ResetButton.setVisible(true);
+		ResetButton.addActionListener(this);
+		ResetButton.setBounds(getWidth()-450, 45, 125, 25);
+		ResetButton.setBackground(Color.white);
+		GraphicsPanel.add(ResetButton);
 
 		//Options Button
 		optionsButton.setVisible(true);
 		optionsButton.addActionListener(this);
-		optionsButton.setBounds(getWidth()-450, 15, 125, 25);
+		optionsButton.setBounds(getWidth()-600, 15, 125, 25);
 		optionsButton.setBackground(Color.white);
 		GraphicsPanel.add(optionsButton);
 
 		//Keyboard Mode Button
 		keyboardButton.setVisible(true);
 		keyboardButton.addActionListener(this);
-		keyboardButton.setBounds(getWidth()-450, 45, 125, 25);
+		keyboardButton.setBounds(getWidth()-600, 45, 125, 25);
 		keyboardButton.setBackground(Color.white);
 		GraphicsPanel.add(keyboardButton);
 		
@@ -159,6 +176,10 @@ public class EaterEmulator extends JFrame implements ActionListener {
 			lcd.setVisible(!lcd.isVisible());
 		} else if (e.getSource().equals(ShowGPUButton)) {
 			gpu.setVisible(!gpu.isVisible());
+		} else if (e.getSource().equals(ShowSerialButton)) {
+			serial.setVisible(!serial.isVisible());
+		} else if (e.getSource().equals(ResetButton)) {
+			cpu.reset();
 		} else if (e.getSource().equals(optionsButton)) {
 			options.setVisible(!options.isVisible());
 		} else if (e.getSource().equals(GraphicsPanel.frameTimer)) {
@@ -173,6 +194,12 @@ public class EaterEmulator extends JFrame implements ActionListener {
 			} else {
 				ShowLCDButton.setText("Hide LCD");
 			}
+
+			if (!serial.isVisible()) {
+				ShowSerialButton.setText("Show Serial");
+			} else {
+				ShowSerialButton.setText("Hide Serial");
+			}
 		} else if (e.getSource().equals(keyboardButton)) {
 			keyboardMode = !keyboardMode;
 		}
@@ -183,13 +210,41 @@ public class EaterEmulator extends JFrame implements ActionListener {
 	public static void main(String[] args) {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-				emu = new EaterEmulator();
-
-				for (String s : args) {
-					if (s.equals("-verbose"))
-						verbose = true;
-						System.out.println("Running in verbose mode!");
+				for (int i = 0; i < args.length; i++) {
+					String s = args[i];
+					if (s.equals("-verbose")) verbose = true;
+					else if (s.equals("-windowWidth")) {
+						try {
+							windowWidth = Integer.parseInt(args[++i]);
+						} catch (Exception e) {
+							System.out.println("Window width not understood, defaulting to " + windowWidth);
+						}
+					}
+					else if (s.equals("-windowHeight")) {
+						try {
+							windowHeight = Integer.parseInt(args[++i]);
+						} catch (Exception e) {
+							System.out.println("Window height not understood, defaulting to " + windowHeight);
+						}
+					}
+					else if (s.equals("-f")) {
+						try {
+							rom.setROMArray(ROMLoader.readROM(new File(args[++i])));
+				        
+					        GraphicsPanel.requestFocus();
+					        GraphicsPanel.romPageString = EaterEmulator.rom.ROMString.substring(GraphicsPanel.romPage*960,(GraphicsPanel.romPage+1)*960);
+							cpu.reset();
+						} catch (Exception e) {
+							System.out.println("There was an error loading the ROM file specified with -f");
+						}
+					}
 				}
+				
+				//printing done after all arguments incase verbose argument comes after the other arguments
+				if (verbose) System.out.println("Running in verbose mode!");
+				if (verbose) System.out.println("Resolution of " + windowWidth + "x" + windowHeight + ".");
+				
+				emu = new EaterEmulator();
             }
         });
 	}
