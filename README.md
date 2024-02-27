@@ -1,7 +1,9 @@
 # Java 6502 Emulator
 
 ## Update: v2.10: Realistic Keyboard, Serial Emulation, and more command line args!
-What an update! Thanks to lythd, the emulator now supports a realistic PS/2-like keyboard mode that can be enabled in the options pane. They've also added a serial emulator that can be turned on in a separate window for testing out programs like Wozmon. It's super cool!
+What an update! Thanks to lythd, the emulator now supports a realistic PS/2-like keyboard mode that can be enabled in the options pane. They've also added a serial emulator that can be turned on in a separate window. It's super cool!
+
+Note that Wozmon is not running correctly through this serial interface yet, but we are working on the issue and will update when it's fixed.
 
 We've also added some new command line arguments:
 - `-windowWidth <int>` and `windowHeight <int>` do what they say on the tin, and should be a welcome change for those of you with differently sized monitors.
@@ -11,9 +13,9 @@ I'd also like to take this opportunity to note that this repo is showing its age
 It will be a big undertaking, but seeing how popular this repo is getting I'm sure everyone would appreciate it.
 
 (still) Coming soon!:
+- More bug fixes, Wozmon
 - Complete code refactor
 - Other 65C02 instructions
-- More bug fixes
 
 ## Update: v2.9: ACIA and Command line options!
 Thanks to Steve Rubin, the emulator now supports ACIA communication through the command line! Like the VIA, the ACIA's address can be adjusted in the options menu.
