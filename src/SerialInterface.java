@@ -94,6 +94,7 @@ public class SerialInterface extends JFrame implements ActionListener {
 		} else if (keyChar == 0x08) {
 			textArea.setText(textArea.getText().substring(0, textArea.getText().length() - 1));
 		} else textArea.append(String.valueOf((char)keyChar));
+		textArea.setCaretPosition(textArea.getDocument().getLength());
     }
 
     // Function to reset the text area

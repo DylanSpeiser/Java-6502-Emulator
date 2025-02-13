@@ -374,6 +374,8 @@ public class CPU {
 				System.out.print("  A:"+Integer.toHexString(Byte.toUnsignedInt(a))+" X:"+Integer.toHexString(Byte.toUnsignedInt(x))+" Y:"+Integer.toHexString(Byte.toUnsignedInt(y))+" Flags:"+ROMLoader.padStringWithZeroes(Integer.toBinaryString(Byte.toUnsignedInt(flags)), 8));
 				if (EaterEmulator.verbose) System.out.println();
 			}
+
+			if (DisplayPanel.breakpoints.contains(programCounter)) EaterEmulator.clockState = false;
 		}
 
 		EaterEmulator.clocks++;

@@ -17,6 +17,10 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 	
 	String ramPageString = "";
 	String romPageString = "";
+	private Rectangle[] textBounds = new Rectangle[0];
+	private short[] nextInstructionAddresses = new short[0];
+
+	public static ArrayList<Short> breakpoints = new ArrayList<>();
 
 	public static Color bgColor = Color.blue;
 	public static Color fgColor = Color.white;
@@ -27,7 +31,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 	
 	public DisplayPanel() {
 		super(null);
-		
+
 		clocksPerSecondCheckTimer.start();
 		frameTimer.start();
 		setBackground(bgColor);
@@ -48,6 +52,20 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 		this.setFocusable(true);
 	    this.requestFocus();
 		this.addKeyListener(this);
+
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+//				if (debug) System.out.println("mouseClicked");
+				for (int i = 0; i < textBounds.length; i++) {
+					if (textBounds[i] != null && textBounds[i].contains(e.getPoint())) {
+						if (breakpoints.contains(nextInstructionAddresses[i])) breakpoints.remove((Short)nextInstructionAddresses[i]);
+						else breakpoints.add(nextInstructionAddresses[i]);
+//						if (debug) System.out.println("matched with textBound " + textBounds[i] + " and it now contains it: " + breakpoints.contains(nextInstructionAddresses[i]));
+					}
+				}
+			}
+		});
 	}
 	
 	public void paintComponent(Graphics g) {
@@ -96,7 +114,28 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 		//Disassembly
 		if (rightAlignHelper-800 > 1000) { // only show if theres room
 			g.drawString("Upcoming Instructions",750,130);
-			drawString(g, disassemble(EaterEmulator.cpu.programCounter, (short)32), 775, 150);
+			String[] text = disassemble(EaterEmulator.cpu.programCounter, (short)32).split("\n");
+			int x = 775, y = 150;
+			textBounds = new Rectangle[text.length];
+			nextInstructionAddresses = new short[text.length];
+			for (int i = 0; i < text.length; i++) {
+				String line = text[i];
+				short address = (short) Integer.parseInt(line.substring(0,4), 16);
+				if (breakpoints.contains(address)) g.setColor(Color.RED);
+
+				FontMetrics fm = g.getFontMetrics();
+				int textWidth = fm.stringWidth(line);
+				int textHeight = fm.getAscent();
+				textBounds[i] = new Rectangle(x, y, textWidth, textHeight);
+				nextInstructionAddresses[i] = address;
+
+				g.drawString(line, x, y += fm.getHeight());
+
+				if (breakpoints.contains(address)) g.setColor(fgColor);
+			}
+		} else {
+			textBounds = new Rectangle[0];
+			nextInstructionAddresses = new short[0];
 		}
 	
         //CPU
@@ -148,13 +187,17 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 	        g.drawString("R - Reset", 35, 840);
 	        g.drawString("S - Toggle Slower Clock", 35, 870);
 	        g.drawString("I - Trigger VIA CA1", 35, 900);
+			if (nextInstructionAddresses.length > 0) g.drawString("Clicking on any instructions will add a breakpoint there", 35, 930);
 		} else {
 			g.drawString("Keyboard Mode Controls:", 50, 750);
 			if (EaterEmulator.realisticKeyboard) {
-				g.drawString("Typing a key will store it to the VIA, you can retrieve it from "+EaterEmulator.options.VIAAddressOptionHexLabel.getText().substring(3), 35, 780);
+				g.drawString("Typing a key will store it to the VIA, you can retrieve it ", 35, 780);
+				g.drawString("from the memory location "+EaterEmulator.options.KeyboardLocationHexLabel.getText().substring(3)+" and trigger an interrupt.", 35, 810);
+				if (nextInstructionAddresses.length > 0) g.drawString("Clicking on any instructions will add a breakpoint there", 35, 840);
 			} else {
-				g.drawString("Typing a key will write that key code to the memory location "+EaterEmulator.options.KeyboardLocationHexLabel.getText().substring(3), 35, 780);
-				g.drawString(" and trigger an interrupt.", 35, 810);
+				g.drawString("Typing a key will write that key code to", 35, 780);
+				g.drawString("the memory location "+EaterEmulator.options.KeyboardLocationHexLabel.getText().substring(3)+" and trigger an interrupt.", 35, 810);
+				if (nextInstructionAddresses.length > 0) g.drawString("Clicking on any instructions will add a breakpoint there", 35, 840);
 			}
 		}
 	}
