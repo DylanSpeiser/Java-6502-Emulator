@@ -1,12 +1,14 @@
 public class Instruction {
-	public String opcode;
-	public String addressMode;
+	public OpCode opcode;
+	public AddressMode addressMode;
 	public int cycles;
+	public boolean wdc; // WDC extensions (65c02)
 	
-	public Instruction(String opcode, String addressMode, int cycles) {
+	public Instruction(OpCode opcode, AddressMode addressMode, int cycles, boolean wdc) {
 		this.opcode = opcode;
 		this.addressMode = addressMode;
 		this.cycles = cycles;
+		this.wdc = wdc;
 	}
 	
 	@Override
@@ -14,3 +16,4 @@ public class Instruction {
 		return opcode+","+addressMode;
 	}
 }
+

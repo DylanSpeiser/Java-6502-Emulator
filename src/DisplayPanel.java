@@ -145,8 +145,12 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 	        g.drawString("I - Trigger VIA CA1", 35, 900);
 		} else {
 			g.drawString("Keyboard Mode Controls:", 50, 750);
-			g.drawString("Typing a key will write that key code to the memory location "+EaterEmulator.options.KeyboardLocationHexLabel.getText().substring(3), 35, 780);
-			g.drawString(" and trigger an interrupt.", 35, 810);
+			if (EaterEmulator.realisticKeyboard) {
+				g.drawString("Typing a key will store it to the VIA, you can retrieve it from "+EaterEmulator.options.VIAAddressOptionHexLabel.getText().substring(3), 35, 780);
+			} else {
+				g.drawString("Typing a key will write that key code to the memory location "+EaterEmulator.options.KeyboardLocationHexLabel.getText().substring(3), 35, 780);
+				g.drawString(" and trigger an interrupt.", 35, 810);
+			}
 		}
 	}
 	
@@ -249,16 +253,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 					}
 					break;
 				case 'r':
-					EaterEmulator.cpu.reset();
-					EaterEmulator.lcd.reset();
-					EaterEmulator.via = new VIA();
-					EaterEmulator.acia = new ACIA();
-					EaterEmulator.ram = new RAM();
-					EaterEmulator.gpu.setRAM(EaterEmulator.ram);
-					ramPageString = EaterEmulator.ram.RAMString.substring(ramPage*960,(ramPage+1)*960);
-
-					if (EaterEmulator.debug)
-						if (EaterEmulator.verbose) System.out.println("Size: "+this.getWidth()+" x "+this.getHeight());
+					EaterEmulator.reset();
 					break;
 				case ' ':
 					EaterEmulator.cpu.clock();
@@ -273,7 +268,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 					EaterEmulator.via.CA1();
 					break;
 			}
-		} else if (!EaterEmulator.realisticKeyboard) { //realistic keyboard uses key pressed and released so it can get the key code
+		} else if (!EaterEmulator.realisticKeyboard) { //realistic keyboard uses key pressed and released so it can get the key code, so doesn't need to check here
 			//Typing Keyboard Mode
 			Bus.write((short)EaterEmulator.options.data.keyboardLocation, (byte)arg0.getKeyChar());
 			EaterEmulator.via.CA1();
@@ -410,9 +405,8 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 		case KeyEvent.VK_QUOTEDBL:
 			return 0x52;
 		case KeyEvent.VK_ENTER:
-			if(keyEvent.getKeyLocation() == KeyEvent.KEY_LOCATION_NUMPAD) return 0x5A;
-			else return 0x5A;
-		case KeyEvent.VK_SHIFT:
+			return 0x5A; // both regular and numpad enter map to 0x5A
+			case KeyEvent.VK_SHIFT:
 			if(keyEvent.getKeyLocation() == KeyEvent.KEY_LOCATION_RIGHT) return 0x59;
 			else return 0x12;
 		case KeyEvent.VK_Z:

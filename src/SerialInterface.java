@@ -40,7 +40,7 @@ public class SerialInterface extends JFrame implements ActionListener {
             public void keyPressed(KeyEvent e) {
             	if(isAcceptableChar(e.getKeyChar())) { // have to restrict characters like shift from being sent
 	            	hasKey = true;
-	                typedKey = (byte) e.getKeyChar();
+	                typedKey = (byte) convertChar(e.getKeyChar());
             	}
             }
 
@@ -59,7 +59,7 @@ public class SerialInterface extends JFrame implements ActionListener {
         this.setResizable(false);
     }
 
-    @Override
+	@Override
     public void setVisible(boolean isVisible) {
     	super.setVisible(isVisible);
     	if(isVisible) {
@@ -87,7 +87,13 @@ public class SerialInterface extends JFrame implements ActionListener {
 
     // Function to receive key
     public void receiveKey(byte keyChar) {
-        textArea.append(String.valueOf((char)keyChar));
+		if (keyChar == 0x0A) {
+			if (!EaterEmulator.carriageReturn) textArea.append("\n");
+		} else if (keyChar == 0x0D) {
+			if (EaterEmulator.carriageReturn) textArea.append("\n");
+		} else if (keyChar == 0x08) {
+			textArea.setText(textArea.getText().substring(0, textArea.getText().length() - 1));
+		} else textArea.append(String.valueOf((char)keyChar));
     }
 
     // Function to reset the text area
@@ -104,4 +110,9 @@ public class SerialInterface extends JFrame implements ActionListener {
     	if(i==0x7f) return true; //delete
     	return c >= ' ' && c <= '~'; //normal ascii range
     }
+
+	private char convertChar(char keyChar) {
+		if (keyChar == '\n' && EaterEmulator.carriageReturn) return '\r';
+		return keyChar;
+	}
 }

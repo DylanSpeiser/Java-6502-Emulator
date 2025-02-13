@@ -61,12 +61,17 @@ public class OptionsPane extends JFrame implements ActionListener {
     JLabel GPUBitmapPixelScaleLabel = new JLabel("GPU Bitmap Pixel Scale: ");
     JTextField GPUBitmapPixelScaleTextField = new JTextField(""+data.GPUMode);
 
+    JLabel LineEndingLabel = new JLabel("Serial Monitor Line Ending: ");
+    ButtonGroup lineEndingButtonGroup = new ButtonGroup();
+    JRadioButton LineEndingRadioR = new JRadioButton("\\r, 0x0D");
+    JRadioButton LineEndingRadioN = new JRadioButton("\\n, 0x0A");
+
     JLabel LCDModeLabel = new JLabel("LCD Mode: ");
     ButtonGroup lcdModeButtonGroup = new ButtonGroup();
     JRadioButton LCDModeRadioSmall = new JRadioButton("16x2");
     JRadioButton LCDModeRadioLarge = new JRadioButton("20x4");
 
-    JLabel KeyboardLocationLabel = new JLabel("Keyboard Memory Location: ");
+    JLabel KeyboardLocationLabel = new JLabel("Keyboard Memory Location (For Simplified Keyboard Mode): ");
     JTextField KeyboardLocationTextField = new JTextField(""+data.keyboardLocation);
     JLabel KeyboardLocationHexLabel = new JLabel(Integer.toHexString(data.GPUBufferBegin));
 
@@ -88,7 +93,7 @@ public class OptionsPane extends JFrame implements ActionListener {
     JButton saveOptionsButton = new JButton("Save Options to File");
 	
 	public OptionsPane() {
-		this.setSize(700,750);
+		this.setSize(700,780);
 		t = new Timer(16,this);
 		t.start();
 
@@ -151,6 +156,9 @@ public class OptionsPane extends JFrame implements ActionListener {
         SwingComponentsList.add(LCDModeLabel);
         SwingComponentsList.add(LCDModeRadioLarge);
         SwingComponentsList.add(LCDModeRadioSmall);
+        SwingComponentsList.add(LineEndingLabel);
+        SwingComponentsList.add(LineEndingRadioR);
+        SwingComponentsList.add(LineEndingRadioN);
 
         this.setTitle("Options");
 		this.setContentPane(p);
@@ -172,6 +180,9 @@ public class OptionsPane extends JFrame implements ActionListener {
 
         lcdModeButtonGroup.add(LCDModeRadioSmall);
         lcdModeButtonGroup.add(LCDModeRadioLarge);
+
+        lineEndingButtonGroup.add(LineEndingRadioR);
+        lineEndingButtonGroup.add(LineEndingRadioN);
 
         //Swing Positioning
         resetSwingPositions();
@@ -352,6 +363,9 @@ public class OptionsPane extends JFrame implements ActionListener {
 
         LCDModeRadioSmall.setSelected(!data.lcdBigMode);
         LCDModeRadioLarge.setSelected(data.lcdBigMode);
+
+        LineEndingRadioR.setSelected(data.carriageReturn);
+        LineEndingRadioN.setSelected(!data.carriageReturn);
     }
 
     private void writeDataToFile(File f) {
@@ -411,6 +425,9 @@ public class OptionsPane extends JFrame implements ActionListener {
         EaterEmulator.lcd.bigMode = data.lcdBigMode;
         EaterEmulator.lcd.updateMode();
 
+        data.carriageReturn = LineEndingRadioR.isSelected();
+        EaterEmulator.carriageReturn = data.carriageReturn;
+
         EaterEmulator.realisticKeyboard = (data.keyboardMode == 1);
     }
 
@@ -461,17 +478,21 @@ public class OptionsPane extends JFrame implements ActionListener {
         KeyboardModeOptionTextField.setBounds(300,500,25,25);
         KeyboardModeExplanationLabel.setBounds(175,520,500,60);
 
-        LCDModeLabel.setBounds(225,580,75,25);
-        LCDModeRadioSmall.setBounds(300,580,100,25);
-        LCDModeRadioLarge.setBounds(400,580,100,25);
+        LineEndingLabel.setBounds(225,580,75,25);
+        LineEndingRadioR.setBounds(300,580,100,25);
+        LineEndingRadioN.setBounds(400,580,100,25);
 
-        ForegroundColorLabel.setBounds(175,610,125,25);
-        ForegroundColorChooser.setBounds(300,610,100,25);
+        LCDModeLabel.setBounds(225,610,75,25);
+        LCDModeRadioSmall.setBounds(300,610,100,25);
+        LCDModeRadioLarge.setBounds(400,610,100,25);
 
-        BackgroundColorLabel.setBounds(175,640,125,25);
-        BackgroundColorChooser.setBounds(300,640,100,25);
+        ForegroundColorLabel.setBounds(175,640,125,25);
+        ForegroundColorChooser.setBounds(300,640,100,25);
 
-        applyOptionsButton.setBounds(200,690,150,25);
-        saveOptionsButton.setBounds(350,690,150,25);
+        BackgroundColorLabel.setBounds(175,670,125,25);
+        BackgroundColorChooser.setBounds(300,670,100,25);
+
+        applyOptionsButton.setBounds(200,720,150,25);
+        saveOptionsButton.setBounds(350,720,150,25);
     }
 }

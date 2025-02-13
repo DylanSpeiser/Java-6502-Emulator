@@ -16,9 +16,9 @@ public class VIA {
 			case 0x001:
 				IFR &= (byte)(0b01111100);
 				byte value = 0;
-				if(DisplayPanel.keys.size() > 0 && EaterEmulator.realisticKeyboard) {
-					value = DisplayPanel.keys.get(0);
-					DisplayPanel.keys.remove(0);
+				if(!DisplayPanel.keys.isEmpty() && EaterEmulator.realisticKeyboard) {
+					value = DisplayPanel.keys.getFirst();
+					DisplayPanel.keys.removeFirst();
 				}
 				return value;
 			case 0x002:
@@ -65,7 +65,7 @@ public class VIA {
 				IER = data;
 				break;
 		}
-		if(!EaterEmulator.cpu.interruptRequested && DisplayPanel.keys.size() > 0 && EaterEmulator.realisticKeyboard) { //some additional keys, like for release where it sends 2, or maybe two presses really fast
+		if(!EaterEmulator.cpu.interruptRequested && !DisplayPanel.keys.isEmpty() && EaterEmulator.realisticKeyboard) { //some additional keys, like for release where it sends 2, or maybe two presses really fast
 			CA1();
 		}
 	}

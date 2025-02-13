@@ -14,7 +14,7 @@ public class EaterEmulator extends JFrame implements ActionListener {
 	public static boolean verbose = false;
 	public static boolean realisticKeyboard = false;
 	public static int windowWidth = 1920, windowHeight = 1080;
-	
+
 	//Swing Things
 	JPanel p = new JPanel();
 	JPanel header = new JPanel();
@@ -37,7 +37,8 @@ public class EaterEmulator extends JFrame implements ActionListener {
 	public static boolean haltFlag = true;
 	public static boolean slowerClock = false;
 	public static boolean running = false;
-	public static boolean keyboardMode = false;			//False = controls (default), True = keyboard
+	public static boolean keyboardMode = false;			// False = controls (default), True = keyboard
+	public static boolean carriageReturn = false;		// False = \r or 0x0D, True = \n or 0x0A
 	
 	//Emulator Things
 	public static EaterEmulator emu;
@@ -179,7 +180,7 @@ public class EaterEmulator extends JFrame implements ActionListener {
 		} else if (e.getSource().equals(ShowSerialButton)) {
 			serial.setVisible(!serial.isVisible());
 		} else if (e.getSource().equals(ResetButton)) {
-			cpu.reset();
+			reset();
 		} else if (e.getSource().equals(optionsButton)) {
 			options.setVisible(!options.isVisible());
 		} else if (e.getSource().equals(GraphicsPanel.frameTimer)) {
@@ -205,6 +206,19 @@ public class EaterEmulator extends JFrame implements ActionListener {
 		}
 
 		
+	}
+
+	public static void reset() {
+		cpu.reset();
+		lcd.reset();
+		via = new VIA();
+		acia = new ACIA();
+		ram = new RAM();
+		gpu.setRAM(ram);
+		GraphicsPanel.ramPageString = ram.RAMString.substring(GraphicsPanel.ramPage*960,(GraphicsPanel.ramPage+1)*960);
+
+		if (debug)
+			if (verbose) System.out.println("Size: "+GraphicsPanel.getWidth()+" x "+GraphicsPanel.getHeight());
 	}
 	
 	public static void main(String[] args) {
