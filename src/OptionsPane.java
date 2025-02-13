@@ -356,6 +356,8 @@ public class OptionsPane extends JFrame implements ActionListener {
         GPUColsTextField.setText(""+data.GPUCols);
         GPURowsTextField.setText(""+data.GPURows);
 
+        KeyboardModeOptionTextField.setText(""+data.keyboardMode);
+
         GPUModeOptionTextField.setText(""+data.GPUMode);
         GPUBitmapPixelScaleTextField.setText(""+data.GPUBitmapPixelScale);
         ForegroundColorChooser.setText("#"+Integer.toHexString(data.fgColor.getRGB()).substring(2));

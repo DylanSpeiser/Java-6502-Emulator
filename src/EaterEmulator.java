@@ -47,7 +47,6 @@ public class EaterEmulator extends JFrame implements ActionListener {
 	public static LCD lcd = new LCD();
 	public static VIA via = new VIA();
 	public static ACIA acia = new ACIA();
-	public static Bus bus = new Bus();
 	public static CPU cpu = new CPU();
 	public static GPU gpu = new GPU(ram,false);
 	public static SerialInterface serial = new SerialInterface(false);
