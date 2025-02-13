@@ -87,6 +87,8 @@ public class SerialInterface extends JFrame implements ActionListener {
 
     // Function to receive key
     public void receiveKey(byte keyChar) {
+//		System.out.println("Input char: " + keyChar);
+		// If using \r then we ignore \n and vice versa, but regardless the textArea itself expects a \n
 		if (keyChar == 0x0A) {
 			if (!EaterEmulator.carriageReturn) textArea.append("\n");
 		} else if (keyChar == 0x0D) {

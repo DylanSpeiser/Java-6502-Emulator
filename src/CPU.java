@@ -1102,8 +1102,8 @@ public class CPU {
 
 	public void SBC() {
 		fetch();
-		short value = (short)((short)fetched ^ 0x00FF);
-		short temp = (short)((short)a + value + (short)(getFlag('C') ? 1 : 0));
+		short value = (short)(((short)fetched&0xff) ^ (short)0x00FF);
+		short temp = (short)(((short)a&0xff) + value + (short)(getFlag('C') ? 1 : 0));
 		setFlag('C', temp > 255);
 		setFlag('Z', (temp & 0x00FF) == 0);
 		setFlag('N', (temp & 0x80) == 0x80);

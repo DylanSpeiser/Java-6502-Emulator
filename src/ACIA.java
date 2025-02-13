@@ -52,7 +52,7 @@ public class ACIA {
 	public void write(short address, byte data) {
 		switch (Short.toUnsignedInt(address) - Bus.ACIA_ADDRESS) {
 			case 0x00:
-				if (data != 0xd) EaterEmulator.serial.receiveKey(data); // discard \r so its just \n, send to serial interface
+				EaterEmulator.serial.receiveKey(data);
 
 			case 0x01: // Programmed Reset
 							// Clear bits 4 through 0 in the Command Register and bit 2 in the Status
