@@ -15,6 +15,6 @@ public enum AddressMode {
 
 	// WDC 65c02 ADDITIONS //
 
-	ZPI,    // OPC $LLHH			zeropage indirect					
+	ZPI,    // OPC ($LL)			zeropage indirect
 	IAX,    // OPC ($LLHH,X)		indirect, x-indexed					
 }
