@@ -626,8 +626,8 @@ public class CPU {
 	}
 
 	public void IND() {
-		byte lowPointer = Bus.read(programCounter++);
-		byte highPointer = Bus.read(programCounter++);
+ 		short lowPointer = (short)(Bus.read(programCounter++)&0xff);
+		short highPointer = (short)(Bus.read(programCounter++)&0xff);
 
 		short pointer = (short)((highPointer << 8) | lowPointer);
 
