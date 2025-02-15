@@ -30,6 +30,8 @@ public class EaterEmulator extends JFrame implements ActionListener {
 	public static JButton optionsButton = new JButton("Options");
 	public static JButton keyboardButton= new JButton("Keyboard Mode");
 
+	public static JButton disassemblyButton = new JButton("Disassemble");
+
 	//Clock Stuff
 	public static Thread clockThread;
 	public static boolean clockState = false;
@@ -52,6 +54,7 @@ public class EaterEmulator extends JFrame implements ActionListener {
 	public static SerialInterface serial = new SerialInterface(false);
 	public static DisplayPanel GraphicsPanel = new DisplayPanel();
 	public static OptionsPane options = new OptionsPane();
+	public static DisassemblyOutput disOutput = new DisassemblyOutput();
 	
 	public EaterEmulator() {
 		//Swing Stuff:
@@ -114,6 +117,13 @@ public class EaterEmulator extends JFrame implements ActionListener {
 		keyboardButton.setBounds(getWidth()-600, 45, 125, 25);
 		keyboardButton.setBackground(Color.white);
 		GraphicsPanel.add(keyboardButton);
+
+		//Disassembly Button
+		disassemblyButton.setVisible(true);
+		disassemblyButton.addActionListener(this);
+		disassemblyButton.setBounds(getWidth()-750, 15, 125, 25);
+		disassemblyButton.setBackground(Color.white);
+		GraphicsPanel.add(disassemblyButton);
 		
 		//file chooser
 		fc.setDirectory(options.data.defaultFileChooserDirectory);
@@ -182,6 +192,32 @@ public class EaterEmulator extends JFrame implements ActionListener {
 			reset();
 		} else if (e.getSource().equals(optionsButton)) {
 			options.setVisible(!options.isVisible());
+		} else if (e.getSource().equals(disassemblyButton)) {
+			int startAddress = -1, endAddress = -1;
+			while (true) {
+				try {
+					String startHex = JOptionPane.showInputDialog(null, "Enter starting hex address (max 2 bytes):", "Hex Input", JOptionPane.QUESTION_MESSAGE);
+					if (startHex == null) break; // canceled
+
+					startAddress = Integer.parseInt(startHex.trim(), 16);
+					if (startAddress > 0xffff) throw new NumberFormatException("Out of range");
+
+					String endHex = JOptionPane.showInputDialog(null, "Enter final hex address (optional, defaults to FFFF):", "Hex Input", JOptionPane.QUESTION_MESSAGE);
+
+					endAddress = (endHex == null || endHex.isEmpty()) ? 0xffff : Integer.parseInt(endHex.trim(), 16);
+					if (endAddress > 0xffff) throw new NumberFormatException("Out of range");
+
+
+					break;
+				} catch (NumberFormatException e_) {
+					JOptionPane.showMessageDialog(null, "Invalid input! Please enter a valid hex address within two bytes.", "Error", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+			if (startAddress != -1 && endAddress != -1) {
+				DisassemblyOutput.StartAddress = startAddress;
+				DisassemblyOutput.EndAddress = endAddress;
+				disOutput.setVisible(true);
+			}
 		} else if (e.getSource().equals(GraphicsPanel.frameTimer)) {
 			if (!gpu.isVisible()) {
 				ShowGPUButton.setText("Show GPU");

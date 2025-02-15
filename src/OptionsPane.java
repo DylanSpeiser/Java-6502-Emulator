@@ -417,6 +417,7 @@ public class OptionsPane extends JFrame implements ActionListener {
 
         DisplayPanel.fgColor = data.fgColor;
         DisplayPanel.bgColor = data.bgColor;
+        EaterEmulator.disOutput.updateDisplay();
 
         EaterEmulator.GraphicsPanel.resetGraphics();
 
