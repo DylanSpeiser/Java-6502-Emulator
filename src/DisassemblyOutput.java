@@ -11,7 +11,7 @@ public class DisassemblyOutput extends JFrame {
 	public static int StartAddress = 0, EndAddress = 0;
 
 	public DisassemblyOutput() {
-		setSize(EaterEmulator.windowWidth, EaterEmulator.windowHeight);
+		setSize((int) (EaterEmulator.windowWidth * 0.9), (int) (EaterEmulator.windowHeight * 0.9));
 
 		setTitle("6502 Disassembly");
 		setContentPane(DisPanel);
@@ -21,6 +21,73 @@ public class DisassemblyOutput extends JFrame {
 	public void updateDisplay() {
 		DisPanel.setBackground(DisplayPanel.bgColor);
 		DisPanel.setForeground(DisplayPanel.fgColor);
+	}
+
+	public static String disassembleUntil(short programCounter, short finalCount) {
+		StringBuilder str = new StringBuilder();
+		for (short j = 0; programCounter < finalCount; j++) {
+			Instruction currentInstruction = EaterEmulator.cpu.lookup[Byte.toUnsignedInt(Bus.read(programCounter))];
+			if (!str.isEmpty()) str.append("\n");
+			str.append(disassemble(programCounter));
+			switch (currentInstruction.addressMode) {
+				case AddressMode.IMP, AddressMode.ACC -> programCounter += 1;
+				case AddressMode.IMM, AddressMode.ZPP, AddressMode.ZPX, AddressMode.ZPY, AddressMode.REL,
+					 AddressMode.IZX, AddressMode.IZY, AddressMode.ZPI -> programCounter += 2;
+				case AddressMode.ABS, AddressMode.ABX, AddressMode.ABY, AddressMode.IND, AddressMode.IAX ->
+						programCounter += 3;
+			}
+		}
+		return str.toString();
+	}
+
+	public static String disassemble(short programCounter, short numInstructions) {
+		StringBuilder str = new StringBuilder();
+		for (short j = 0; j <= numInstructions; j++) {
+			Instruction currentInstruction = EaterEmulator.cpu.lookup[Byte.toUnsignedInt(Bus.read(programCounter))];
+			if (!str.isEmpty()) str.append("\n");
+			str.append(disassemble(programCounter));
+			switch (currentInstruction.addressMode) {
+				case AddressMode.IMP, AddressMode.ACC -> programCounter += 1;
+				case AddressMode.IMM, AddressMode.ZPP, AddressMode.ZPX, AddressMode.ZPY, AddressMode.REL,
+					 AddressMode.IZX, AddressMode.IZY, AddressMode.ZPI -> programCounter += 2;
+				case AddressMode.ABS, AddressMode.ABX, AddressMode.ABY, AddressMode.IND, AddressMode.IAX ->
+						programCounter += 3;
+			}
+		}
+		return str.toString();
+	}
+
+	public static String disassemble(short programCounter) {
+		Instruction currentInstruction = EaterEmulator.cpu.lookup[Byte.toUnsignedInt(Bus.read(programCounter))];
+
+		String str = toHexShortString(programCounter, 4) + ": " + currentInstruction.opcode.toString();
+		switch (currentInstruction.addressMode) {
+			case ACC -> str = str + " A";
+			case ABS -> str = str + " $" + busHexString((short) (programCounter+2)) + busHexString((short) (programCounter+1));
+			case ABX -> str = str + " $" + busHexString((short) (programCounter+2)) + busHexString((short) (programCounter+1)) + ",X";
+			case ABY -> str = str + " $" + busHexString((short) (programCounter+2)) + busHexString((short) (programCounter+1)) + ",Y";
+			case IMM -> str = str + " #$" + busHexString((short) (programCounter+1));
+			case IMP -> {}
+			case IND -> str = str + " ($" + busHexString((short) (programCounter+2)) + busHexString((short) (programCounter+1)) + ")";
+			case IZX -> str = str + " ($" + busHexString((short) (programCounter+1)) + ",X)";
+			case IZY -> str = str + " ($" + busHexString((short) (programCounter+1)) + "),Y";
+			case REL, ZPP -> str = str + " $" + busHexString((short) (programCounter+1));
+			case ZPX -> str = str + " $" + busHexString((short) (programCounter+1)) + ",X";
+			case ZPY -> str = str + " $" + busHexString((short) (programCounter+1)) + ",Y";
+			case ZPI -> str = str + " ($" + busHexString((short) (programCounter+1)) + ")";
+		}
+		return str;
+	}
+
+	public static String busHexString(short address) {
+		return toHexShortString(Bus.read(address), 2);
+	}
+
+	public static String toHexShortString(int i, int packNumChars) {
+		StringBuilder str = new StringBuilder(Integer.toHexString(i));
+		while (str.length() < packNumChars) str.insert(0, "0");
+		if (str.length() > packNumChars) str = new StringBuilder(str.substring(str.length() - packNumChars));
+		return str.toString();
 	}
 }
 
@@ -35,7 +102,7 @@ class DisassemblyPanel extends JPanel {
 		super(null);
 
 		setBackground(DisplayPanel.bgColor);
-		setPreferredSize(new Dimension(EaterEmulator.windowWidth, EaterEmulator.windowHeight));
+		setPreferredSize(new Dimension((int) (EaterEmulator.windowWidth * 0.9), (int) (EaterEmulator.windowHeight * 0.9)));
 
 		try {
 			smallerFont = Font.createFont(Font.TRUETYPE_FONT,this.getClass().getClassLoader().getResourceAsStream("courbd.ttf")).deriveFont(14f);
@@ -73,7 +140,7 @@ class DisassemblyPanel extends JPanel {
 		//Disassembly
 		g.setFont(smallerFont);
 		g.drawString("Instructions",50,30);
-		String[] text = DisplayPanel.disassembleUntil((short)DisassemblyOutput.StartAddress, (short)DisassemblyOutput.EndAddress).split("\n");
+		String[] text = DisassemblyOutput.disassembleUntil((short)DisassemblyOutput.StartAddress, (short)DisassemblyOutput.EndAddress).split("\n");
 		int x = 75, y = 50;
 		textBounds = new Rectangle[text.length];
 		nextInstructionAddresses = new short[text.length];
