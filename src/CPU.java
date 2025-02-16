@@ -758,7 +758,7 @@ public class CPU {
 	}
 
 	public void ZPI() {
-		short lowPointer = Bus.read(programCounter++);
+		short lowPointer = (short) (Bus.read(programCounter++) & 0x00ff);
 
 		addressAbsolute = (short)(Byte.toUnsignedInt(Bus.read((short)(lowPointer+1)))*256+Byte.toUnsignedInt(Bus.read(lowPointer)));
 	}
