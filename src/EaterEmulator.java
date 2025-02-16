@@ -149,7 +149,7 @@ public class EaterEmulator extends JFrame implements ActionListener {
 		GraphicsPanel.frameTimer.addActionListener(this);
 		options.setVisible(false);
 
-		this.setTitle("6502 Emulator");
+		this.setTitle("65c02 Emulator");
 		this.setContentPane(GraphicsPanel);
 		this.setVisible(true);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);

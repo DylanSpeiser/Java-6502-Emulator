@@ -31,6 +31,8 @@ public class CPU {
 	public boolean interruptRequested = false;
 	public boolean NMinterruptRequested = false;
 
+	public boolean stopped = false, waiting = false;
+
 	public Instruction[] lookup = new Instruction[0x100];
 
 	public CPU() {
@@ -49,6 +51,7 @@ public class CPU {
 		lookup[0x79] = new Instruction(OpCode.ADC, AddressMode.ABY, 4, false);
 		lookup[0x61] = new Instruction(OpCode.ADC, AddressMode.IZX, 6, false);
 		lookup[0x71] = new Instruction(OpCode.ADC, AddressMode.IZY, 5, false);
+		lookup[0x72] = new Instruction(OpCode.ADC, AddressMode.ZPI, 5, true);
 
 		lookup[0x29] = new Instruction(OpCode.AND, AddressMode.IMM, 2, false);
 		lookup[0x25] = new Instruction(OpCode.AND, AddressMode.ZPP, 3, false);
@@ -58,6 +61,7 @@ public class CPU {
 		lookup[0x39] = new Instruction(OpCode.AND, AddressMode.ABY, 4, false);
 		lookup[0x21] = new Instruction(OpCode.AND, AddressMode.IZX, 6, false);
 		lookup[0x31] = new Instruction(OpCode.AND, AddressMode.IZY, 5, false);
+		lookup[0x32] = new Instruction(OpCode.AND, AddressMode.ZPI, 5, true);
 
 		lookup[0x0A] = new Instruction(OpCode.ASL, AddressMode.ACC, 2, false);
 		lookup[0x06] = new Instruction(OpCode.ASL, AddressMode.ZPP, 5, false);
@@ -65,14 +69,35 @@ public class CPU {
 		lookup[0x0E] = new Instruction(OpCode.ASL, AddressMode.ABS, 6, false);
 		lookup[0x1E] = new Instruction(OpCode.ASL, AddressMode.ABX, 7, false);
 
+		lookup[0x0F] = new Instruction(OpCode.BBR0, AddressMode.ZPP, 5, true);
+		lookup[0x1F] = new Instruction(OpCode.BBR1, AddressMode.ZPP, 5, true);
+		lookup[0x2F] = new Instruction(OpCode.BBR2, AddressMode.ZPP, 5, true);
+		lookup[0x3F] = new Instruction(OpCode.BBR3, AddressMode.ZPP, 5, true);
+		lookup[0x4F] = new Instruction(OpCode.BBR4, AddressMode.ZPP, 5, true);
+		lookup[0x5F] = new Instruction(OpCode.BBR5, AddressMode.ZPP, 5, true);
+		lookup[0x6F] = new Instruction(OpCode.BBR6, AddressMode.ZPP, 5, true);
+		lookup[0x7F] = new Instruction(OpCode.BBR7, AddressMode.ZPP, 5, true);
+
+		lookup[0x8F] = new Instruction(OpCode.BBS0, AddressMode.ZPP, 5, true);
+		lookup[0x9F] = new Instruction(OpCode.BBS1, AddressMode.ZPP, 5, true);
+		lookup[0xAF] = new Instruction(OpCode.BBS2, AddressMode.ZPP, 5, true);
+		lookup[0xBF] = new Instruction(OpCode.BBS3, AddressMode.ZPP, 5, true);
+		lookup[0xCF] = new Instruction(OpCode.BBS4, AddressMode.ZPP, 5, true);
+		lookup[0xDF] = new Instruction(OpCode.BBS5, AddressMode.ZPP, 5, true);
+		lookup[0xEF] = new Instruction(OpCode.BBS6, AddressMode.ZPP, 5, true);
+		lookup[0xFF] = new Instruction(OpCode.BBS7, AddressMode.ZPP, 5, true);
+
 		lookup[0x90] = new Instruction(OpCode.BCC, AddressMode.REL, 2, false);
 
 		lookup[0xB0] = new Instruction(OpCode.BCS, AddressMode.REL, 2, false);
 
 		lookup[0xF0] = new Instruction(OpCode.BEQ, AddressMode.REL, 2, false);
 
+		lookup[0x89] = new Instruction(OpCode.BIT, AddressMode.IMM, 2, true);
 		lookup[0x24] = new Instruction(OpCode.BIT, AddressMode.ZPP, 3, false);
 		lookup[0x2C] = new Instruction(OpCode.BIT, AddressMode.ABS, 4, false);
+		lookup[0x34] = new Instruction(OpCode.BIT, AddressMode.ZPX, 4, true);
+		lookup[0x3C] = new Instruction(OpCode.BIT, AddressMode.ABX, 4, true);
 
 		lookup[0x30] = new Instruction(OpCode.BMI, AddressMode.REL, 2, false);
 
@@ -80,7 +105,7 @@ public class CPU {
 
 		lookup[0x10] = new Instruction(OpCode.BPL, AddressMode.REL, 2, false);
 
-		lookup[0x80] = new Instruction(OpCode.BRA, AddressMode.REL, 2, false);
+		lookup[0x80] = new Instruction(OpCode.BRA, AddressMode.REL, 2, true);
 
 		lookup[0x00] = new Instruction(OpCode.BRK, AddressMode.IMP, 2, false);
 
@@ -104,6 +129,7 @@ public class CPU {
 		lookup[0xD9] = new Instruction(OpCode.CMP, AddressMode.ABY, 4, false);
 		lookup[0xC1] = new Instruction(OpCode.CMP, AddressMode.IZX, 6, false);
 		lookup[0xD1] = new Instruction(OpCode.CMP, AddressMode.IZY, 5, false);
+		lookup[0xD2] = new Instruction(OpCode.CMP, AddressMode.ZPI, 5, true);
 
 		lookup[0xE0] = new Instruction(OpCode.CPX, AddressMode.IMM, 2, false);
 		lookup[0xE4] = new Instruction(OpCode.CPX, AddressMode.ZPP, 3, false);
@@ -131,7 +157,9 @@ public class CPU {
 		lookup[0x59] = new Instruction(OpCode.EOR, AddressMode.ABY, 4, false);
 		lookup[0x41] = new Instruction(OpCode.EOR, AddressMode.IZX, 6, false);
 		lookup[0x51] = new Instruction(OpCode.EOR, AddressMode.IZY, 5, false);
+		lookup[0x52] = new Instruction(OpCode.EOR, AddressMode.ZPI, 5, true);
 
+		lookup[0x1A] = new Instruction(OpCode.INC, AddressMode.ACC,  2, true);
 		lookup[0xE6] = new Instruction(OpCode.INC, AddressMode.ZPP, 5, false);
 		lookup[0xF6] = new Instruction(OpCode.INC, AddressMode.ZPX, 6, false);
 		lookup[0xEE] = new Instruction(OpCode.INC, AddressMode.ABS, 6, false);
@@ -154,6 +182,7 @@ public class CPU {
 		lookup[0xB9] = new Instruction(OpCode.LDA, AddressMode.ABY, 4, false);
 		lookup[0xA1] = new Instruction(OpCode.LDA, AddressMode.IZX, 6, false);
 		lookup[0xB1] = new Instruction(OpCode.LDA, AddressMode.IZY, 5, false);
+		lookup[0xB2] = new Instruction(OpCode.LDA, AddressMode.ZPI, 5, true);
 
 		lookup[0xA2] = new Instruction(OpCode.LDX, AddressMode.IMM, 2, false);
 		lookup[0xA6] = new Instruction(OpCode.LDX, AddressMode.ZPP, 3, false);
@@ -183,22 +212,32 @@ public class CPU {
 		lookup[0x19] = new Instruction(OpCode.ORA, AddressMode.ABY, 4, false);
 		lookup[0x01] = new Instruction(OpCode.ORA, AddressMode.IZX, 6, false);
 		lookup[0x11] = new Instruction(OpCode.ORA, AddressMode.IZY, 5, false);
+		lookup[0x12] = new Instruction(OpCode.ORA, AddressMode.ZPI, 5, true);
 
 		lookup[0x48] = new Instruction(OpCode.PHA, AddressMode.IMP, 3, false);
 
 		lookup[0x08] = new Instruction(OpCode.PHP, AddressMode.IMP, 3, false);
 
-		lookup[0xDA] = new Instruction(OpCode.PHX, AddressMode.IMP, 3, false);
+		lookup[0xDA] = new Instruction(OpCode.PHX, AddressMode.IMP, 3, true);
 
-		lookup[0x5A] = new Instruction(OpCode.PHY, AddressMode.IMP, 3, false);
+		lookup[0x5A] = new Instruction(OpCode.PHY, AddressMode.IMP, 3, true);
 
 		lookup[0x68] = new Instruction(OpCode.PLA, AddressMode.IMP, 4, false);
 
 		lookup[0x28] = new Instruction(OpCode.PLP, AddressMode.IMP, 4, false);
 
-		lookup[0xFA] = new Instruction(OpCode.PLX, AddressMode.IMP, 4, false);
+		lookup[0xFA] = new Instruction(OpCode.PLX, AddressMode.IMP, 4, true);
 
-		lookup[0x7A] = new Instruction(OpCode.PLY, AddressMode.IMP, 4, false);
+		lookup[0x7A] = new Instruction(OpCode.PLY, AddressMode.IMP, 4, true);
+
+		lookup[0x07] = new Instruction(OpCode.RMB0, AddressMode.ZPP, 5, true);
+		lookup[0x17] = new Instruction(OpCode.RMB1, AddressMode.ZPP, 5, true);
+		lookup[0x27] = new Instruction(OpCode.RMB2, AddressMode.ZPP, 5, true);
+		lookup[0x37] = new Instruction(OpCode.RMB3, AddressMode.ZPP, 5, true);
+		lookup[0x47] = new Instruction(OpCode.RMB4, AddressMode.ZPP, 5, true);
+		lookup[0x57] = new Instruction(OpCode.RMB5, AddressMode.ZPP, 5, true);
+		lookup[0x67] = new Instruction(OpCode.RMB6, AddressMode.ZPP, 5, true);
+		lookup[0x77] = new Instruction(OpCode.RMB7, AddressMode.ZPP, 5, true);
 
 		lookup[0x2A] = new Instruction(OpCode.ROL, AddressMode.ACC, 2, false);
 		lookup[0x26] = new Instruction(OpCode.ROL, AddressMode.ZPP, 5, false);
@@ -224,12 +263,22 @@ public class CPU {
 		lookup[0xF9] = new Instruction(OpCode.SBC, AddressMode.ABY, 4, false);
 		lookup[0xE1] = new Instruction(OpCode.SBC, AddressMode.IZX, 6, false);
 		lookup[0xF1] = new Instruction(OpCode.SBC, AddressMode.IZY, 5, false);
+		lookup[0xF2] = new Instruction(OpCode.SBC, AddressMode.ZPI, 5, true);
 
 		lookup[0x38] = new Instruction(OpCode.SEC, AddressMode.IMP, 2, false);
 
 		lookup[0xF8] = new Instruction(OpCode.SED, AddressMode.IMP, 2, false);
 
 		lookup[0x78] = new Instruction(OpCode.SEI, AddressMode.IMP, 2, false);
+
+		lookup[0x87] = new Instruction(OpCode.SMB0, AddressMode.ZPP, 5, true);
+		lookup[0x97] = new Instruction(OpCode.SMB1, AddressMode.ZPP, 5, true);
+		lookup[0xA7] = new Instruction(OpCode.SMB2, AddressMode.ZPP, 5, true);
+		lookup[0xB7] = new Instruction(OpCode.SMB3, AddressMode.ZPP, 5, true);
+		lookup[0xC7] = new Instruction(OpCode.SMB4, AddressMode.ZPP, 5, true);
+		lookup[0xD7] = new Instruction(OpCode.SMB5, AddressMode.ZPP, 5, true);
+		lookup[0xE7] = new Instruction(OpCode.SMB6, AddressMode.ZPP, 5, true);
+		lookup[0xF7] = new Instruction(OpCode.SMB7, AddressMode.ZPP, 5, true);
 
 		lookup[0x85] = new Instruction(OpCode.STA, AddressMode.ZPP, 3, false);
 		lookup[0x95] = new Instruction(OpCode.STA, AddressMode.ZPX, 4, false);
@@ -238,6 +287,9 @@ public class CPU {
 		lookup[0x99] = new Instruction(OpCode.STA, AddressMode.ABY, 5, false);
 		lookup[0x81] = new Instruction(OpCode.STA, AddressMode.IZX, 6, false);
 		lookup[0x91] = new Instruction(OpCode.STA, AddressMode.IZY, 6, false);
+		lookup[0x92] = new Instruction(OpCode.STA, AddressMode.ZPI, 5, true);
+
+		lookup[0xDB] = new Instruction(OpCode.STP, AddressMode.IMP, 3, true);
 
 		lookup[0x86] = new Instruction(OpCode.STX, AddressMode.ZPP, 3, false);
 		lookup[0x96] = new Instruction(OpCode.STX, AddressMode.ZPY, 4, false);
@@ -247,14 +299,20 @@ public class CPU {
 		lookup[0x94] = new Instruction(OpCode.STY, AddressMode.ZPX, 4, false);
 		lookup[0x8C] = new Instruction(OpCode.STY, AddressMode.ABS, 4, false);
 
-		lookup[0x64] = new Instruction(OpCode.STZ, AddressMode.ZPP, 3, false);
-		lookup[0x74] = new Instruction(OpCode.STZ, AddressMode.ZPX, 4, false);
-		lookup[0x9C] = new Instruction(OpCode.STZ, AddressMode.ABS, 4, false);
-		lookup[0x9E] = new Instruction(OpCode.STZ, AddressMode.ABX, 4, false);
+		lookup[0x64] = new Instruction(OpCode.STZ, AddressMode.ZPP, 3, true);
+		lookup[0x74] = new Instruction(OpCode.STZ, AddressMode.ZPX, 4, true);
+		lookup[0x9C] = new Instruction(OpCode.STZ, AddressMode.ABS, 4, true);
+		lookup[0x9E] = new Instruction(OpCode.STZ, AddressMode.ABX, 4, true);
 
 		lookup[0xAA] = new Instruction(OpCode.TAX, AddressMode.IMP, 2, false);
 
 		lookup[0xA8] = new Instruction(OpCode.TAY, AddressMode.IMP, 2, false);
+
+		lookup[0x14] = new Instruction(OpCode.TRB, AddressMode.ZPP, 5, false);
+		lookup[0x1C] = new Instruction(OpCode.TRB, AddressMode.ABS, 6, false);
+
+		lookup[0x04] = new Instruction(OpCode.TSB, AddressMode.ZPP, 5, false);
+		lookup[0x0C] = new Instruction(OpCode.TSB, AddressMode.ABS, 6, false);
 
 		lookup[0xBA] = new Instruction(OpCode.TSX, AddressMode.IMP, 2, false);
 
@@ -263,6 +321,8 @@ public class CPU {
 		lookup[0x9A] = new Instruction(OpCode.TXS, AddressMode.IMP, 2, false);
 
 		lookup[0x98] = new Instruction(OpCode.TYA, AddressMode.IMP, 2, false);
+
+		lookup[0xCB] = new Instruction(OpCode.WAI, AddressMode.IMP, 3, true);
 	}
 
 	void setFlag(char flag, boolean condition) {
@@ -329,6 +389,9 @@ public class CPU {
 	}
 
 	void clock() {
+		if (interruptRequested || NMinterruptRequested) waiting = false;
+		if (waiting || stopped) return;
+
 		if (cycles == 0) {
 			if (interruptRequested)
 				irq();
@@ -415,6 +478,22 @@ public class CPU {
 			case ADC -> ADC();
 			case AND -> AND();
 			case ASL -> ASL();
+			case BBR0 -> BBR0();
+			case BBR1 -> BBR1();
+			case BBR2 -> BBR2();
+			case BBR3 -> BBR3();
+			case BBR4 -> BBR4();
+			case BBR5 -> BBR5();
+			case BBR6 -> BBR6();
+			case BBR7 -> BBR7();
+			case BBS0 -> BBS0();
+			case BBS1 -> BBS1();
+			case BBS2 -> BBS2();
+			case BBS3 -> BBS3();
+			case BBS4 -> BBS4();
+			case BBS5 -> BBS5();
+			case BBS6 -> BBS6();
+			case BBS7 -> BBS7();
 			case BCC -> BCC();
 			case BCS -> BCS();
 			case BEQ -> BEQ();
@@ -456,6 +535,14 @@ public class CPU {
 			case PLP -> PLP();
 			case PLX -> PLX();
 			case PLY -> PLY();
+			case RMB0 -> RMB0();
+			case RMB1 -> RMB1();
+			case RMB2 -> RMB2();
+			case RMB3 -> RMB3();
+			case RMB4 -> RMB4();
+			case RMB5 -> RMB5();
+			case RMB6 -> RMB6();
+			case RMB7 -> RMB7();
 			case ROL -> ROL();
 			case ROR -> ROR();
 			case RTI -> RTI();
@@ -464,16 +551,28 @@ public class CPU {
 			case SEC -> SEC();
 			case SED -> SED();
 			case SEI -> SEI();
+			case SMB0 -> SMB0();
+			case SMB1 -> SMB1();
+			case SMB2 -> SMB2();
+			case SMB3 -> SMB3();
+			case SMB4 -> SMB4();
+			case SMB5 -> SMB5();
+			case SMB6 -> SMB6();
+			case SMB7 -> SMB7();
 			case STA -> STA();
+			case STP -> STP();
 			case STX -> STX();
 			case STY -> STY();
 			case STZ -> STZ();
 			case TAX -> TAX();
 			case TAY -> TAY();
+			case TRB -> TRB();
+			case TSB -> TSB();
 			case TSX -> TSX();
 			case TXA -> TXA();
 			case TXS -> TXS();
 			case TYA -> TYA();
+			case WAI -> WAI();
 			case XXX -> XXX();
 			default -> {
 				if (EaterEmulator.verbose)
@@ -484,6 +583,9 @@ public class CPU {
 
 	//Input Signal Handlers
 	void reset() {
+		stopped = false;
+		waiting = false;
+
 		EaterEmulator.clockState = false;
 		if (EaterEmulator.serial != null) EaterEmulator.serial.reset();
 
@@ -705,6 +807,48 @@ public class CPU {
 			a = (byte)(temp & 0x00FF);
 		} else {
 			Bus.write(addressAbsolute, (byte)(temp & 0x00FF));
+		}
+	}
+
+	public void BBR0() { BBRn(0); }
+	public void BBR1() { BBRn(1); }
+	public void BBR2() { BBRn(2); }
+	public void BBR3() { BBRn(3); }
+	public void BBR4() { BBRn(4); }
+	public void BBR5() { BBRn(5); }
+	public void BBR6() { BBRn(6); }
+	public void BBR7() { BBRn(7); }
+
+	private void BBRn(int n) {
+		if ((a & (0b1<<n)) == 0) {
+			cycles++;
+			addressAbsolute = (short)(programCounter+addressRelative);
+
+			if ((addressAbsolute&0xFF00) != (programCounter & 0xFF00))
+				cycles++;
+
+			programCounter = addressAbsolute;
+		}
+	}
+
+	public void BBS0() { BBSn(0); }
+	public void BBS1() { BBSn(1); }
+	public void BBS2() { BBSn(2); }
+	public void BBS3() { BBSn(3); }
+	public void BBS4() { BBSn(4); }
+	public void BBS5() { BBSn(5); }
+	public void BBS6() { BBSn(6); }
+	public void BBS7() { BBSn(7); }
+
+	private void BBSn(int n) {
+		if ((a & (0b1<<n)) != 0) {
+			cycles++;
+			addressAbsolute = (short)(programCounter+addressRelative);
+
+			if ((addressAbsolute&0xFF00) != (programCounter & 0xFF00))
+				cycles++;
+
+			programCounter = addressAbsolute;
 		}
 	}
 
@@ -1051,6 +1195,21 @@ public class CPU {
 		setFlag('N', (y & 0x80) == 0x80);
 	}
 
+	public void RMB0() { RMBn(0); }
+	public void RMB1() { RMBn(1); }
+	public void RMB2() { RMBn(2); }
+	public void RMB3() { RMBn(3); }
+	public void RMB4() { RMBn(4); }
+	public void RMB5() { RMBn(5); }
+	public void RMB6() { RMBn(6); }
+	public void RMB7() { RMBn(7); }
+
+	private void RMBn(int n) {
+		fetch();
+		short temp = (short)(fetched&(0xff^(0b1<<n))); // reset the nth bit with a mask of all 1's except a 0 in the nth place
+		Bus.write(addressAbsolute, (byte)(temp&0x00FF));
+	}
+
 	public void ROL() {
 		fetch();
 		short temp = (short)((fetched<<1) | (getFlag('C') ? 1 : 0));
@@ -1124,8 +1283,27 @@ public class CPU {
 		setFlag('I',true);
 	}
 
+	public void SMB0() { SMBn(0); }
+	public void SMB1() { SMBn(1); }
+	public void SMB2() { SMBn(2); }
+	public void SMB3() { SMBn(3); }
+	public void SMB4() { SMBn(4); }
+	public void SMB5() { SMBn(5); }
+	public void SMB6() { RMBn(6); }
+	public void SMB7() { SMBn(7); }
+
+	private void SMBn(int n) {
+		fetch();
+		short temp = (short)(fetched|(0b1<<n)); // set the nth bit
+		Bus.write(addressAbsolute, (byte)(temp&0x00FF));
+	}
+
 	public void STA() {
 		Bus.write(addressAbsolute, a);
+	}
+
+	public void STP() {
+		stopped = true;
 	}
 
 	public void STX() {
@@ -1151,7 +1329,21 @@ public class CPU {
 		setFlag('Z',y==0x00);
 		setFlag('N',(y&0x80)==0x80);
 	}
-		
+
+	public void TRB() {
+		fetch();
+		short temp = (short)(a&fetched);
+		setFlag('Z',(temp&0x00FF)==0x00);
+		Bus.write(addressAbsolute, (byte)((temp^0x00FF)&0x00FF));
+	}
+
+	public void TSB() {
+		fetch();
+		short temp = (short)(a&fetched);
+		setFlag('Z',(temp&0x00FF)==0x00);
+		Bus.write(addressAbsolute, (byte)(temp&0x00FF));
+	}
+
 	public void TSX() {
 		x = stackPointer;
 		setFlag('Z',x==0x00);
@@ -1173,7 +1365,11 @@ public class CPU {
 		setFlag('Z',a==0x00);
 		setFlag('N',(a&0x80)==0x80);
 	}
-	
+
+	public void WAI() {
+		waiting = true;
+	}
+
 	public void XXX() {
 		if (EaterEmulator.verbose) System.out.println("Illegal Opcode at $"+Integer.toHexString(Short.toUnsignedInt(programCounter)).toUpperCase()+" (" + ROMLoader.byteToHexString(opcode) +") - "+lookup[Byte.toUnsignedInt(opcode)].opcode);
 	}

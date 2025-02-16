@@ -82,7 +82,7 @@ public class DisplayPanel extends JPanel implements ActionListener, KeyListener 
 		
         //Title
         g.setFont(new Font("Calibri Bold", 50, 50));
-        g.drawString("BE6502 Emulator", 40, 50);
+        g.drawString("BE65(c)02 Emulator", 40, 50);
         
         //Version
         g.setFont(courierNewBold);
