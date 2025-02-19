@@ -1032,7 +1032,7 @@ public class CPU {
 		fetch();
 		int temp = (Byte.toUnsignedInt(fetched)-1);
 		if (lookup[Byte.toUnsignedInt(opcode)].addressMode == AddressMode.ACC) {
-			a = (byte) temp;
+			a = (byte)(temp&0x00FF);
 		} else {
 			Bus.write(addressAbsolute, (byte)(temp&0x00FF));
 		}
@@ -1064,7 +1064,11 @@ public class CPU {
 	public void INC() {
 		fetch();
 		short temp = (short)(fetched+1);
-		Bus.write(addressAbsolute, (byte)(temp&0x00FF));
+		if (lookup[Byte.toUnsignedInt(opcode)].addressMode == AddressMode.ACC) {
+			a = (byte)(temp&0x00FF);
+		} else {
+			Bus.write(addressAbsolute, (byte)(temp&0x00FF));
+		}
 		setFlag('Z',(temp&0x00FF)==0x0000);
 		setFlag('N',(temp&0x0080)==0x0080);
 	}
