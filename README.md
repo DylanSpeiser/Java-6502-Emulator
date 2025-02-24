@@ -1,5 +1,8 @@
 # Java 6502 Emulator
 
+## Update: v2.11: Wozmon Works + Disassembler!
+@lythd has once again added some great new features! For changes, see: https://github.com/DylanSpeiser/Java-6502-Emulator/pull/19#issue-2850599707
+
 ## Update: v2.10: Realistic Keyboard, Serial Emulation, and more command line args!
 What an update! Thanks to lythd, the emulator now supports a realistic PS/2-like keyboard mode that can be enabled in the options pane. They've also added a serial emulator that can be turned on in a separate window. It's super cool!
 
