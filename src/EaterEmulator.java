@@ -8,7 +8,7 @@ import java.io.File;
 import javax.swing.*;
 
 public class EaterEmulator extends JFrame implements ActionListener {
-	public static String versionString = "2.10";
+	public static String versionString = "2.11";
 	public static boolean debug = false;
 
 	public static boolean verbose = false;
